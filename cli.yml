@@ -1,0 +1,9 @@
+name: "Library Loader"
+version: "0.1.0"
+author: "olback <libloader@olback.net>"
+about: "Download libraries from componentsearchengine.com"
+args:
+    - part_id:
+        help: "Part ID"
+        required: true
+        index: 1
