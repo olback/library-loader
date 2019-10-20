@@ -8,3 +8,4 @@ Rust implementation of [https://www.samacsys.com/library-loader/](https://www.sa
 * [ ] Automatically unzip download
 * [ ] See `src/cse.rs#66`
 * [ ] Implement `std::fmt::Display` for `error::LLError`
+* [ ] Mass download
