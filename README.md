@@ -12,3 +12,4 @@ Rust implementation of [https://www.samacsys.com/library-loader/](https://www.sa
 * [ ] File watcher for epw files
 * [ ] Auto unzip folder and copy lib to libs folder
 * [ ] New struct for CLI-only options
+* [ ] When using `-g`, treat input as output path
