@@ -1,15 +1,7 @@
-# Library Loader
+# [WIP] Library Loader :books:
+
+[![CircleCI](https://circleci.com/gh/olback/library-loader/tree/master.svg?style=svg)](https://circleci.com/gh/olback/library-loader/tree/master)
 
 Rust implementation of [https://www.samacsys.com/library-loader/](https://www.samacsys.com/library-loader/).
 
-### Todo:
-* [x] Input
-* [x] Credentials
-* [ ] Automatically unzip download
-* [x] See `src/cse.rs#66`
-* [x] Implement `std::fmt::Display` for `error::LLError`
-* [ ] Mass download
-* [ ] File watcher for epw files
-* [ ] Auto unzip folder and copy lib to libs folder
-* [ ] New struct for CLI-only options
-* [ ] When using `-g`, treat input as output path
+For upcomming features, please see the: [TODO.md](TODO).
