@@ -1,9 +1,60 @@
 name: "Library Loader"
-version: "0.1.0"
+# version: "0.1.0"
 author: "olback <libloader@olback.net>"
 about: "Download libraries from componentsearchengine.com"
 args:
-    - part_id:
-        help: "Part ID"
-        required: true
+    - input:
+        help: "Path to .eqw file"
+        # required: true
         index: 1
+    - id:
+        help: "Treat input as an id"
+        short: i
+        long: id
+        takes_value: false
+        multiple: false
+    - config:
+        help: "Path to custom config file"
+        short: c
+        long: config
+        value_name: config
+        takes_value: true
+        multiple: false
+    # - watch:
+    #     help: "Path to watch for .epw files. Setting this will enable watch-mode"
+    #     short: w
+    #     long: watch
+    #     value_name: watch
+    #     takes_value: true
+    #     multiple: false
+    - output:
+        help: "Path to save output in"
+        short: o
+        long: output
+        value_name: output
+        takes_value: true
+        multiple: false
+    # Not implemented yet
+    # - format:
+    #     help: "Specify which format to output"
+    #     short: f
+    #     long: format
+    #     value_name: format
+    #     takes_value: true
+    #     multiple: false
+    #     possible_values:
+    #         - eagle
+    #         # - kikad
+    - generate:
+        help: "Generate sample config"
+        short: g
+        long: generate
+        takes_value: false
+        multiple: false
+        conflicts_with:
+            - input
+            - id
+            - config
+            - watch
+            - output
+            - format

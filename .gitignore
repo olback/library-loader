@@ -1,3 +1,5 @@
 /target
 **/*.rs.bk
 /download/
+LibraryLoader.toml
+aLibraryLoader.toml

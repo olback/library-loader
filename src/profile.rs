@@ -1,6 +1,9 @@
 use base64;
+use serde::Deserialize;
+use std::io::Write;
+use rpassword;
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct Profile {
     pub username: String,
     pub password: String
@@ -8,6 +11,7 @@ pub struct Profile {
 
 impl Profile {
 
+    // Constructors
     pub fn new<S: Into<String>>(u: S, p: S) -> Self {
         Profile {
             username: u.into(),
@@ -15,8 +19,26 @@ impl Profile {
         }
     }
 
+    pub fn prompt() -> Self {
+
+        println!("No login information found. Please log in to Component Search Engine:");
+
+        print!("Username: ");
+        std::io::stdout().flush().unwrap();
+        let mut username = String::new();
+        std::io::stdin().read_line(&mut username).expect("Failed to get user input");
+
+        let password = rpassword::prompt_password_stdout("Password: ").expect("Failed to get password");
+
+        Self::new(username, password)
+
+    }
+
+    // Methods
     pub fn to_string(&self) -> String {
+
         format!("{u}:{p}", u = &self.username, p = &self.password)
+
     }
 
     pub fn to_base64(&self) -> String {

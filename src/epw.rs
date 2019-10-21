@@ -34,7 +34,7 @@ impl Epw {
         let data = d.into();
         let mut lines = data.lines();
 
-        let mut map = HashMap::new();
+        let mut map = HashMap::<&str, &str>::new();
 
         // let id = lines.next()?.parse::<u32>()?;
 
@@ -69,9 +69,9 @@ impl Epw {
 
     }
 
-    pub fn from_id(id: u32) -> Self {
+    pub fn from_id<I: Into<u32>>(id: I) -> Self {
         Self {
-            id: id,
+            id: id.into(),
             mna: String::new(),
             mpn: String::new(),
             pna: String::new(),
