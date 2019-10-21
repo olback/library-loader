@@ -11,3 +11,4 @@ Rust implementation of [https://www.samacsys.com/library-loader/](https://www.sa
 * [ ] Mass download
 * [ ] File watcher for epw files
 * [ ] Auto unzip folder and copy lib to libs folder
+* [ ] New struct for CLI-only options

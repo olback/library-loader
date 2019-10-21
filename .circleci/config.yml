@@ -1,0 +1,65 @@
+version: 2
+
+jobs:
+  binary:
+    docker:
+      - image: circleci/rust:latest
+
+    steps:
+      - checkout
+
+      - run:
+          name: Change Permissions for Cargo Cache
+          command: |
+                    if [ -d "/usr/local/cargo" ]; then
+                      sudo chown -R circleci:circleci /usr/local/cargo
+                    fi
+      - restore_cache:
+          key: cargo-cache-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
+
+      # - run:
+      #     name: Use a Nightly Build
+      #     command: rustup override set nightly
+
+      - run:
+          name: Show Version
+          command: |
+                    rustc --version --verbose
+                    rustup --version
+                    cargo --version --verbose
+
+      - run:
+          name: Build Binary
+          command: cargo build --release
+
+      - save_cache:
+          key: cargo-cache-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
+          paths:
+            - "~/.cargo/"
+            - "~/.rustup/"
+            - "./target"
+            - "/usr/local/cargo"
+
+      - run:
+          name: "Generate hash file"
+          command: "cd target/release && sha256sum library-loader > library-loader_checksum"
+
+      - run:
+          name: "Verify hash"
+          command: "cd target/release && sha256sum -c library-loader_checksum"
+
+      - store_artifacts:
+          name: Store Build
+          path: "./target/release/library-loader"
+          destination: "/artifacts/library-loader"
+
+      - store_artifacts:
+          name: Store Build Checksum
+          path: "./target/release/library-loader_checksum"
+          destination: "/artifacts/library-loader_checksum"
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
