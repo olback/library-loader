@@ -9,11 +9,13 @@ mod cse;
 mod cse_result;
 mod config;
 mod consts;
+mod watcher;
 
 use config::Config;
 use epw::Epw;
 use cse::CSE;
-use error::LLResult;
+use error::{LLResult, LLError};
+use watcher::Watcher;
 
 fn main() {
 
@@ -32,6 +34,9 @@ fn real_main() -> LLResult<()> {
     // Load config
     let conf = Config::load();
 
+    // Create CSE
+    let component_search_engine = CSE::new(&conf.profile);
+
     if conf.generate_config {
 
         return match Config::generate(&conf.input) {
@@ -42,33 +47,44 @@ fn real_main() -> LLResult<()> {
             Err(e) => Err(e)
         }
 
-    }
+    } else if conf.settings.watch_path.is_some() {
 
-    let e = match conf.treat_input_as_id {
-        true => {
-            Epw::from_id(conf.input.parse::<u32>()?)
-        },
-        false => {
-            match Epw::from_file(&conf.input) {
-                Ok(v) => v,
-                Err(e) => return Err(e)
+        let p = conf.settings.watch_path.clone().unwrap();
+        let w = Watcher::start(p, component_search_engine)?;
+        std::io::stdin().read_line(&mut String::new())?;
+        w.stop()?;
+
+    } else if conf.input.is_empty() {
+
+        let args: Vec<String> = std::env::args().collect();
+        return Err(LLError::new(format!("No input specified, run `{} --help` for more help", args[0])))
+
+    } else {
+
+        let e = match conf.treat_input_as_id {
+            true => {
+                Epw::from_id(conf.input.parse::<u32>()?)
+            },
+            false => {
+                match Epw::from_file(&conf.input) {
+                    Ok(v) => v,
+                    Err(e) => return Err(e)
+                }
             }
-        }
-    };
+        };
 
-    // Create CSE
-    let component_search_engine = CSE::new(&conf.profile);
+        // Attempt to download lib
+        let res = match component_search_engine.get(e) {
+            Ok(v) => v,
+            Err(e) => return Err(e)
+        };
 
-    // Attempt to download lib
-    let res = match component_search_engine.get(e) {
-        Ok(v) => v,
-        Err(e) => return Err(e)
-    };
+        match res.save(&conf) {
+            Ok(p) => println!("File downloaded to '{}'", p),
+            Err(e) => return Err(e)
+        };
 
-    match res.save(&conf) {
-        Ok(p) => println!("File downloaded to '{}'", p),
-        Err(e) => return Err(e)
-    };
+    }
 
     Ok(())
 

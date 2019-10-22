@@ -20,13 +20,13 @@ args:
         value_name: config
         takes_value: true
         multiple: false
-    # - watch:
-    #     help: "Path to watch for .epw files. Setting this will enable watch-mode"
-    #     short: w
-    #     long: watch
-    #     value_name: watch
-    #     takes_value: true
-    #     multiple: false
+    - watch:
+        help: "Path to watch for .epw files. Setting this will enable watch-mode"
+        short: w
+        long: watch
+        value_name: watch
+        takes_value: true
+        multiple: false
     - output:
         help: "Path to save output in"
         short: o

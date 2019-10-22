@@ -44,3 +44,9 @@ impl From<toml::de::Error> for LLError {
         Self::new(format!("{}", err))
     }
 }
+
+impl From <notify::Error> for LLError {
+    fn from(err: notify::Error) -> Self {
+        Self::new(format!("{}", err))
+    }
+}
