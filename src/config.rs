@@ -184,18 +184,25 @@ impl Config {
 
     }
 
-    pub fn generate() -> LLResult<()> {
+    pub fn generate(input: &String) -> LLResult<String> {
 
-        let path = PathBuf::from(LL_CONFIG);
+        // let path = PathBuf::from(LL_CONFIG);
+        let path = PathBuf::from(match input.trim().is_empty() {
+            true => LL_CONFIG,
+            false => input
+        });
 
-        if path.exists() {
+        if path.clone().exists() {
 
-            return Err(LLError::new(format!("{} already exists", LL_CONFIG)))
+            return Err(LLError::new(format!("{} already exists", path.to_str().unwrap())))
 
         }
 
-        match fs::write(path, include_str!("../LibraryLoader.example.toml")) {
-            Ok(v) => Ok(v),
+        match fs::write(&path, include_str!("../LibraryLoader.example.toml")) {
+            Ok(_) => {
+                let path_as_string = String::from(path.to_str().unwrap());
+                Ok(path_as_string)
+            },
             Err(e) => Err(LLError::new(format!("{}", e)))
         }
 

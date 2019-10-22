@@ -34,10 +34,10 @@ fn real_main() -> LLResult<()> {
 
     if conf.generate_config {
 
-        return match Config::generate() {
+        return match Config::generate(&conf.input) {
             Ok(v) => {
-                println!("Generated {}", consts::LL_CONFIG);
-                Ok(v)
+                println!("Generated {}", v);
+                Ok(())
             },
             Err(e) => Err(e)
         }

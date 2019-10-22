@@ -52,7 +52,6 @@ args:
         takes_value: false
         multiple: false
         conflicts_with:
-            - input
             - id
             - config
             - watch
