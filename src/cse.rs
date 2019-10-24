@@ -1,12 +1,12 @@
-use super::config::{Config, Format};
+use super::config::Config;
+use super::format::{self, Extractor, Format, Files};
 use super::epw::Epw;
 use super::error::{LLResult, LLError};
 use super::cse_result::CSEResult;
 use super::consts::COMPONENT_SEARCH_ENGINE_URL;
 use std::{
     path::PathBuf,
-    collections::HashMap,
-    io::Read
+    collections::HashMap
 };
 use reqwest::{self, header};
 use zip;
@@ -81,7 +81,7 @@ impl CSE {
 
         if &self.config.settings.format == &Format::ZIP {
 
-            let mut files = HashMap::new();
+            let mut files: Files = HashMap::new();
             files.insert(filename, body);
 
             Ok(CSEResult {
@@ -106,28 +106,17 @@ impl CSE {
 
         let reader = std::io::Cursor::new(&data);
         let mut archive = zip::ZipArchive::new(reader)?;
-        let mut files = HashMap::<String, Vec<u8>>::new();
+        let mut files: Files = HashMap::new();
 
         for i in 0..archive.len() {
 
             let mut item = archive.by_index(i)?;
-            let filename = item.name();
+            let filename = String::from(item.name());
 
             match &self.config.settings.format {
-                Format::EAGLE => {
-                    if filename.to_lowercase().contains("eagle") {
-                        println!("Filename: {}", filename);
-                        let path = PathBuf::from(filename);
-                        let base_name = path.file_name().unwrap().to_string_lossy().to_string();
-                        let mut f_data = Vec::<u8>::new();
-                        item.read_to_end(&mut f_data)?;
-                        files.insert(base_name, f_data);
-                    }
-                },
+                Format::EAGLE => format::eagle::Extractor::extract(&mut files, filename, &mut item)?,
                 // ! NOTE: DO NOT ADD A _ => {} CATCHER HERE!
-                Format::ZIP => {
-                    return Err(LLError::new("This should be unreachable!"))
-                }
+                Format::ZIP => return Err(LLError::new("This should be unreachable!"))
             };
 
         }

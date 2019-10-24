@@ -47,12 +47,10 @@ impl Epw {
 
         let mut map = HashMap::<&str, &str>::new();
 
-        // let id = lines.next()?.parse::<u32>()?;
-
         let id = match lines.next() {
             Some(v) => v.parse::<u32>()?,
             None => {
-                return Err(LLError::new("No data in input file"))
+                return Err(LLError::new("No data in file"))
             }
         };
 
@@ -98,7 +96,11 @@ impl Epw {
 
     fn from_zip(raw_data: Vec<u8>) -> LLResult<Self> {
 
-        // println!("{:?}", &raw_data);
+        // The zip library crashes if the archive is empty,
+        // lets prevent that.
+        if raw_data.len() == 0 {
+            return Err(LLError::new("Zip archive seems to be empty"))
+        }
 
         // If the last byte is 0x0A, which it always seems to
         // be when downloading from Mouser, pop it and continue.

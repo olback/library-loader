@@ -8,6 +8,7 @@ mod epw;
 mod cse;
 mod cse_result;
 mod config;
+mod format;
 mod consts;
 mod watcher;
 
@@ -61,6 +62,11 @@ fn real_main() -> LLResult<()> {
                 tx.send(Err(notify::Error::generic("stop")));
             }
         });
+
+        println!("Watching {}", &conf.settings.watch_path.unwrap());
+        println!("Saving to: {}", &conf.settings.output_path);
+        println!("Saving in format: {:?}", &conf.settings.format);
+        println!("Press <Enter> to exit");
 
         w.start()?;
 

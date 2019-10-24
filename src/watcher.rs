@@ -39,9 +39,11 @@ impl Watcher {
 
     pub fn start(&mut self) -> LLResult<()> {
 
-        println!("Watching {}...", &self.path.as_path().canonicalize()?.to_string_lossy());
+        // println!("Watching {}...", &self.path.as_path().canonicalize()?.to_string_lossy());
+        // println!("Press <Enter> to exit");
 
-        &self.watcher.watch(&self.path, notify::RecursiveMode::NonRecursive)?;
+        &self.watcher.watch(&self.path, notify::RecursiveMode::Recursive)?;
+        // &self.watcher.configure(notify::Config::OngoingEvents(Some(std::time::Duration::from_millis(500))));
 
         loop {
 
@@ -93,23 +95,30 @@ impl Watcher {
 
     fn handle_event(&self, evt: notify::Event) {
 
-        println!("{:#?}", evt);
-
         let event = evt.clone();
         let path = &event.paths[0];
-
-        println!("{:#?}", event);
 
         match event.kind {
 
             notify::EventKind::Create(create_kind) => {
 
-                // #[cfg(debug_assertions)]
-                // println!("{:#?}", evt);
-
                 match create_kind {
 
-                    // ! FIXME: TODO: Figure out why this just stopped working...
+                    notify::event::CreateKind::Any => {
+
+                        if path.as_path().is_file() {
+
+                            println!("=> Detected: {}", path.as_path().to_str().unwrap());
+
+                            match &self.handle_file(path) {
+                                Ok(p) => println!("=> Success: Saved to {}", p),
+                                Err(e) => eprintln!("=> Error: {}", e)
+                            };
+
+                        }
+
+                    },
+
                     notify::event::CreateKind::File => {
 
                         match &self.handle_file(path) {
@@ -118,7 +127,9 @@ impl Watcher {
                         };
 
                     },
+
                     _ => {}
+
                 };
 
             },

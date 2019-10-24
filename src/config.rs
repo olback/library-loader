@@ -1,6 +1,7 @@
 use super::profile::Profile;
 use super::consts::LL_CONFIG;
 use super::error::{LLResult, LLError};
+use super::format::Format;
 use serde::Deserialize;
 use std::{fs, path::PathBuf};
 use clap::{self, load_yaml, crate_version};
@@ -18,31 +19,6 @@ struct ParseSettings {
     output_path: Option<String>,
     watch_path: Option<String>, // If set, enable watch mode
     format: Option<String> // If set, extract relevant files and place them in output_path
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum Format {
-    EAGLE,
-    ZIP
-}
-
-impl Format {
-
-    pub fn from<S: Into<String>>(format: S) -> Self {
-
-        let f = format.into().to_lowercase();
-
-        match f.as_str() {
-            "eagle" => Self::EAGLE,
-            "zip" => Self::ZIP,
-            _ => {
-                eprintln!("Unknown format. Defaulting to ZIP!");
-                Self::ZIP
-            }
-        }
-
-    }
-
 }
 
 #[derive(Debug, Clone)]
