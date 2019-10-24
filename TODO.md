@@ -10,3 +10,7 @@
 * [ ] [Code] New struct for CLI-only options
 * [x] [Feature] When using `-g`, treat input as output path
 * [ ] [Code] Split extractor from format
+* [ ] [Docs] Proper documentation
+* [ ] [Code] Document the code...
+* [ ] [Feature] Show Desktop Notification?
+* [ ] [Feature] Additional flag for `-g` to save in uses config dir.
