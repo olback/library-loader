@@ -1,6 +1,7 @@
 use super::profile::Profile;
 use super::consts::LL_CONFIG;
 use super::error::{LLResult, LLError};
+use super::format::Format;
 use serde::Deserialize;
 use std::{fs, path::PathBuf};
 use clap::{self, load_yaml, crate_version};
@@ -20,14 +21,14 @@ struct ParseSettings {
     format: Option<String> // If set, extract relevant files and place them in output_path
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Settings {
     pub output_path: String,
     pub watch_path: Option<String>,
-    pub format: Option<String>
+    pub format: Format
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Config {
     pub settings: Settings,
     pub profile: Profile,
@@ -64,8 +65,8 @@ impl Config {
                             None => None
                         },
                         format: match s.format {
-                            Some(v) => Some(String::from(v)),
-                            None => None
+                            Some(v) => Format::from(v),
+                            None => Self::default().settings.format
                         },
                     }
                 },
@@ -93,7 +94,7 @@ impl Config {
                         None => settings.watch_path
                     },
                     format: match matches.value_of("format") {
-                        Some(v) => Some(String::from(v)),
+                        Some(v) => Format::from(v),
                         None => settings.format
                     }
                 },
@@ -119,7 +120,7 @@ impl Config {
                         None => Self::default().settings.watch_path
                     },
                     format: match matches.value_of("format") {
-                        Some(v) => Some(String::from(v)),
+                        Some(v) => Format::from(v),
                         None => Self::default().settings.format
                     },
                 },
@@ -141,7 +142,6 @@ impl Config {
         {
             println!("-- Debug info from {file}#{line} --", file = std::file!(), line = std::line!());
             println!("{:#?}", conf);
-            println!("-- End debug info from {file}#{line} --", file = std::file!(), line = std::line!());
         }
 
         conf
@@ -179,14 +179,13 @@ impl Config {
 
         match conf {
             Some(c) => Ok(c),
-            None => Err(LLError::new(format!("{} not found", LL_CONFIG)))
+            None => Err(LLError::new(format!("{file}#{line}: {p} not found", file = std::file!(), line = std::line!(), p = LL_CONFIG)))
         }
 
     }
 
     pub fn generate(input: &String) -> LLResult<String> {
 
-        // let path = PathBuf::from(LL_CONFIG);
         let path = PathBuf::from(match input.trim().is_empty() {
             true => LL_CONFIG,
             false => input
@@ -194,7 +193,7 @@ impl Config {
 
         if path.clone().exists() {
 
-            return Err(LLError::new(format!("{} already exists", path.to_str().unwrap())))
+            return Err(LLError::new(format!("{file}#{line}: {err} already exists", file = std::file!(), line = std::line!(), err = path.to_str().unwrap())))
 
         }
 
@@ -203,7 +202,7 @@ impl Config {
                 let path_as_string = String::from(path.to_str().unwrap());
                 Ok(path_as_string)
             },
-            Err(e) => Err(LLError::new(format!("{}", e)))
+            Err(e) => Err(LLError::new(format!("{}#{}: {}", std::file!(), std::line!(), e)))
         }
 
     }
@@ -220,7 +219,7 @@ impl Default for Config {
             settings: Settings {
                 output_path: String::from("download"),
                 watch_path: None,
-                format: None
+                format: Format::ZIP
             },
             profile: profile,
             input: String::new(),

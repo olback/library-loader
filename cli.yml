@@ -4,7 +4,7 @@ author: "olback <libloader@olback.net>"
 about: "Download libraries from componentsearchengine.com"
 args:
     - input:
-        help: "Path to .eqw file"
+        help: "Path to .eqw/.zip file"
         # required: true
         index: 1
     - id:
@@ -20,13 +20,16 @@ args:
         value_name: config
         takes_value: true
         multiple: false
-    # - watch:
-    #     help: "Path to watch for .epw files. Setting this will enable watch-mode"
-    #     short: w
-    #     long: watch
-    #     value_name: watch
-    #     takes_value: true
-    #     multiple: false
+    - watch:
+        help: "Path to watch for .epw files. Setting this will enable watch-mode"
+        short: w
+        long: watch
+        value_name: watch
+        takes_value: true
+        multiple: false
+        conflicts_with:
+            - id
+            - generate
     - output:
         help: "Path to save output in"
         short: o
@@ -34,17 +37,40 @@ args:
         value_name: output
         takes_value: true
         multiple: false
-    # Not implemented yet
-    # - format:
-    #     help: "Specify which format to output"
-    #     short: f
-    #     long: format
-    #     value_name: format
-    #     takes_value: true
-    #     multiple: false
-    #     possible_values:
-    #         - eagle
-    #         # - kikad
+    - format:
+        help: "Specify which format to output"
+        short: f
+        long: format
+        value_name: format
+        takes_value: true
+        multiple: false
+        possible_values:
+            # - 3d
+            # - allegro
+            # - altium
+            # - cadstar
+            # - capture
+            # - circuitstudio
+            # - cr_5000
+            # - cr_8000
+            # - dehdl
+            # - designspark_pcb
+            # - designspark_pcb_pro
+            # - diptrace
+            - eagle
+            # - easyeda
+            # - easy_pc
+            # - ecadstar
+            # - kicad
+            # - orcad_allegro16
+            # - pads
+            # - proteus
+            # - pulsonix
+            # - solidworks_pcb
+            # - target_3001
+            # - xdx_designer
+            # - xpedition
+            - zip
     - generate:
         help: "Generate sample config"
         short: g

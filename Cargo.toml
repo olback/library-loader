@@ -14,3 +14,7 @@ serde = "1.0.101"
 dirs = "2.0.2"
 toml = "0.5.3"
 rpassword = "4.0.1"
+zip = "0.5.3"
+crossbeam-channel = "0.3.8"
+# notify = {version = "5.0.0-pre.1", features = ["serde"] }
+notify = "5.0.0-pre.1"

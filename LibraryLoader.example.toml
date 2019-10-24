@@ -1,7 +1,7 @@
 [settings]
-download_path = "download" # Path to download/save libs to. Paths can be absolute or relative. Relative paths are relative to the current working directory.
-# <not implemented> watch_path = "watch" # Path to watch for zipped .epw files.
-# <not implemented> format = "" # What format should be saved? Eagle, kikad, ..
+output_path = "download" # Path to download/save libs to. Paths can be absolute or relative. Relative paths are relative to the current working directory.
+# watch_path = "" # Path to watch for zipped .epw files.
+# format = "" # What format should be saved? Eagle, kikad, ..
 
 # Component Search Engine Credentials
 [profile]
