@@ -10,128 +10,130 @@ use std::{
 };
 use super::error::{LLResult, LLError};
 use super::cse::CSE;
-
-struct ThreadMessage {
-    stop: bool,
-    // event: Option<notify::Event>
-}
-
-// type ToTM = crossbeam_channel::Sender<Result<notify::Event, notify::Error>>;
-// impl From<ToTM> for ThreadMessage {
-//     fn from(from: ToTM) -> Self {
-//         Self {
-//             stop: false,
-//             // event: Some(from)
-//             event: from
-//         }
-//     }
-// }
+use super::epw::Epw;
 
 pub struct Watcher {
-    thread: std::thread::JoinHandle<()>,
     path: PathBuf,
-    watcher: notify::RecommendedWatcher
+    cse: CSE,
+    watcher: notify::RecommendedWatcher,
+    rx: crossbeam_channel::Receiver<Result<notify::Event, notify::Error>>,
+    tx: crossbeam_channel::Sender<Result<notify::Event, notify::Error>>
 }
 
 impl Watcher {
 
-    pub fn start<P: Into<PathBuf>>(path: P, cse: CSE) -> LLResult<Self> {
+    pub fn new<P: Into<PathBuf>>(path: P, cse: CSE) -> LLResult<Self> {
 
-        let p = path.into();
-        // let (tx, rx) = crossbeam_channel::unbounded();
-        // let w: notify::RecommendedWatcher = notify::Watcher::new(tx, Duration::from_secs(2))?;
-
-        let t_path = p.clone();
-        let (tx, rx) = std::sync::mpsc::channel();
-        let w: notify::RecommendedWatcher = notify::Watcher::new(tx, Duration::from_secs(2))?;
-
-        let t_handle = std::thread::spawn(move || {
-
-            println!("Watching {:?}...", t_path);
-
-            loop {
-
-                match rx.recv() {
-                    Ok(event) => {
-                        break;
-                    },
-                    Err(e) => {
-                        panic!("{:#?}", e);
-                    }
-                };
-
-                // match rx.recv() {
-                //     Ok(event) => {
-                //         match event {
-                //             Ok(e) => Self::handle_event(e.clone()),
-                //             Err(e) => eprintln!("{:#?}", e)
-                //         }
-                //     },
-                //     Err(e) => eprintln!("{:#?}", e)
-                // };
-
-            }
-
-        });
+        let (tx, rx) = crossbeam_channel::unbounded();
+        let w: notify::RecommendedWatcher = notify::Watcher::new(tx.clone(), Duration::from_secs(2))?;
 
         Ok(Self {
-            thread: t_handle,
-            path: p,
-            watcher: w
+            path: path.into(),
+            cse: cse,
+            watcher: w,
+            rx: rx,
+            tx: tx
         })
 
     }
 
-    pub fn stop(mut self) -> LLResult<()> {
+    pub fn start(&mut self) -> LLResult<()> {
 
-        println!("Should stop :(");
+        println!("Watching {}...", &self.path.as_path().canonicalize()?.to_string_lossy());
 
-        match self.thread.join() {
-            Ok(_) => {},
-            Err(e) => eprintln!("{:#?}", e)
+        &self.watcher.watch(&self.path, notify::RecursiveMode::NonRecursive)?;
+
+        loop {
+
+            match &self.rx.recv() {
+
+                Ok(event) => {
+
+                    match event {
+
+                        Ok(evt) => &self.handle_event(evt.clone()),
+                        Err(e) => {
+                            if format!("{}", e) == "stop" {
+                                &self.stop()?;
+                                break;
+                            } else {
+                                return Err(LLError::new(format!("{}#{}: {}", std::file!(), std::line!(), e)))
+                            }
+                        }
+
+                    }
+
+                },
+                Err(e) => {
+                    return Err(LLError::new(format!("{}#{}: {}", std::file!(), std::line!(), e)))
+                }
+
+            };
+
         }
+
+        Ok(())
+
+    }
+
+    pub fn get_tx(&self) -> crossbeam_channel::Sender<Result<notify::Event, notify::Error>> {
+        self.tx.clone()
+    }
+
+    fn stop(&mut self) -> LLResult<()> {
+
+        println!("Stopping...");
 
         match &self.watcher.unwatch(&self.path) {
             Ok(v) => Ok(*v),
-            Err(e) => Err(LLError::new(format!("{}", e)))
+            Err(e) => Err(LLError::new(format!("{}#{}: {}", std::file!(), std::line!(), e)))
         }
 
     }
 
-    fn handle_event(/*evt: notify::Event*/) -> () {
+    fn handle_event(&self, evt: notify::Event) {
 
-        // let event = evt.clone();
-        // let path = &event.paths[0];
+        println!("{:#?}", evt);
 
-        // let file_ext = match event.kind {
-        //     notify::EventKind::Create(_) => {
-        //         let p = PathBuf::from(path);
-        //         match p.extension() {
-        //             Some(ext_os_str) => {
-        //                 match ext_os_str.to_str() {
-        //                     Some(ext_str) => Some(String::from(ext_str)),
-        //                     None => None
-        //                 }
-        //             },
-        //             None => None
-        //         }
-        //     },
-        //     _ => None
-        // };
+        let event = evt.clone();
+        let path = &event.paths[0];
 
-        // if file_ext.is_some() {
-        //     match file_ext.unwrap().as_str() {
-        //         "zip" => {
-        //             println!("Detected a zip file");
-        //         },
-        //         "epw" => {
-        //             println!("Detected a epw file");
-        //         },
-        //         _ => {
-        //             println!("Ignoring {:?}", path);
-        //         }
-        //     }
-        // }
+        println!("{:#?}", event);
+
+        match event.kind {
+
+            notify::EventKind::Create(create_kind) => {
+
+                // #[cfg(debug_assertions)]
+                // println!("{:#?}", evt);
+
+                match create_kind {
+
+                    // ! FIXME: TODO: Figure out why this just stopped working...
+                    notify::event::CreateKind::File => {
+
+                        match &self.handle_file(path) {
+                            Ok(p) => println!("=> Success: Saved to {}", p),
+                            Err(e) => eprintln!("=> Error: {}", e)
+                        };
+
+                    },
+                    _ => {}
+                };
+
+            },
+
+            _ => {}
+
+        };
+
+    }
+
+    fn handle_file<P: Into<PathBuf>>(&self, path: P) -> LLResult<String> {
+
+        let epw = Epw::from_file(path)?;
+        let res = &self.cse.get(epw)?;
+        res.save()
 
     }
 

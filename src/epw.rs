@@ -2,8 +2,12 @@
 use super::error::{LLResult, LLError};
 use std::{
     fs,
-    collections::HashMap
+    collections::HashMap,
+    ffi::OsStr,
+    path::PathBuf,
+    io::Read
 };
+use zip;
 
 #[derive(Debug)]
 pub struct Epw {
@@ -15,17 +19,24 @@ pub struct Epw {
     pub pc: u32,
     pub sym: u32,
     pub fmt: u32,
-    pub ck: String
+    pub ck: String,
+    pub source: String
 }
 
 impl Epw {
 
-    pub fn from_file<S: Into<String>>(p: S) -> LLResult<Self> {
+    pub fn from_file<S: Into<PathBuf>>(path: S) -> LLResult<Self> {
 
-        let f_data = fs::read(p.into())?;
-        let f_str = String::from_utf8_lossy(&f_data).to_string();
+        let p = path.into();
+        let f_data = fs::read(&p)?;
 
-        Self::from_string(f_str)
+        match Some(OsStr::new("zip")) == p.as_path().extension() {
+            true => Self::from_zip(f_data),
+            false => {
+                let f_str = String::from_utf8_lossy(&f_data).to_string();
+                Self::from_string(f_str)
+            }
+        }
 
     }
 
@@ -64,7 +75,8 @@ impl Epw {
             pc: map.get("pc").unwrap_or(&"0").parse::<u32>().unwrap_or(0),
             sym: map.get("sym").unwrap_or(&"0").parse::<u32>().unwrap_or(0),
             fmt: map.get("fmt").unwrap_or(&"0").parse::<u32>().unwrap_or(0),
-            ck: String::from(*map.get("ck").unwrap_or(&""))
+            ck: String::from(*map.get("ck").unwrap_or(&"")),
+            source: String::from(*map.get("source").unwrap_or(&""))
         })
 
     }
@@ -79,8 +91,49 @@ impl Epw {
             pc: 0,
             sym: 0,
             fmt: 0,
-            ck: String::new()
+            ck: String::new(),
+            source: String::new()
         }
+    }
+
+    fn from_zip(raw_data: Vec<u8>) -> LLResult<Self> {
+
+        // println!("{:?}", &raw_data);
+
+        // If the last byte is 0x0A, which it always seems to
+        // be when downloading from Mouser, pop it and continue.
+        // It's not supposed to be there and it have wasted half
+        // a day trying to figure this out. Thanks Mouser.
+        let data = match raw_data[raw_data.len() - 1] == 0x0A {
+            true => {
+                let mut data = raw_data.clone();
+                data.pop();
+                data
+            },
+            false => raw_data
+        };
+
+        let reader = std::io::Cursor::new(&data);
+        let mut archive = zip::ZipArchive::new(reader)?;
+
+        for i in 0..archive.len() {
+
+            let mut file = archive.by_index(i)?;
+            let path = PathBuf::from(file.name());
+
+            if path.as_path().extension() == Some(OsStr::new("epw")) {
+
+                let mut epw_content = String::new();
+                file.read_to_string(&mut epw_content)?;
+
+                return Self::from_string(epw_content)
+
+            }
+
+        }
+
+        Err(LLError::new("No .epw file found in archive"))
+
     }
 
 }

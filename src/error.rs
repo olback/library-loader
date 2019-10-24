@@ -23,30 +23,36 @@ impl std::fmt::Display for LLError {
 
 impl From<std::io::Error> for LLError {
     fn from(err: std::io::Error) -> Self {
-        Self::new(format!("{}", err))
+        Self::new(format!("{}#{}: {}", std::file!(), std::line!(), err))
     }
 }
 
 impl From<std::num::ParseIntError> for LLError {
     fn from(err: std::num::ParseIntError) -> Self {
-        Self::new(format!("{}", err))
+        Self::new(format!("{}#{}: {}", std::file!(), std::line!(), err))
     }
 }
 
 impl From<reqwest::Error> for LLError {
     fn from(err: reqwest::Error) -> Self {
-        Self::new(format!("{}", err))
+        Self::new(format!("{}#{}: {}", std::file!(), std::line!(), err))
     }
 }
 
 impl From<toml::de::Error> for LLError {
     fn from(err: toml::de::Error) -> Self {
-        Self::new(format!("{}", err))
+        Self::new(format!("{}#{}: {}", std::file!(), std::line!(), err))
     }
 }
 
 impl From <notify::Error> for LLError {
     fn from(err: notify::Error) -> Self {
-        Self::new(format!("{}", err))
+        Self::new(format!("{}#{}: {}", std::file!(), std::line!(), err))
+    }
+}
+
+impl From<zip::result::ZipError> for LLError {
+    fn from(err: zip::result::ZipError) -> Self {
+        Self::new(format!("{}#{}: {}", std::file!(), std::line!(), err))
     }
 }

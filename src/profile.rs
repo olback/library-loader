@@ -3,7 +3,7 @@ use serde::Deserialize;
 use std::io::Write;
 use rpassword;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Profile {
     pub username: String,
     pub password: String
@@ -27,6 +27,7 @@ impl Profile {
         std::io::stdout().flush().unwrap();
         let mut username = String::new();
         std::io::stdin().read_line(&mut username).expect("Failed to get user input");
+        username = username.trim().to_owned();
 
         let password = rpassword::prompt_password_stdout("Password: ").expect("Failed to get password");
 

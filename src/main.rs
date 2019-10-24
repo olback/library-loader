@@ -35,7 +35,7 @@ fn real_main() -> LLResult<()> {
     let conf = Config::load();
 
     // Create CSE
-    let component_search_engine = CSE::new(&conf.profile);
+    let component_search_engine = CSE::new(&conf);
 
     if conf.generate_config {
 
@@ -50,9 +50,19 @@ fn real_main() -> LLResult<()> {
     } else if conf.settings.watch_path.is_some() {
 
         let p = conf.settings.watch_path.clone().unwrap();
-        let w = Watcher::start(p, component_search_engine)?;
-        std::io::stdin().read_line(&mut String::new())?;
-        w.stop()?;
+        let mut w = Watcher::new(p, component_search_engine)?;
+        let tx = w.get_tx();
+
+        // React on key input
+        std::thread::spawn(move || {
+            #[allow(unused_must_use)]
+            {
+                std::io::stdin().read_line(&mut String::new());
+                tx.send(Err(notify::Error::generic("stop")));
+            }
+        });
+
+        w.start()?;
 
     } else if conf.input.is_empty() {
 
@@ -79,8 +89,8 @@ fn real_main() -> LLResult<()> {
             Err(e) => return Err(e)
         };
 
-        match res.save(&conf) {
-            Ok(p) => println!("File downloaded to '{}'", p),
+        match res.save() {
+            Ok(p) => println!("File(s) downloaded to '{}'", p),
             Err(e) => return Err(e)
         };
 
