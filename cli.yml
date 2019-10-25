@@ -28,6 +28,7 @@ args:
         takes_value: true
         multiple: false
         conflicts_with:
+            - input
             - id
             - generate
     - output:
@@ -58,10 +59,10 @@ args:
             # - designspark_pcb_pro
             # - diptrace
             - eagle
-            # - easyeda
+            - easyeda
             # - easy_pc
             # - ecadstar
-            # - kicad
+            - kicad
             # - orcad_allegro16
             # - pads
             # - proteus
