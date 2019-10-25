@@ -48,7 +48,7 @@ fn real_main() -> LLResult<()> {
             Err(e) => Err(e)
         }
 
-    } else if conf.settings.watch_path.is_some() {
+    } else if conf.settings.watch_path.is_some() && conf.input.is_empty() {
 
         let p = conf.settings.watch_path.clone().unwrap();
         let mut w = Watcher::new(p, component_search_engine)?;
@@ -76,6 +76,10 @@ fn real_main() -> LLResult<()> {
         return Err(LLError::new(format!("No input specified, run `{} --help` for more help", args[0])))
 
     } else {
+
+        if conf.settings.watch_path.is_some() {
+            println!("Ignoring watch command since input was supplied");
+        }
 
         let e = match conf.treat_input_as_id {
             true => {

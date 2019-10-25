@@ -115,8 +115,10 @@ impl CSE {
 
             match &self.config.settings.format {
                 Format::EAGLE => format::eagle::Extractor::extract(&mut files, filename, &mut item)?,
-                // ! NOTE: DO NOT ADD A _ => {} CATCHER HERE!
+                Format::EASYEDA => format::easyeda::Extractor::extract(&mut files, filename, &mut item)?,
+                Format::KICAD => format::kicad::Extractor::extract(&mut files, filename, &mut item)?,
                 Format::ZIP => return Err(LLError::new("This should be unreachable!"))
+                // ! NOTE: DO NOT ADD A _ => {} CATCHER HERE!
             };
 
         }

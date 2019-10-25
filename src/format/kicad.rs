@@ -6,9 +6,8 @@ impl ExtractorTrait for Extractor {
 
     fn extract<S: Into<String>>(files: &mut Files, file_path: S, item: &mut ZipFile) -> LLResult<()> {
 
-        generic_extractor("eagle", files, file_path, item)
+        generic_extractor("kicad", files, file_path, item)
 
     }
 
 }
-
