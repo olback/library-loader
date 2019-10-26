@@ -1,7 +1,7 @@
 version: 2
 
 jobs:
-  binary:
+  linux:
     docker:
       - image: circleci/rust:latest
 
@@ -15,15 +15,15 @@ jobs:
                       sudo chown -R circleci:circleci /usr/local/cargo
                     fi
       - restore_cache:
-          key: cargo-cache-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
+          key: cargo-cache-linux-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
 
-      # - run:
-      #     name: Use a Nightly Build
-      #     command: rustup override set nightly
+    #   - run:
+    #       name: Install Rust Stable
+    #       command: rustup toolchain install stable
 
       - run:
-          name: Install cross
-          command: cargo install cross
+          name: Use Stable as Default
+          command: rustup override set stable
 
       - run:
           name: Show Version
@@ -31,18 +31,13 @@ jobs:
                     rustc --version --verbose
                     rustup --version
                     cargo --version --verbose
-                    cross --version
 
       - run:
           name: Build Binary
           command: cargo build --release
 
-      - run:
-          name: Build Binary
-          command: cross build --release --target=x86_64-pc-windows-gnu
-
       - save_cache:
-          key: cargo-cache-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
+          key: cargo-cache-linux-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
           paths:
             - "~/.cargo/"
             - "~/.rustup/"
@@ -51,11 +46,15 @@ jobs:
 
       - run:
           name: "Generate hash file"
-          command: "cd target/release && sha256sum library-loader > library-loader_checksum"
+          command: "cd target/release && sha256sum library-loader > library-loader.checksum"
 
       - run:
           name: "Verify hash"
-          command: "cd target/release && sha256sum -c library-loader_checksum"
+          command: "cd target/release && sha256sum -c library-loader.checksum"
+
+      - run:
+          name: "Show hash"
+          command: "cd target/release && cat library-loader.checksum"
 
       - store_artifacts:
           name: Store Build
@@ -64,11 +63,97 @@ jobs:
 
       - store_artifacts:
           name: Store Build Checksum
-          path: "./target/release/library-loader_checksum"
-          destination: "/artifacts/library-loader_checksum"
+          path: "./target/release/library-loader.checksum"
+          destination: "/artifacts/library-loader.checksum"
+
+  windows:
+    docker:
+      - image: circleci/rust:latest
+
+    steps:
+      - checkout
+
+      - run:
+          name: Change Permissions for Cargo Cache
+          command: |
+                    if [ -d "/usr/local/cargo" ]; then
+                      sudo chown -R circleci:circleci /usr/local/cargo
+                    fi
+      - restore_cache:
+          key: cargo-cache-windows-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
+
+      - run:
+          name: Install Rust Stable
+          command: rustup toolchain install stable
+
+      - run:
+          name: Use Stable as Default
+          command: rustup override set stable
+
+      - run:
+          name: Show Version
+          command: |
+                    rustc --version --verbose
+                    rustup --version
+                    cargo --version --verbose
+
+      - run:
+          name: Install mingw-w64
+          command: sudo apt install mingw-w64 -y
+
+      - run:
+          name: Install the stable-x86_64-pc-windows-gnu toolchain
+          command: rustup toolchain install stable-x86_64-pc-windows-gnu
+
+      - run:
+          name: Install rust-std for target x86_64-pc-windows-gnu
+          command: rustup component add rust-std --target=x86_64-pc-windows-gnu
+
+      - run:
+          name: Copy a working version of crt2.o into the rust toolchain
+          command: |
+                    export CRT2="/usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/x86_64-pc-windows-gnu/lib.crt2.o"
+                    sudo mv $CRT2 "$CRT2.bak"
+                    sudo cp /usr/x86_64-w64-mingw32/lib/crt2.o $CRT2
+
+      - run:
+          name: Build Binary
+          command: cargo build --target=x86_64-pc-windows-gnu
+
+      - save_cache:
+          key: cargo-cache-windows-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
+          paths:
+            - "~/.cargo/"
+            - "~/.rustup/"
+            - "./target"
+            - "/usr/local/cargo"
+
+      - run:
+          name: "Generate hash file"
+          command: "cd target/x86_64-pc-windows-gnu && sha256sum library-loader.exe > library-loader.exe.checksum"
+
+      - run:
+          name: "Verify hash"
+          command: "cd target/x86_64-pc-windows-gnu && sha256sum -c library-loader.exe.checksum"
+
+      - run:
+          name: "Show hash"
+          command: "cd target/x86_64-pc-windows-gnu && cat library-loader.exe.checksum"
+
+      - store_artifacts:
+          name: Store Build
+          path: "./target/x86_64-pc-windows-gnu/library-loader.exe"
+          destination: "/windows/library-loader.exe"
+
+      - store_artifacts:
+          name: Store Build Checksum
+          path: "./target/x86_64-pc-windows-gnu/library-loader.exe.checksum"
+          destination: "/windows/library-loader.exe.checksum"
 
 workflows:
   version: 2
   build:
     jobs:
-      - binary
+      - linux
+      - windows
+    #   - macos

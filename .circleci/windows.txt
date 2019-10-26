@@ -1,0 +1,23 @@
+Steps:
+    sudo apt install mingw-w64
+
+    rustup toolchain install stable
+
+    rustup default stable
+
+    rustup toolchain install stable-x86_64-pc-windows-gnu
+
+    rustup component add rust-std --target=x86_64-pc-windows-gnu
+
+    export CRT2="/usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/x86_64-pc-windows-gnu/lib.crt2.o"
+    sudo mv $CRT2 "$CRT2.bak"
+    sudo cp /usr/x86_64-w64-mingw32/lib/crt2.o $CRT2
+
+    cargo build --target=x86_64-pc-windows-gnu
+
+
+`.cargo/config`:
+    [target.x86_64-pc-windows-gnu]
+    linker = "/usr/bin/x86_64-w64-mingw32-gcc"
+    ar = "/usr/x86_64-w64-mingw32/bin/ar"
+
