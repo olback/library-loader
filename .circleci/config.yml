@@ -112,7 +112,7 @@ jobs:
       - run:
           name: Copy a working version of crt2.o into the rust toolchain
           command: |
-                    export CRT2="/usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/x86_64-pc-windows-gnu/lib.crt2.o"
+                    export CRT2="/usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/x86_64-pc-windows-gnu/lib/crt2.o"
                     sudo mv $CRT2 "$CRT2.bak"
                     sudo cp /usr/x86_64-w64-mingw32/lib/crt2.o $CRT2
 
