@@ -15,6 +15,7 @@ jobs:
                       sudo chown -R circleci:circleci /usr/local/cargo
                     fi
       - restore_cache:
+          name: Restore Linux Rust Cache
           key: cargo-cache-linux-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
 
     #   - run:
@@ -34,9 +35,10 @@ jobs:
 
       - run:
           name: Build Binary
-          command: cargo build --release
+          command: cargo build --release --target=x86_64-unknown-linux-gnu
 
       - save_cache:
+          name: Save Linux Rust Cache
           key: cargo-cache-linux-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
           paths:
             - "~/.cargo/"
@@ -46,25 +48,32 @@ jobs:
 
       - run:
           name: "Generate hash file"
-          command: "cd target/release && sha256sum library-loader > library-loader.checksum"
+          command: "cd target/x86_64-unknown-linux-gnu/release && sha256sum library-loader > library-loader.sha256"
 
       - run:
           name: "Verify hash"
-          command: "cd target/release && sha256sum -c library-loader.checksum"
+          command: "cd target/x86_64-unknown-linux-gnu/release && sha256sum -c library-loader.sha256"
 
       - run:
           name: "Show hash"
-          command: "cd target/release && cat library-loader.checksum"
+          command: "cd target/x86_64-unknown-linux-gnu/release && cat library-loader.sha256"
 
-      - store_artifacts:
-          name: Store Build
-          path: "./target/release/library-loader"
-          destination: "/linux/library-loader"
+      - save_cache:
+          name: Save Linux Build Cache
+          key: ll-linux-dist-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - "./target/x86_64-unknown-linux-gnu/release/library-loader"
+            - "./target/x86_64-unknown-linux-gnu/release/library-loader.sha256"
 
-      - store_artifacts:
-          name: Store Build Checksum
-          path: "./target/release/library-loader.checksum"
-          destination: "/linux/library-loader.checksum"
+    #   - store_artifacts:
+    #       name: Store Build
+    #       path: "./target/x86_64-unknown-linux-gnu/release/library-loader"
+    #       destination: "/linux/library-loader"
+
+    #   - store_artifacts:
+    #       name: Store Build Checksum
+    #       path: "./target/x86_64-unknown-linux-gnu/release/library-loader.sha256"
+    #       destination: "/linux/library-loader.sha256"
 
   windows:
     docker:
@@ -80,6 +89,7 @@ jobs:
                       sudo chown -R circleci:circleci /usr/local/cargo
                     fi
       - restore_cache:
+          name: Restore Windows Rust Cache
           key: cargo-cache-windows-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
 
       - run:
@@ -121,34 +131,75 @@ jobs:
           command: cargo build --release --target=x86_64-pc-windows-gnu
 
       - save_cache:
+          name: Save Windows Rust Cache
           key: cargo-cache-windows-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
           paths:
             - "~/.cargo/"
             - "~/.rustup/"
-            - "./target"
+            - "./target/x86_64-pc-windows-gnu"
             - "/usr/local/cargo"
 
       - run:
           name: "Generate hash file"
-          command: "cd target/x86_64-pc-windows-gnu/release && sha256sum library-loader.exe > library-loader.exe.checksum"
+          command: "cd target/x86_64-pc-windows-gnu/release && sha256sum library-loader.exe > library-loader.exe.sha256"
 
       - run:
           name: "Verify hash"
-          command: "cd target/x86_64-pc-windows-gnu/release && sha256sum -c library-loader.exe.checksum"
+          command: "cd target/x86_64-pc-windows-gnu/release && sha256sum -c library-loader.exe.sha256"
 
       - run:
           name: "Show hash"
-          command: "cd target/x86_64-pc-windows-gnu/release && cat library-loader.exe.checksum"
+          command: "cd target/x86_64-pc-windows-gnu/release && cat library-loader.exe.sha256"
 
-      - store_artifacts:
-          name: Store Build
-          path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe"
-          destination: "/windows/library-loader.exe"
+      - save_cache:
+          name: Save Windows Build
+          key: ll-windows-dist-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - "./target/x86_64-pc-windows-gnu/release/library-loader.exe"
+            - "./target/x86_64-pc-windows-gnu/release/library-loader.exe.sha256"
 
-      - store_artifacts:
-          name: Store Build Checksum
-          path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe.checksum"
-          destination: "/windows/library-loader.exe.checksum"
+    #   - store_artifacts:
+    #       name: Store Build
+    #       path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe"
+    #       destination: "/windows/library-loader.exe"
+
+    #   - store_artifacts:
+    #       name: Store Build Checksum
+    #       path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe.sha256"
+    #       destination: "/windows/library-loader.exe.sha256"
+
+  deploy:
+    docker:
+      - image: circleci/node:latest
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          name: Restore Deploy Node Cache
+          key: deploy-cache-{{ checksum ".circleci/deploy/package.json" }}-{{ checksum ".circleci/deploy/package-lock.json" }}
+
+      - run:
+          name: Install dependencies
+          command: cd .circleci/deploy && npm install
+
+      - save_cache:
+          name: Save Node Cache
+          key: deploy-cache-{{ checksum ".circleci/deploy/package.json" }}-{{ checksum ".circleci/deploy/package-lock.json" }}
+          paths:
+            - "./.circleci/deploy/node_modules"
+
+      - restore_cache:
+          name: Restore Linux Build
+          key: ll-linux-dist-{{ .Environment.CIRCLE_SHA1 }}
+
+      - restore_cache:
+          name: Restore Windows Build
+          key: ll-windows-dist-{{ .Environment.CIRCLE_SHA1 }}
+
+      - run:
+          name: Deploy
+          command: node .circleci/deploy/deploy.js
 
 workflows:
   version: 2
@@ -156,4 +207,11 @@ workflows:
     jobs:
       - linux
       - windows
-    #   - macos
+      - deploy:
+          type: approval
+          requires:
+            - linux
+            - windows
+          filters:
+            branches:
+              only: master
