@@ -3,7 +3,7 @@ name: "Library Loader"
 author: "olback <libloader@olback.net>"
 about: "Download libraries from componentsearchengine.com"
 args:
-    - input:
+    - INPUT:
         help: "Path to .eqw/.zip file"
         # required: true
         index: 1
@@ -21,14 +21,14 @@ args:
         takes_value: true
         multiple: false
     - watch:
-        help: "Path to watch for .epw files. Setting this will enable watch-mode"
+        help: "Path to watch for .epw/.zip files. Setting this will enable watch-mode"
         short: w
         long: watch
         value_name: watch
         takes_value: true
         multiple: false
         conflicts_with:
-            - input
+            - INPUT
             - id
             - generate
     - output:
@@ -79,6 +79,21 @@ args:
         takes_value: false
         multiple: false
         conflicts_with:
+            - id
+            - config
+            - watch
+            - output
+            - format
+    - home_dir:
+        help: "Save config to your home directory. This will act as your global config."
+        short: u
+        long: home-dir
+        takes_value: false
+        multiple: false
+        requires:
+            - generate
+        conflicts_with:
+            - INPUT
             - id
             - config
             - watch

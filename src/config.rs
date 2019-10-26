@@ -29,12 +29,17 @@ pub struct Settings {
 }
 
 #[derive(Debug, Clone)]
+pub struct Cli {
+    pub input: String,
+    pub generate_config: (bool, bool), // (generate config?, save to users config dir?)
+    pub treat_input_as_id: bool
+}
+
+#[derive(Debug, Clone)]
 pub struct Config {
     pub settings: Settings,
     pub profile: Profile,
-    pub input: String,
-    pub generate_config: bool,
-    pub treat_input_as_id: bool
+    pub cli: Cli
 }
 
 impl Config {
@@ -98,12 +103,14 @@ impl Config {
                         None => settings.format
                     }
                 },
-                input: match matches.value_of("input") {
-                    Some(v) => String::from(v),
-                    None => Self::default().input
+                cli: Cli {
+                    input: match matches.value_of("INPUT") {
+                        Some(v) => String::from(v),
+                        None => Self::default().cli.input
+                    },
+                    generate_config: (matches.is_present("generate"), matches.is_present("home_dir")),
+                    treat_input_as_id: matches.is_present("id")
                 },
-                generate_config: matches.is_present("generate"),
-                treat_input_as_id: matches.is_present("id"),
                 profile: profile,
             }
 
@@ -124,12 +131,14 @@ impl Config {
                         None => Self::default().settings.format
                     },
                 },
-                input: match matches.value_of("input") {
-                    Some(v) => String::from(v),
-                    None => Self::default().input
+                cli: Cli {
+                    input: match matches.value_of("INPUT") {
+                        Some(v) => String::from(v),
+                        None => Self::default().cli.input
+                    },
+                    generate_config: (matches.is_present("generate"), matches.is_present("home_dir")),
+                    treat_input_as_id: matches.is_present("id")
                 },
-                generate_config: matches.is_present("generate"),
-                treat_input_as_id: matches.is_present("id"),
                 profile: match matches.is_present("generate") {
                     true => Profile::new("", ""),
                     false => Profile::prompt()
@@ -184,12 +193,25 @@ impl Config {
 
     }
 
-    pub fn generate(input: &String) -> LLResult<String> {
+    pub fn generate(global: &bool, input: &String) -> LLResult<String> {
 
-        let path = PathBuf::from(match input.trim().is_empty() {
-            true => LL_CONFIG,
-            false => input
-        });
+        let path = match global {
+            true => {
+                match dirs::config_dir() {
+                    Some(p) => p.join(LL_CONFIG),
+                    None => {
+                        eprintln!("Global config path could not be determined, saving to working directory");
+                        PathBuf::from(LL_CONFIG)
+                    }
+                }
+            },
+            false => {
+                PathBuf::from(match input.trim().is_empty() {
+                    true => LL_CONFIG,
+                    false => input
+                })
+            }
+        };
 
         if path.clone().exists() {
 
@@ -222,9 +244,11 @@ impl Default for Config {
                 format: Format::ZIP
             },
             profile: profile,
-            input: String::new(),
-            generate_config: false,
-            treat_input_as_id: false
+            cli: Cli {
+                input: String::new(),
+                generate_config: (false, false),
+                treat_input_as_id: false
+            }
         }
 
     }

@@ -39,9 +39,6 @@ impl Watcher {
 
     pub fn start(&mut self) -> LLResult<()> {
 
-        // println!("Watching {}...", &self.path.as_path().canonicalize()?.to_string_lossy());
-        // println!("Press <Enter> to exit");
-
         &self.watcher.watch(&self.path, notify::RecursiveMode::Recursive)?;
         // &self.watcher.configure(notify::Config::OngoingEvents(Some(std::time::Duration::from_millis(500))));
 
@@ -50,6 +47,9 @@ impl Watcher {
             match &self.rx.recv() {
 
                 Ok(event) => {
+
+                    #[cfg(debug_assertions)]
+                    println!("{}#{}: {:#?}", std::file!(), std::line!(), event);
 
                     match event {
 

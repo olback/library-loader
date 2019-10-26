@@ -22,15 +22,24 @@ jobs:
       #     command: rustup override set nightly
 
       - run:
+          name: Install cross
+          command: cargo install cross
+
+      - run:
           name: Show Version
           command: |
                     rustc --version --verbose
                     rustup --version
                     cargo --version --verbose
+                    cross --version
 
       - run:
           name: Build Binary
           command: cargo build --release
+
+      - run:
+          name: Build Binary
+          command: cross build --release --target=x86_64-pc-windows-gcc
 
       - save_cache:
           key: cargo-cache-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
