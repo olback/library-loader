@@ -59,12 +59,12 @@ jobs:
       - store_artifacts:
           name: Store Build
           path: "./target/release/library-loader"
-          destination: "/artifacts/library-loader"
+          destination: "/linux/library-loader"
 
       - store_artifacts:
           name: Store Build Checksum
           path: "./target/release/library-loader.checksum"
-          destination: "/artifacts/library-loader.checksum"
+          destination: "/linux/library-loader.checksum"
 
   windows:
     docker:
@@ -118,7 +118,7 @@ jobs:
 
       - run:
           name: Build Binary
-          command: cargo build --target=x86_64-pc-windows-gnu
+          command: cargo build --release --target=x86_64-pc-windows-gnu
 
       - save_cache:
           key: cargo-cache-windows-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
@@ -130,24 +130,24 @@ jobs:
 
       - run:
           name: "Generate hash file"
-          command: "cd target/x86_64-pc-windows-gnu && sha256sum library-loader.exe > library-loader.exe.checksum"
+          command: "cd target/x86_64-pc-windows-gnu/release && sha256sum library-loader.exe > library-loader.exe.checksum"
 
       - run:
           name: "Verify hash"
-          command: "cd target/x86_64-pc-windows-gnu && sha256sum -c library-loader.exe.checksum"
+          command: "cd target/x86_64-pc-windows-gnu/release && sha256sum -c library-loader.exe.checksum"
 
       - run:
           name: "Show hash"
-          command: "cd target/x86_64-pc-windows-gnu && cat library-loader.exe.checksum"
+          command: "cd target/x86_64-pc-windows-gnu/release && cat library-loader.exe.checksum"
 
       - store_artifacts:
           name: Store Build
-          path: "./target/x86_64-pc-windows-gnu/library-loader.exe"
+          path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe"
           destination: "/windows/library-loader.exe"
 
       - store_artifacts:
           name: Store Build Checksum
-          path: "./target/x86_64-pc-windows-gnu/library-loader.exe.checksum"
+          path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe.checksum"
           destination: "/windows/library-loader.exe.checksum"
 
 workflows:
