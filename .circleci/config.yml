@@ -43,7 +43,7 @@ jobs:
           paths:
             - "~/.cargo/"
             - "~/.rustup/"
-            - "./target"
+            - "./target/"
             - "/usr/local/cargo"
 
       - run:
@@ -136,7 +136,7 @@ jobs:
           paths:
             - "~/.cargo/"
             - "~/.rustup/"
-            - "./target/x86_64-pc-windows-gnu"
+            - "./target/"
             - "/usr/local/cargo"
 
       - run:
@@ -196,6 +196,26 @@ jobs:
       - restore_cache:
           name: Restore Windows Build
           key: ll-windows-dist-{{ .Environment.CIRCLE_SHA1 }}
+
+      - store_artifacts:
+          name: Store Build
+          path: "./target/x86_64-unknown-linux-gnu/release/library-loader"
+          destination: "/linux/library-loader"
+
+      - store_artifacts:
+          name: Store Build Checksum
+          path: "./target/x86_64-unknown-linux-gnu/release/library-loader.sha256"
+          destination: "/linux/library-loader.sha256"
+
+      - store_artifacts:
+          name: Store Build
+          path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe"
+          destination: "/windows/library-loader.exe"
+
+      - store_artifacts:
+          name: Store Build Checksum
+          path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe.sha256"
+          destination: "/windows/library-loader.exe.sha256"
 
       - run:
           name: Deploy
