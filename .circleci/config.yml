@@ -207,11 +207,19 @@ workflows:
     jobs:
       - linux
       - windows
-      - deploy:
+      - request_deploy:
           type: approval
           requires:
             - linux
             - windows
+          filters:
+            branches:
+              only: master
+      - deploy:
+          requires:
+            - linux
+            - windows
+            - request_deploy
           filters:
             branches:
               only: master
