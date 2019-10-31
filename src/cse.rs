@@ -1,5 +1,5 @@
 use super::config::Config;
-use super::format::{self, Extractor, Format, Files};
+use super::format::{Files, ECAD};
 use super::epw::Epw;
 use super::error::{LLResult, LLError};
 use super::cse_result::CSEResult;
@@ -79,7 +79,7 @@ impl CSE {
             println!("-- End debug info from {file}#{line} --", file = std::file!(), line = std::line!());
         }
 
-        if &self.config.settings.format == &Format::ZIP {
+        if &self.config.settings.format.ecad == &ECAD::ZIP {
 
             let mut files: Files = HashMap::new();
             files.insert(filename, body);
@@ -113,17 +113,14 @@ impl CSE {
             let mut item = archive.by_index(i)?;
             let filename = String::from(item.name());
 
-            match &self.config.settings.format {
-                Format::EAGLE => format::eagle::Extractor::extract(&mut files, filename, &mut item)?,
-                Format::EASYEDA => format::easyeda::Extractor::extract(&mut files, filename, &mut item)?,
-                Format::KICAD => format::kicad::Extractor::extract(&mut files, filename, &mut item)?,
-                Format::ZIP => return Err(LLError::new("This should be unreachable!"))
-                // ! NOTE: DO NOT ADD A _ => {} CATCHER HERE!
-            };
+            &self.config.settings.format.extract(&mut files, filename, &mut item)?;
 
         }
 
-        let path = PathBuf::from(&self.config.settings.output_path).join(lib_name);
+        let path = match &self.config.settings.format.create_folder {
+            true => PathBuf::from(&self.config.settings.output_path).join(lib_name),
+            false => PathBuf::from(&self.config.settings.output_path)
+        };
 
         Ok(CSEResult {
             output_path: path.to_string_lossy().to_string(),

@@ -46,8 +46,14 @@ impl CSEResult {
 
     fn write(path: PathBuf, data: Vec<u8>) -> LLResult<String> {
 
+        let p = path.to_str().unwrap().to_string();
+
+        if path.exists() {
+            return Err(LLError::new(format!("{}#{}: {} already exists!", std::file!(), std::line!(), p)));
+        }
+
         match fs::write(&path, &data) {
-            Ok(_) => Ok(path.to_str().unwrap().to_string()),
+            Ok(_) => Ok(p),
             Err(e) => Err(LLError::new(format!("{}#{}: {}", std::file!(), std::line!(), e)))
         }
 
