@@ -9,7 +9,7 @@
 * [x] [Feature] Auto unzip folder and copy lib to libs folder
 * [x] [Code] New struct for CLI-only options
 * [x] [Feature] When using `-g`, treat input as output path
-* [ ] [Code] Split extractor from format
+* [x] [Code] Split extractor from format
 * [ ] [Docs] Proper documentation
 * [ ] [Code] Document the code...
 * [ ] [Feature] Show Desktop Notification?

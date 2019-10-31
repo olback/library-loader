@@ -11,6 +11,7 @@ mod config;
 mod format;
 mod consts;
 mod watcher;
+mod check_updates;
 
 use config::Config;
 use epw::Epw;
@@ -21,6 +22,24 @@ use std::io::Read;
 
 fn main() {
 
+    // Check for updates
+    let update_handle = std::thread::spawn(move || {
+        match check_updates::check() {
+            Ok(available) => {
+                match available {
+                    Some(update) => {
+                        println!("New update available! {} -> {}", update.local, update.remote);
+                        println!("{}", consts::DOWNLOAD_URL);
+                    },
+                    None => {}
+                }
+            },
+            Err(e) => {
+                eprintln!("{}#{}: Error checking for updates: {}", std::file!(), std::line!(), e);
+            }
+        }
+    });
+
     match real_main() {
         Ok(v) => v,
         Err(e) => {
@@ -28,6 +47,8 @@ fn main() {
             std::process::exit(1)
         }
     }
+
+    update_handle.join().unwrap();
 
 }
 
@@ -56,12 +77,11 @@ fn real_main() -> LLResult<()> {
         let tx = w.get_tx();
 
         // React on key input
-        std::thread::spawn(move || {
-            #[allow(unused_must_use)]
-            {
-                std::io::stdin().read(&mut [0u8]).unwrap();
-                tx.send(Err(notify::Error::generic("stop")));
-            }
+        let input_handle = std::thread::spawn(move || {
+
+            std::io::stdin().read(&mut [0u8]).unwrap();
+            tx.send(Err(notify::Error::generic("stop"))).unwrap();
+
         });
 
         let watch_path_buf = std::path::PathBuf::from(&conf.settings.watch_path.unwrap());
@@ -69,10 +89,11 @@ fn real_main() -> LLResult<()> {
 
         println!("Watching {}", watch_path_buf.as_path().canonicalize()?.to_string_lossy());
         println!("Saving to: {}", save_to_buf.as_path().canonicalize()?.to_string_lossy());
-        println!("Saving in format: {:?}", &conf.settings.format);
+        println!("Saving in format: {:?}", &conf.settings.format.ecad);
         println!("Press <Enter> to exit");
 
         w.start()?;
+        input_handle.join().unwrap();
 
     } else if conf.cli.input.is_empty() {
 

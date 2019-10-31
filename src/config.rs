@@ -241,7 +241,7 @@ impl Default for Config {
             settings: Settings {
                 output_path: String::from("download"),
                 watch_path: None,
-                format: Format::ZIP
+                format: Format::from("zip")
             },
             profile: profile,
             cli: Cli {

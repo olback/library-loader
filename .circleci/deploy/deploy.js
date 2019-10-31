@@ -44,6 +44,11 @@ let currentVersion = cargoToml.filter(l => l.includes('version = '))[0].split(' 
 
     console.log('Creating new release!');
 
+    const clogStr = fs.readFileSync('CHANGELOG.md', 'utf8').toString();
+    const clogLines = clogStr.split('\n#')[0].split('\n');
+    clogLines.shift();
+    const changelog = clogLines.join('\n');
+
     let newReleaseRes = await (await fetch(`${gh.url}repos/${gh.user}/${gh.repo}/releases`, {
         headers: gh.headers,
         method: 'POST',
@@ -51,7 +56,8 @@ let currentVersion = cargoToml.filter(l => l.includes('version = '))[0].split(' 
             tag_name: currentVersion,
             target_commitish: gh.branch,
             name: `Release v${currentVersion}`,
-            body: '',
+            // body: 'Please see the [changelog](CHANGELOG.md) for details!',
+            body: changelog,
             draft: false,
             prerelease: false
         })
