@@ -9,5 +9,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Build
-      run: cargo build --verbose
+    - uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --release --all-features
