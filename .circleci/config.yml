@@ -140,7 +140,7 @@ jobs:
 
       - run:
           name: Build Binary
-          command: cargo build --release --target=x86_64-pc-windows-gnu
+          command: PKG_CONFIG_ALLOW_CROSS=1 cargo build --release --target=x86_64-pc-windows-gnu
 
       - save_cache:
           name: Save Windows Rust Cache
