@@ -18,7 +18,7 @@ jobs:
 
       - run:
           name: Install gtk-3.0-dev
-          command: apt install gtk-3.0-dev -y
+          command: sudo apt install gtk-3.0-dev -y
 
       - run:
           name: Change Permissions for Cargo Cache
