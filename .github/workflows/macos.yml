@@ -9,6 +9,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: Install glib
+      run: brew install glib
     - name: Install latest stable
       uses: actions-rs/toolchain@v1
       with:
