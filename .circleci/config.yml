@@ -95,6 +95,10 @@ jobs:
       - checkout
 
       - run:
+          name: Refresh package manager
+          command: sudo apt update
+
+      - run:
           name: Install libglib2.0-dev
           command: sudo apt install libglib2.0-dev -y
 
