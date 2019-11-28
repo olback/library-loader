@@ -95,6 +95,14 @@ jobs:
       - checkout
 
       - run:
+          name: Install libglib2.0-dev
+          command: sudo apt install libglib2.0-dev -y
+
+      - run:
+          name: Install gtk-3.0-dev
+          command: sudo apt install gtk-3.0-dev -y
+
+      - run:
           name: Change Permissions for Cargo Cache
           command: |
                     if [ -d "/usr/local/cargo" ]; then
