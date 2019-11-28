@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+    <gresource prefix="/net/olback/library-loader">
+        <!-- <file preprocess="xml-stripblanks">assets/main.glade</file> -->
+        <file alias="icon-svg">assets/library-loader-icon.svg</file>
+        <file alias="icon-22">assets/library-loader-icon-22.png</file>
+        <file alias="icon-100">assets/library-loader-icon-100.png</file>
+        <file alias="icon-256">assets/library-loader-icon-256.png</file>
+        <file alias="icon-512">assets/library-loader-icon-512.png</file>
+    </gresource>
+</gresources>

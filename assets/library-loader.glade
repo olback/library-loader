@@ -666,9 +666,10 @@ For more information on this, and how to apply and follow the GNU AGPL, see
 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
-  <object class="GtkAboutDialog">
+  <object class="GtkAboutDialog" id="about_dialog">
     <property name="can_focus">False</property>
     <property name="destroy_with_parent">True</property>
+    <property name="icon">resource:///net/olback/library-loader/icon-512</property>
     <property name="type_hint">dialog</property>
     <property name="program_name">Library Loader</property>
     <property name="version">version not found</property>
@@ -676,7 +677,7 @@ For more information on this, and how to apply and follow the GNU AGPL, see
     <property name="website">https://github.com/olback/library-loader</property>
     <property name="website_label" translatable="yes">Library Loader on Github</property>
     <property name="authors">Edwin Svensson</property>
-    <property name="logo_icon_name">applications-science</property>
+    <property name="logo">resource:///net/olback/library-loader/icon-100</property>
     <property name="license_type">agpl-3-0</property>
     <child type="titlebar">
       <placeholder/>
@@ -709,11 +710,6 @@ For more information on this, and how to apply and follow the GNU AGPL, see
       </object>
     </child>
   </object>
-  <object class="GtkImage" id="image1">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">document-properties</property>
-  </object>
   <object class="GtkImage" id="image2">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -730,12 +726,15 @@ For more information on this, and how to apply and follow the GNU AGPL, see
           <object class="GtkListBoxRow">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="activatable">False</property>
             <property name="selectable">False</property>
             <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
+              <object class="GtkButton" id="open_about_dialog">
                 <property name="label" translatable="yes">About</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="relief">none</property>
               </object>
             </child>
           </object>
@@ -776,21 +775,24 @@ For more information on this, and how to apply and follow the GNU AGPL, see
       </object>
       <packing>
         <property name="submenu">main</property>
+        <property name="position">1</property>
       </packing>
     </child>
   </object>
-  <object class="GtkApplicationWindow">
+  <object class="GtkApplicationWindow" id="main_window">
     <property name="width_request">600</property>
     <property name="height_request">400</property>
     <property name="can_focus">False</property>
     <property name="resizable">False</property>
     <property name="default_width">600</property>
     <property name="default_height">400</property>
+    <property name="icon">resource:///net/olback/library-loader/icon-512</property>
     <child type="titlebar">
       <object class="GtkHeaderBar">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="title" translatable="yes">Library Loader</property>
+        <property name="subtitle" translatable="yes">yeet</property>
         <property name="show_close_button">True</property>
         <child>
           <object class="GtkMenuButton">
@@ -802,7 +804,7 @@ For more information on this, and how to apply and follow the GNU AGPL, see
               <object class="GtkImage">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="icon_name">applications-science</property>
+                <property name="pixbuf">resource:///net/olback/library-loader/icon-22</property>
               </object>
             </child>
           </object>
