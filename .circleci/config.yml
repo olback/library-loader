@@ -9,6 +9,10 @@ jobs:
       - checkout
 
       - run:
+          name: Install libglib2.0-dev
+          command: sudo apt update && sudo apt install libglib2.0-dev
+
+      - run:
           name: Change Permissions for Cargo Cache
           command: |
                     if [ -d "/usr/local/cargo" ]; then
