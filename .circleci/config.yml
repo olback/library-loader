@@ -92,10 +92,10 @@ jobs:
       - image: rust-gtk-windows:latest
 
     steps:
-      - run:
-          command: pwd; ls -lah
-
       - checkout
+
+      - run:
+          command: pwd; ls -lah; whoami
 
       - restore_cache:
           name: Restore Windows Rust Cache
