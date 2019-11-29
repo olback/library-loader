@@ -92,6 +92,10 @@ jobs:
       - image: rust-gtk-windows:latest
 
     steps:
+
+      - run:
+          command: ls -lah /tmp/_circleci_local_build_repo/.git/.gitstatus.oimoIj
+
       - checkout
 
       # - run:
