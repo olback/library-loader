@@ -12,7 +12,7 @@ fn generate_resources() {
 
     let exists = match Command::new("which").arg(COMMAND).output() {
         Ok(v) => v,
-        Err(e) => panic!("Error running command 'which:' {}", e)
+        Err(e) => panic!("Error running command 'which': {}", e)
     };
     if !exists.status.success() {
         panic!(format!("Command '{}' not found", COMMAND));

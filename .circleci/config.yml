@@ -3,29 +3,29 @@ version: 2
 jobs:
   linux:
     docker:
-      - image: circleci/rust:latest
+      - image: rust-gtk-linux
 
     steps:
       - checkout
 
-      - run:
-          name: Refresh package manager
-          command: sudo apt update
+    #   - run:
+    #       name: Refresh package manager
+    #       command: sudo apt update
 
-      - run:
-          name: Install libglib2.0-dev
-          command: sudo apt install libglib2.0-dev -y
+    #   - run:
+    #       name: Install libglib2.0-dev
+    #       command: sudo apt install libglib2.0-dev -y
 
-      - run:
-          name: Install gtk-3.0-dev
-          command: sudo apt install gtk-3.0-dev -y
+    #   - run:
+    #       name: Install gtk-3.0-dev
+    #       command: sudo apt install gtk-3.0-dev -y
 
-      - run:
-          name: Change Permissions for Cargo Cache
-          command: |
-                    if [ -d "/usr/local/cargo" ]; then
-                      sudo chown -R circleci:circleci /usr/local/cargo
-                    fi
+    #   - run:
+    #       name: Change Permissions for Cargo Cache
+    #       command: |
+    #                 if [ -d "/usr/local/cargo" ]; then
+    #                   sudo chown -R circleci:circleci /usr/local/cargo
+    #                 fi
       - restore_cache:
           name: Restore Linux Rust Cache
           key: cargo-cache-linux-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
@@ -56,7 +56,7 @@ jobs:
             - "~/.cargo/"
             - "~/.rustup/"
             - "./target/"
-            - "/usr/local/cargo"
+            # - "/usr/local/cargo"
 
       - run:
           name: "Generate hash file"
@@ -94,16 +94,9 @@ jobs:
     steps:
       - checkout
 
-      - run:
-          command: pwd; ls -lah; whoami
-
       - restore_cache:
           name: Restore Windows Rust Cache
           key: cargo-cache-windows-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
-
-    #   - run:
-    #       name: Install Rust Stable
-    #       command: rustup toolchain install stable
 
       - run:
           name: Use Stable as Default
@@ -115,25 +108,6 @@ jobs:
                     rustc --version --verbose
                     rustup --version
                     cargo --version --verbose
-
-      # - run:
-      #     name: Install mingw-w64
-      #     command: sudo apt install mingw-w64 -y
-
-      # - run:
-      #     name: Install the stable-x86_64-pc-windows-gnu toolchain
-      #     command: rustup toolchain install stable-x86_64-pc-windows-gnu
-
-    #   - run:
-    #       name: Install rust-std for target x86_64-pc-windows-gnu
-    #       command: rustup component add rust-std --target=x86_64-pc-windows-gnu
-
-      # - run:
-      #     name: Copy a working version of crt2.o into the rust toolchain
-      #     command: |
-      #               export CRT2="~/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/x86_64-pc-windows-gnu/lib/crt2.o"
-      #               sudo mv $CRT2 "$CRT2.bak"
-      #               sudo cp /usr/x86_64-w64-mingw32/lib/crt2.o $CRT2
 
       - run:
           name: Build Binary
