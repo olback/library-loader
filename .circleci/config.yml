@@ -92,37 +92,15 @@ jobs:
       - image: rust-gtk-windows:latest
 
     steps:
-
-      - run:
-          command: ls -lah /tmp/
-
       - checkout
 
-      # - run:
-      #     name: Refresh package manager
-      #     command: sudo apt update
-
-      # - run:
-      #     name: Install libglib2.0-dev
-      #     command: sudo apt install libglib2.0-dev -y
-
-      # - run:
-      #     name: Install gtk-3.0-dev
-      #     command: sudo apt install gtk-3.0-dev -y
-
-      - run:
-          name: Change Permissions for Cargo Cache
-          command: |
-                    if [ -d "/usr/local/cargo" ]; then
-                      sudo chown -R circleci:circleci /usr/local/cargo
-                    fi
       - restore_cache:
           name: Restore Windows Rust Cache
           key: cargo-cache-windows-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
 
-      - run:
-          name: Install Rust Stable
-          command: rustup toolchain install stable
+    #   - run:
+    #       name: Install Rust Stable
+    #       command: rustup toolchain install stable
 
       - run:
           name: Use Stable as Default
@@ -143,9 +121,9 @@ jobs:
       #     name: Install the stable-x86_64-pc-windows-gnu toolchain
       #     command: rustup toolchain install stable-x86_64-pc-windows-gnu
 
-      - run:
-          name: Install rust-std for target x86_64-pc-windows-gnu
-          command: rustup component add rust-std --target=x86_64-pc-windows-gnu
+    #   - run:
+    #       name: Install rust-std for target x86_64-pc-windows-gnu
+    #       command: rustup component add rust-std --target=x86_64-pc-windows-gnu
 
       # - run:
       #     name: Copy a working version of crt2.o into the rust toolchain
@@ -156,7 +134,7 @@ jobs:
 
       - run:
           name: Build Binary
-          command: PKG_CONFIG_ALLOW_CROSS=1 cargo build --release --target=x86_64-pc-windows-gnu
+          command: RUST_BACKTRACE=1 PKG_CONFIG_ALLOW_CROSS=1 cargo build --release --target=x86_64-pc-windows-gnu
 
       - save_cache:
           name: Save Windows Rust Cache
@@ -165,7 +143,6 @@ jobs:
             - "~/.cargo/"
             - "~/.rustup/"
             - "./target/"
-            - "/usr/local/cargo"
 
       - run:
           name: "Generate hash file"
