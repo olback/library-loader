@@ -5,3 +5,5 @@
 LibraryLoader.toml
 aLibraryLoader.toml
 resources.bin
+/out/
+/dist/

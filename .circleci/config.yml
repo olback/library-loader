@@ -130,6 +130,15 @@ jobs:
             - "./target/x86_64-pc-windows-gnu/release/library-loader.exe"
             - "./target/x86_64-pc-windows-gnu/release/library-loader.exe.sha256"
 
+      - run:
+          name: Make dist package
+          command: .circleci/windows_dist.sh
+
+      - store_artifacts:
+          name: Store dist.zip
+          path: "dist.zip"
+          destination: "/windows/dist.zip"
+
     #   - store_artifacts:
     #       name: Store Build
     #       path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe"
