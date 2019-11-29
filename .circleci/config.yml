@@ -22,7 +22,7 @@ jobs:
 
       - restore_cache:
           name: Restore Linux Rust Cache
-          key: cargo-cache-linux-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
+          key: cargo-cache-linux-v2-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
 
       - run:
           name: Use Stable as Default
@@ -41,7 +41,7 @@ jobs:
 
       - save_cache:
           name: Save Linux Rust Cache
-          key: cargo-cache-linux-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
+          key: cargo-cache-linux-v2-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
           paths:
             - "~/.cargo/"
             - "~/.rustup/"
@@ -86,7 +86,7 @@ jobs:
 
       - restore_cache:
           name: Restore Windows Rust Cache
-          key: cargo-cache-windows-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
+          key: cargo-cache-windows-v2-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
 
       - run:
           name: Use Stable as Default
@@ -105,7 +105,7 @@ jobs:
 
       - save_cache:
           name: Save Windows Rust Cache
-          key: cargo-cache-windows-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
+          key: cargo-cache-windows-v2-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
           paths:
             - "~/.cargo/"
             - "~/.rustup/"
