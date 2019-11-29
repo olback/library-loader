@@ -94,7 +94,7 @@ jobs:
     steps:
 
       - run:
-          command: ls -lah /tmp/_circleci_local_build_repo/.git/.gitstatus.oimoIj
+          command: ls -lah /tmp/
 
       - checkout
 
