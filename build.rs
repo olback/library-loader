@@ -30,7 +30,9 @@ fn fix_glade_resource_paths() {
 
     const GLADE_PATH: &str = "assets/library-loader.glade";
 
-    let glade_xml_data = fs::read_to_string(GLADE_PATH).unwrap();
+    let glade_xml_data = fs::read_to_string(GLADE_PATH).unwrap_or_else(|| {
+        panic!("{}#{}: Could not read file '{}'", std::file!(), std::line!(), GLADE_PATH);
+    });
     let re = regex::Regex::new(r"(?P<r>resource:/)(?P<p>[a-z])").unwrap();
     let after = re.replace_all(&glade_xml_data, "$r//$p");
 
