@@ -89,22 +89,22 @@ jobs:
 
   windows:
     docker:
-      - image: circleci/rust:latest
+      - image: rust-gtk-windows
 
     steps:
       - checkout
 
-      - run:
-          name: Refresh package manager
-          command: sudo apt update
+      # - run:
+      #     name: Refresh package manager
+      #     command: sudo apt update
 
-      - run:
-          name: Install libglib2.0-dev
-          command: sudo apt install libglib2.0-dev -y
+      # - run:
+      #     name: Install libglib2.0-dev
+      #     command: sudo apt install libglib2.0-dev -y
 
-      - run:
-          name: Install gtk-3.0-dev
-          command: sudo apt install gtk-3.0-dev -y
+      # - run:
+      #     name: Install gtk-3.0-dev
+      #     command: sudo apt install gtk-3.0-dev -y
 
       - run:
           name: Change Permissions for Cargo Cache
@@ -131,9 +131,9 @@ jobs:
                     rustup --version
                     cargo --version --verbose
 
-      - run:
-          name: Install mingw-w64
-          command: sudo apt install mingw-w64 -y
+      # - run:
+      #     name: Install mingw-w64
+      #     command: sudo apt install mingw-w64 -y
 
       - run:
           name: Install the stable-x86_64-pc-windows-gnu toolchain
