@@ -3,7 +3,7 @@ name: MacOS Build
 on: [push]
 
 jobs:
-  build:
+  macos_build:
 
     runs-on: macos-latest
 
