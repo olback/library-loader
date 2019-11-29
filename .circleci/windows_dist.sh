@@ -20,6 +20,4 @@ mkdir -p $DIST/share/icons
 cp $GTK_INSTALL_PATH/share/glib-2.0/schemas/* $DIST/share/glib-2.0/schemas
 cp -r $GTK_INSTALL_PATH/share/icons/* $DIST/share/icons
 
-zip dist.zip dist
-
-ls -lah dist
+zip -r dist.zip dist
