@@ -89,7 +89,7 @@ jobs:
 
   windows:
     docker:
-      - image: rust-gtk-windows
+      - image: rust-gtk-windows:latest
 
     steps:
       - checkout
