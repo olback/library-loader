@@ -10,7 +10,10 @@ fn generate_resources() {
     const INPUT: &str = "assets/resources.xml";
     const TARGET: &str = "resources.bin";
 
-    let exists = Command::new("which").arg(COMMAND).output().unwrap();
+    let exists = match Command::new("which").arg(COMMAND).output() {
+        Ok(v) => v,
+        Err(e) => panic!("Error running command 'which:' {}", e)
+    };
     if !exists.status.success() {
         panic!(format!("Command '{}' not found", COMMAND));
     }
