@@ -1,6 +1,8 @@
 mod out;
 mod resources;
 mod glade;
+
+#[cfg(windows)]
 mod windows;
 
 fn main() {
@@ -9,7 +11,7 @@ fn main() {
     resources::generate_resources();
     glade::fix_resource_paths();
 
-    #[cfg(target_os = "windows")]
+    #[cfg(windows)]
     {
         windows::generate_rc();
         windows::compile_rc();

@@ -1,6 +1,8 @@
-use std::{process::Command, path::Path, env};
+use std::{process::Command, path::Path, env, fs};
 
 pub fn generate_rc() {
+
+    fs::copy("assets/library-loader.rc", "out/library-loader.rc");
 
 }
 
