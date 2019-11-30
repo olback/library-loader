@@ -25,8 +25,8 @@ const files = [
     new File('./target/x86_64-unknown-linux-gnu/release/library-loader'),
     new File('./target/x86_64-unknown-linux-gnu/release/library-loader.sha256'),
     // Windows files
-    new File('./target/x86_64-pc-windows-gnu/release/library-loader.exe'),
-    new File('./target/x86_64-pc-windows-gnu/release/library-loader.exe.sha256')
+    new File('./windows.zip'),
+    new File('./windows.zip.sha256')
 ];
 
 let cargoToml = fs.readFileSync('Cargo.toml', 'utf8').toString().split('\n');

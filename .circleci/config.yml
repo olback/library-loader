@@ -81,6 +81,10 @@ jobs:
     docker:
       - image: olback/rust-gtk-windows:latest
 
+    environment:
+      DIST: windows
+      GTK_INSTALL_PATH: /usr/x86_64-w64-mingw32/sys-root/mingw
+
     steps:
       - checkout
 
@@ -112,42 +116,41 @@ jobs:
             - "./target/"
 
       - run:
+          name: Make dist package
+          command: |
+                    mkdir $DIST # Make dist dir
+                    cp ./target/x86_64-pc-windows-gnu/release/library-loader.exe $DIST/library-loader.exe
+                    ./tools/get_dlls.sh
+                    ./tools/get_schemas.sh
+                    ./tools/get_icons.sh
+                    ./tools/get_theme.sh
+                    ./tools/settings.sh
+                    zip -r $DIST.zip $DIST
+
+      - run:
           name: "Generate hash file"
-          command: "cd target/x86_64-pc-windows-gnu/release && sha256sum library-loader.exe > library-loader.exe.sha256"
+          command: "sha256sum $DIST.zip > $DIST.zip.sha256"
 
       - run:
           name: "Verify hash"
-          command: "cd target/x86_64-pc-windows-gnu/release && sha256sum -c library-loader.exe.sha256"
+          command: "sha256sum -c $DIST.zip.sha256"
 
       - run:
           name: "Show hash"
-          command: "cd target/x86_64-pc-windows-gnu/release && cat library-loader.exe.sha256"
+          command: "cat $DIST.zip.sha256"
 
       - save_cache:
           name: Save Windows Build
           key: ll-windows-dist-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            - "./target/x86_64-pc-windows-gnu/release/library-loader.exe"
-            - "./target/x86_64-pc-windows-gnu/release/library-loader.exe.sha256"
+            - "./windows.zip"
+            - "./windows.zip.sha256"
 
-      - run:
-          name: Make dist package
-          command: ./tools/windows_dist.sh
-
+      # Upload artifact to make testing easier
       - store_artifacts:
-          name: Store dist.zip
-          path: "dist.zip"
-          destination: "/windows/dist.zip"
-
-    #   - store_artifacts:
-    #       name: Store Build
-    #       path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe"
-    #       destination: "/windows/library-loader.exe"
-
-    #   - store_artifacts:
-    #       name: Store Build Checksum
-    #       path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe.sha256"
-    #       destination: "/windows/library-loader.exe.sha256"
+          name: Upload dist as artifact
+          path: "windows.zip"
+          destination: "/windows/windows_release.zip"
 
 
   deploy:

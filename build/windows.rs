@@ -1,8 +1,31 @@
 use std::{process::Command, path::Path, env, fs};
+use toml;
+use serde::Deserialize;
+
+#[derive(Deserialize)]
+struct CargoTomlPackage {
+    version: String
+}
+
+#[derive(Deserialize)]
+struct CargoToml {
+    package: CargoTomlPackage
+}
 
 pub fn generate_rc() {
 
-    fs::copy("assets/library-loader.rc", "out/library-loader.rc");
+    const RC_IN: &str = "assets/library-loader.rc";
+    const RC_OUT: &str = "out/library-loader.rc";
+
+    const CARGO_TOML: &str = include_str!("../Cargo.toml");
+    let ct: CargoToml = match toml::from_str(CARGO_TOML) {
+        Ok(v) => v,
+        Err(e) => panic!("{}#{}: Error parsing Cargo.toml: {}", std::file!(), std::line!(), e)
+    };
+
+    let rc_content = fs::read_to_string(RC_IN).unwrap();
+    let new_rc_content = rc_content.replace("<VERSION_STRING>", &ct.package.version);
+    fs::write(RC_OUT, new_rc_content).unwrap();
 
 }
 
