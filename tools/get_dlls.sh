@@ -1,10 +1,10 @@
 #!/bin/bash
 
 LIBRARY_LOADER=library-loader.exe
-LIBRARY_LOADER_PATH=.
-DLLS_PATH=dlls
+LIBRARY_LOADER_PATH=$DIST
+DLLS_PATH=$GTK_INSTALL_PATH
 
-NEEDED=$(strings $LIBRARY_LOADER | grep '\.dll$')
+NEEDED=$(strings $LIBRARY_LOADER_PATH/$LIBRARY_LOADER | grep '\.dll$')
 
 for dll in $NEEDED; do
 
