@@ -1,9 +1,9 @@
 mod out;
 mod resources;
 mod glade;
-
-#[cfg(windows)]
 mod windows;
+
+use std::env;
 
 fn main() {
 
@@ -11,8 +11,7 @@ fn main() {
     resources::generate_resources();
     glade::fix_resource_paths();
 
-    #[cfg(windows)]
-    {
+    if std::env::var("CARGO_CFG_TARGET_OS").unwrap() == "windows" {
         windows::generate_rc();
         windows::compile_rc();
     }
