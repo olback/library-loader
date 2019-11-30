@@ -1,3 +1,5 @@
+use std::{process::Command, path::Path, env};
+
 pub fn generate_rc() {
 
 }
@@ -5,16 +7,34 @@ pub fn generate_rc() {
 pub fn compile_rc() {
 
     let out_dir = env::var("OUT_DIR").unwrap();
-    Command::new("x86_64-w64-mingw32-windres")
+    match Command::new("x86_64-w64-mingw32-windres")
     // .args(&["src/program.rc"])
     // .arg(&format!("{}/program.o", out_dir))
     .args(&["out/library-loader.rc", &format!("{}/program.o", out_dir)])
-    .status().unwrap();
+    .status() {
+        Ok(s) => {
+            if !s.success() {
+                panic!("{}#{}: x86_64-w64-mingw32-windres failed", std::file!(), std::line!())
+            }
+        },
+        Err(e) => {
+            panic!("{}#{}: x86_64-w64-mingw32-windres failed {}", std::file!(), std::line!(), e)
+        }
+    };
 
-    Command::new("x86_64-w64-mingw32-gcc-ar")
+    match Command::new("x86_64-w64-mingw32-gcc-ar")
     .args(&["crus", "libprogram.a", "program.o"])
     .current_dir(&Path::new(&out_dir))
-    .status().unwrap();
+    .status() {
+        Ok(s) => {
+            if !s.success() {
+                panic!("{}#{}: x86_64-w64-mingw32-gcc-ar failed", std::file!(), std::line!())
+            }
+        },
+        Err(e) => {
+            panic!("{}#{}: x86_64-w64-mingw32-gcc-ar failed {}", std::file!(), std::line!(), e)
+        }
+    };
 
     println!("cargo:rustc-link-search=native={}", out_dir);
     println!("cargo:rustc-link-lib=static=program");

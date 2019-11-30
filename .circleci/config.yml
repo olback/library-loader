@@ -132,7 +132,7 @@ jobs:
 
       - run:
           name: Make dist package
-          command: .circleci/windows_dist.sh
+          command: ./tools/windows_dist.sh
 
       - store_artifacts:
           name: Store dist.zip

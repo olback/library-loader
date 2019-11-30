@@ -1,6 +1,7 @@
 mod out;
 mod resources;
 mod glade;
+mod windows;
 
 fn main() {
 
@@ -10,8 +11,6 @@ fn main() {
 
     #[cfg(target_os = "windows")]
     {
-        #[path = "windows.rs"]
-        mod windows;
         windows::generate_rc();
         windows::compile_rc();
     }
