@@ -211,7 +211,7 @@ workflows:
   version: 2
   build:
     jobs:
-      - fmt
+      # - fmt
       - linux
       - windows
       - request_deploy:
