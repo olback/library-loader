@@ -8,6 +8,7 @@ use std::env;
 fn main() {
 
     println!("cargo:rerun-if-changed=.git/HEAD");
+    println!("cargo:rerun-if-changed=assets/*");
 
     out::output_dir();
     resources::generate_resources();

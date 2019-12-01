@@ -666,15 +666,15 @@ For more information on this, and how to apply and follow the GNU AGPL, see
 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
+  <object class="GtkFileFilter" id="Plan text filter">
+    <mime-types>
+      <mime-type>text/plain</mime-type>
+    </mime-types>
+  </object>
   <object class="GtkFileFilter" id="Toml filter">
     <patterns>
       <pattern>*.toml</pattern>
     </patterns>
-  </object>
-  <object class="GtkStatusIcon">
-    <property name="file">resource:///net/olback/library-loader/icon-512</property>
-    <property name="visible">False</property>
-    <property name="title" translatable="yes">Library Loader</property>
   </object>
   <object class="GtkAboutDialog" id="about_dialog">
     <property name="can_focus">False</property>
@@ -720,7 +720,7 @@ For more information on this, and how to apply and follow the GNU AGPL, see
       </object>
     </child>
   </object>
-  <object class="GtkImage" id="eye-icon1">
+  <object class="GtkImage" id="eye-icon">
     <property name="width_request">24</property>
     <property name="height_request">24</property>
     <property name="visible">True</property>
@@ -757,10 +757,6 @@ For more information on this, and how to apply and follow the GNU AGPL, see
         <property name="position">1</property>
       </packing>
     </child>
-  </object>
-  <object class="GtkTextBuffer" id="tmp_textbuffer1">
-    <property name="text">Watch output
-Automatically scroll to last line on append</property>
   </object>
   <object class="GtkApplicationWindow" id="main_window">
     <property name="width_request">600</property>
@@ -800,164 +796,17 @@ Automatically scroll to last line on append</property>
       <object class="GtkNotebook">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="scrollable">True</property>
         <property name="enable_popup">True</property>
         <child>
           <object class="GtkLayout">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkEntry">
-                <property name="width_request">380</property>
-                <property name="height_request">30</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-              </object>
-              <packing>
-                <property name="x">150</property>
-                <property name="y">20</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="width_request">120</property>
-                <property name="height_request">30</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Email / Username</property>
-                <property name="xalign">1</property>
-              </object>
-              <packing>
-                <property name="x">20</property>
-                <property name="y">20</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry">
-                <property name="width_request">334</property>
-                <property name="height_request">30</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="visibility">False</property>
-                <property name="input_purpose">password</property>
-              </object>
-              <packing>
-                <property name="x">150</property>
-                <property name="y">70</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="width_request">120</property>
-                <property name="height_request">30</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Password</property>
-                <property name="xalign">1</property>
-              </object>
-              <packing>
-                <property name="x">20</property>
-                <property name="y">70</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton">
-                <property name="width_request">30</property>
-                <property name="height_request">30</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="focus_on_click">False</property>
-                <property name="receives_default">True</property>
-                <property name="image">eye-icon1</property>
-              </object>
-              <packing>
-                <property name="x">494</property>
-                <property name="y">70</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton">
-                <property name="label" translatable="yes">Login</property>
-                <property name="width_request">100</property>
-                <property name="height_request">30</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="x">430</property>
-                <property name="y">150</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="width_request">390</property>
-                <property name="height_request">30</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">(login status) Success!</property>
-                <property name="xalign">1</property>
-                <attributes>
-                  <attribute name="foreground" value="#4e4e9a9a0606"/>
-                </attributes>
-              </object>
-              <packing>
-                <property name="x">20</property>
-                <property name="y">150</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSpinner">
-                <property name="width_request">20</property>
-                <property name="height_request">20</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="active">True</property>
-              </object>
-              <packing>
-                <property name="x">390</property>
-                <property name="y">155</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton">
-                <property name="label" translatable="yes">Save login information</property>
-                <property name="width_request">171</property>
-                <property name="height_request">30</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="tooltip_text" translatable="yes">Enabling this will save username and password in plain-text on disk.</property>
-                <property name="active">True</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="x">359</property>
-                <property name="y">110</property>
-              </packing>
-            </child>
-          </object>
-        </child>
-        <child type="tab">
-          <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="label" translatable="yes">Login</property>
-          </object>
-          <packing>
-            <property name="tab_fill">False</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLayout">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <child>
               <object class="GtkLabel">
                 <property name="height_request">30</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Format</property>
+                <property name="label" translatable="yes">ECAD Software</property>
               </object>
               <packing>
                 <property name="x">20</property>
@@ -1074,9 +923,6 @@ Automatically scroll to last line on append</property>
               </packing>
             </child>
           </object>
-          <packing>
-            <property name="position">1</property>
-          </packing>
         </child>
         <child type="tab">
           <object class="GtkLabel">
@@ -1085,29 +931,172 @@ Automatically scroll to last line on append</property>
             <property name="label" translatable="yes">Watch</property>
           </object>
           <packing>
+            <property name="tab_fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLayout">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkEntry">
+                <property name="width_request">380</property>
+                <property name="height_request">30</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+              </object>
+              <packing>
+                <property name="x">150</property>
+                <property name="y">20</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="width_request">120</property>
+                <property name="height_request">30</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Email / Username</property>
+                <property name="xalign">1</property>
+              </object>
+              <packing>
+                <property name="x">20</property>
+                <property name="y">20</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry">
+                <property name="width_request">334</property>
+                <property name="height_request">30</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="visibility">False</property>
+                <property name="input_purpose">password</property>
+              </object>
+              <packing>
+                <property name="x">150</property>
+                <property name="y">70</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="width_request">120</property>
+                <property name="height_request">30</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Password</property>
+                <property name="xalign">1</property>
+              </object>
+              <packing>
+                <property name="x">20</property>
+                <property name="y">70</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="width_request">30</property>
+                <property name="height_request">30</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="focus_on_click">False</property>
+                <property name="receives_default">True</property>
+                <property name="image">eye-icon</property>
+              </object>
+              <packing>
+                <property name="x">494</property>
+                <property name="y">70</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Login</property>
+                <property name="width_request">100</property>
+                <property name="height_request">30</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="x">430</property>
+                <property name="y">150</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="width_request">390</property>
+                <property name="height_request">30</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">(login status) Success!</property>
+                <property name="xalign">1</property>
+                <attributes>
+                  <attribute name="foreground" value="#4e4e9a9a0606"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="x">20</property>
+                <property name="y">150</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinner">
+                <property name="width_request">20</property>
+                <property name="height_request">20</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="active">True</property>
+              </object>
+              <packing>
+                <property name="x">390</property>
+                <property name="y">155</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="label" translatable="yes">Save login information</property>
+                <property name="width_request">171</property>
+                <property name="height_request">30</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="tooltip_text" translatable="yes">Enabling this will save username and password in plain-text on disk.</property>
+                <property name="active">True</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="x">359</property>
+                <property name="y">110</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child type="tab">
+          <object class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Login</property>
+          </object>
+          <packing>
             <property name="position">1</property>
             <property name="tab_fill">False</property>
           </packing>
         </child>
         <child>
-          <object class="GtkScrolledWindow">
+          <object class="GtkBox">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="shadow_type">in</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
             <child>
-              <object class="GtkTextView">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="margin_left">10</property>
-                <property name="margin_right">10</property>
-                <property name="margin_top">10</property>
-                <property name="margin_bottom">10</property>
-                <property name="editable">False</property>
-                <property name="cursor_visible">False</property>
-                <property name="buffer">tmp_textbuffer1</property>
-                <property name="accepts_tab">False</property>
-                <property name="monospace">True</property>
-              </object>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -1118,7 +1107,7 @@ Automatically scroll to last line on append</property>
           <object class="GtkLabel">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label" translatable="yes">Output</property>
+            <property name="label" translatable="yes">Download ZIP</property>
           </object>
           <packing>
             <property name="position">2</property>
@@ -1126,83 +1115,22 @@ Automatically scroll to last line on append</property>
           </packing>
         </child>
         <child>
-          <object class="GtkLayout">
+          <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
             <child>
-              <object class="GtkFileChooserButton">
-                <property name="width_request">420</property>
-                <property name="height_request">30</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="filter">Toml filter</property>
-                <property name="local_only">False</property>
-                <property name="title" translatable="yes">Library Loader Open Configuration</property>
-              </object>
-              <packing>
-                <property name="x">20</property>
-                <property name="y">230</property>
-              </packing>
+              <placeholder/>
             </child>
             <child>
-              <object class="GtkButton">
-                <property name="label" translatable="yes">Save</property>
-                <property name="width_request">70</property>
-                <property name="height_request">30</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="tooltip_text" translatable="yes">Save opened file to disk</property>
-              </object>
-              <packing>
-                <property name="x">460</property>
-                <property name="y">230</property>
-              </packing>
+              <placeholder/>
             </child>
             <child>
-              <object class="GtkScrolledWindow">
-                <property name="width_request">552</property>
-                <property name="height_request">210</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="shadow_type">in</property>
-                <child>
-                  <object class="GtkTextView">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="margin_left">10</property>
-                    <property name="margin_right">10</property>
-                    <property name="margin_top">10</property>
-                    <property name="margin_bottom">10</property>
-                    <property name="buffer">tmp_textbuffer2</property>
-                    <property name="monospace">True</property>
-                  </object>
-                </child>
-              </object>
+              <placeholder/>
             </child>
           </object>
           <packing>
-            <property name="position">4</property>
-          </packing>
-        </child>
-        <child type="tab">
-          <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="label" translatable="yes">Configuration</property>
-          </object>
-          <packing>
-            <property name="position">4</property>
-            <property name="tab_fill">False</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLayout">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-          </object>
-          <packing>
-            <property name="position">5</property>
+            <property name="position">3</property>
           </packing>
         </child>
         <child type="tab">
@@ -1212,16 +1140,11 @@ Automatically scroll to last line on append</property>
             <property name="label" translatable="yes">Updates</property>
           </object>
           <packing>
-            <property name="position">5</property>
+            <property name="position">3</property>
             <property name="tab_fill">False</property>
           </packing>
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkTextBuffer" id="tmp_textbuffer2">
-    <property name="text" translatable="yes">Load config
-Edit config
-Save config</property>
   </object>
 </interface>

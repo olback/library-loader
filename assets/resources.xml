@@ -2,10 +2,14 @@
 <gresources>
     <gresource prefix="/net/olback/library-loader">
         <!-- <file preprocess="xml-stripblanks">assets/main.glade</file> -->
+        <!-- App icon -->
         <file alias="icon-svg">assets/library-loader-icon.svg</file>
         <file alias="icon-22">assets/library-loader-icon-22.png</file>
         <file alias="icon-100">assets/library-loader-icon-100.png</file>
         <file alias="icon-256">assets/library-loader-icon-256.png</file>
         <file alias="icon-512">assets/library-loader-icon-512.png</file>
+
+        <!-- Icons -->
+        <file alias="icon/eye">assets/icons/eye.png</file>
     </gresource>
 </gresources>
