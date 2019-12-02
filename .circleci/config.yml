@@ -238,18 +238,18 @@ workflows:
       - request_deploy:
           type: approval
           requires:
-            - linux
-            - windows
+            - build_linux
+            - build_windows
             - sign_windows
           filters:
             branches:
               only: master
       - deploy:
           requires:
-            - linux
-            - windows
-            - request_deploy
+            - build_linux
+            - build_windows
             - sign_windows
+            - request_deploy
           filters:
             branches:
               only: master
