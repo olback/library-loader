@@ -1,4 +1,7 @@
-version: 2
+version: 2.1
+
+orbs:
+  win: circleci/windows@2.2.0
 
 jobs:
   fmt:
@@ -13,7 +16,7 @@ jobs:
           command: rustfmt --check **/**.rs
 
 
-  linux:
+  build_linux:
     docker:
       - image: olback/rust-gtk-linux:latest
 
@@ -77,7 +80,7 @@ jobs:
     #       destination: "/linux/library-loader.sha256"
 
 
-  windows:
+  build_windows:
     docker:
       - image: olback/rust-gtk-windows:latest
 
@@ -153,6 +156,18 @@ jobs:
           destination: "/windows/windows_release.zip"
 
 
+  sign_windows:
+    executor: 
+      name: win/vs2019
+      shell: powershell.exe
+    steps:
+      - checkout
+
+      - run:
+          name: Test
+          command: echo 'Hello'
+
+
   deploy:
     docker:
       - image: circleci/node:latest
@@ -212,13 +227,20 @@ workflows:
   build:
     jobs:
       # - fmt
-      - linux
-      - windows
+      - build_linux
+      - build_windows
+      - sign_windows:
+          requires:
+            - build_windows
+          # filters:
+          #   branches:
+          #     only: master
       - request_deploy:
           type: approval
           requires:
             - linux
             - windows
+            - sign_windows
           filters:
             branches:
               only: master
@@ -227,6 +249,7 @@ workflows:
             - linux
             - windows
             - request_deploy
+            - sign_windows
           filters:
             branches:
               only: master
