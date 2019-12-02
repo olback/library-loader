@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  win: circleci/windows@2.2.0
+  windows: circleci/windows@2.2.0
 
 jobs:
   fmt:
@@ -157,9 +157,8 @@ jobs:
 
 
   sign_windows:
-    executor: 
-      name: win/vs2019
-      shell: powershell.exe
+    executor:
+      name: windows/default
     steps:
       - checkout
 
