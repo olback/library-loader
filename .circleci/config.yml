@@ -85,7 +85,7 @@ jobs:
       - image: olback/rust-gtk-windows:latest
 
     environment:
-      DIST: windows
+      DIST: library-loader-windows-portable
       GTK_INSTALL_PATH: /usr/x86_64-w64-mingw32/sys-root/mingw
 
     steps:
@@ -128,32 +128,23 @@ jobs:
                     ./tools/get_icons.sh
                     ./tools/get_theme.sh
                     ./tools/settings.sh
-                    zip -r $DIST.zip $DIST
-
-      - run:
-          name: "Generate hash file"
-          command: "sha256sum $DIST.zip > $DIST.zip.sha256"
-
-      - run:
-          name: "Verify hash"
-          command: "sha256sum -c $DIST.zip.sha256"
+                    zip -r llwpu.zip $DIST
 
       - run:
           name: "Show hash"
-          command: "cat $DIST.zip.sha256"
+          command: "sha256sum llwpu.zip"
 
       - save_cache:
           name: Save Windows Build
-          key: ll-windows-dist-{{ .Environment.CIRCLE_SHA1 }}
+          key: ll-windows-pre-dist-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            - "./windows.zip"
-            - "./windows.zip.sha256"
+            - "./llwpu.zip"
 
       # Upload artifact to make testing easier
       - store_artifacts:
           name: Upload dist as artifact
-          path: "windows.zip"
-          destination: "/windows/windows_release.zip"
+          path: "llwpu.zip"
+          destination: "/llwpu.zip"
 
 
   sign_windows:
@@ -162,9 +153,31 @@ jobs:
     steps:
       - checkout
 
+      - restore_cache:
+          name: Restore Windows pre-dist cache
+          key: ll-windows-pre-dist-{{ .Environment.CIRCLE_SHA1 }}
+
       - run:
-          name: Test
-          command: echo 'Hello'
+          name: Get certificate (pfx)
+          command: .\tools\get_pfx.ps1 -pfxpath library-loade.pfx
+
+      - run:
+          name: Unzip archive
+          command: Expand-Archive -Path .\llwpu.zip -DestinationPath .
+
+      - run:
+          name: Sign library-loader.exe
+          command: .\tools\sign.ps1 -binpath .\library-loader-windows-portable\library-loader.exe -pfxpath library-loader.pfx -password $env:pfxpass
+
+      - run:
+          name: Compress windows dist
+          command: |
+                    Compress-Archive .\library-loader-windows-portable\ library-loader-windows-portable.zip
+
+      - save_cache:
+          paths:
+            - ./library-loader-windows-portable.zip
+          key: ll-windows-dist-{{ .Environment.CIRCLE_SHA1 }}
 
 
   deploy:
@@ -197,24 +210,28 @@ jobs:
           key: ll-windows-dist-{{ .Environment.CIRCLE_SHA1 }}
 
       - store_artifacts:
-          name: Store Build
+          name: Store Linux Build
           path: "./target/x86_64-unknown-linux-gnu/release/library-loader"
           destination: "/linux/library-loader"
 
       - store_artifacts:
-          name: Store Build Checksum
+          name: Store Linux Build Checksum
           path: "./target/x86_64-unknown-linux-gnu/release/library-loader.sha256"
           destination: "/linux/library-loader.sha256"
 
       - store_artifacts:
-          name: Store Build
-          path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe"
-          destination: "/windows/library-loader.exe"
+          name: Store Windows Build
+          path: "./library-loader-windows-portable.zip"
+          destination: "/windows/library-loader-windows-portable.zip"
+
+      - run:
+          name: library-loader-windows-portable.zip checksum
+          command: sha256sum library-loader-windows-portable.zip > library-loader-windows-portable.zip.sha256
 
       - store_artifacts:
           name: Store Build Checksum
-          path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe.sha256"
-          destination: "/windows/library-loader.exe.sha256"
+          path: "./library-loader-windows-portable.zip.sha256"
+          destination: "/windows/library-loader-windows-portable.zip.sha256"
 
       - run:
           name: Deploy
@@ -231,9 +248,9 @@ workflows:
       - sign_windows:
           requires:
             - build_windows
-          # filters:
-          #   branches:
-          #     only: master
+          filters:
+            branches:
+              only: master
       - request_deploy:
           type: approval
           requires:

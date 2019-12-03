@@ -1,4 +1,4 @@
-# .\test.ps1 -PfxPath .\yeet.pfx -Password yeet
+# .\generate_cert.ps1 -PfxPath .\yeet.pfx -Password yeet
 
 # Params
 param (
@@ -17,3 +17,15 @@ $crt = New-SelfSignedCertificate -Type Custom -Subject "CN=Edwin Svensson, O=Edw
 
 # Export pfx
 $crt | Export-PfxCertificate -FilePath $pfxpath -Password $passwd
+
+# Read pfx file
+$pfxdata = [IO.File]::ReadAllBytes("$(pwd)\$($pfxpath)")
+
+# Base64 encode
+$pfxb64 = [Convert]::ToBase64String($pfxdata)
+
+# Write Base64 string to file
+[IO.File]::WriteAllText("$(pwd)\$($pfxpath).base64.txt", $pfxb64)
+
+# Show Base64 string
+Write-Output $pfxb64
