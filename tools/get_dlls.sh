@@ -1,27 +1,29 @@
 #!/bin/bash
 
-LIBRARY_LOADER=library-loader.exe
 LIBRARY_LOADER_PATH=$(readlink -f $DIST)
 DLLS_PATH="$GTK_INSTALL_PATH/bin"
-CWD=$(pwd)
 
-ALWAYS_NEEDED="libgcc_s_seh-1.dll libpixman-1-0.dll libpng16-16.dll zlib1.dll libepoxy-0.dll libintl-8.dll libgmodule-2.0-0.dll"
+cp "$DLLS_PATH/*.dll" $LIBRARY_LOADER_PATH
 
-cd $DLLS_PATH
-cp $ALWAYS_NEEDED $LIBRARY_LOADER_PATH
-cd $CWD
+# CWD=$(pwd)
+# ALWAYS_NEEDED="libgcc_s_seh-1.dll libpixman-1-0.dll libpng16-16.dll zlib1.dll libepoxy-0.dll libintl-8.dll libgmodule-2.0-0.dll"
 
-NEEDED=$(strings $LIBRARY_LOADER_PATH/$LIBRARY_LOADER | grep '\.dll$')
+# cd $DLLS_PATH
+# cp $ALWAYS_NEEDED $LIBRARY_LOADER_PATH
+# cd $CWD
 
-for dll in $NEEDED; do
+# LIBRARY_LOADER=library-loader.exe
+# NEEDED=$(strings $LIBRARY_LOADER_PATH/$LIBRARY_LOADER | grep '\.dll$')
 
-    DLL_PATH="$DLLS_PATH/$dll"
+# for dll in $NEEDED; do
 
-    if [ -e $DLL_PATH ]; then
+#     DLL_PATH="$DLLS_PATH/$dll"
 
-        cp $DLL_PATH $LIBRARY_LOADER_PATH
+#     if [ -e $DLL_PATH ]; then
 
-    fi
+#         cp $DLL_PATH $LIBRARY_LOADER_PATH
+
+#     fi
 
 
-done
+# done
