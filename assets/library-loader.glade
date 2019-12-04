@@ -676,20 +676,14 @@ For more information on this, and how to apply and follow the GNU AGPL, see
     <property name="visible">False</property>
     <property name="title" translatable="yes">Library Loader</property>
   </object>
-  <object class="GtkAboutDialog" id="about_dialog">
+  <object class="GtkDialog">
+    <property name="width_request">500</property>
+    <property name="height_request">260</property>
     <property name="can_focus">False</property>
-    <property name="destroy_with_parent">True</property>
-    <property name="icon">resource:/net/olback/library-loader/icon-512</property>
+    <property name="default_width">320</property>
+    <property name="default_height">260</property>
     <property name="type_hint">dialog</property>
-    <property name="program_name">Library Loader</property>
-    <property name="version">version not found</property>
-    <property name="copyright" translatable="yes">Edwin Svensson</property>
-    <property name="website">https://github.com/olback/library-loader</property>
-    <property name="website_label" translatable="yes">Library Loader on Github</property>
-    <property name="authors">Edwin Svensson</property>
-    <property name="logo">resource:/net/olback/library-loader/icon-100</property>
-    <property name="license_type">agpl-3-0</property>
-    <child type="titlebar">
+    <child>
       <placeholder/>
     </child>
     <child internal-child="vbox">
@@ -715,12 +709,22 @@ For more information on this, and how to apply and follow the GNU AGPL, see
           </packing>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkLayout">
+            <property name="width_request">0</property>
+            <property name="height_request">0</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
         </child>
       </object>
     </child>
   </object>
-  <object class="GtkImage" id="eye-icon1">
+  <object class="GtkImage" id="eye_icon1">
     <property name="width_request">24</property>
     <property name="height_request">24</property>
     <property name="visible">True</property>
@@ -761,6 +765,11 @@ For more information on this, and how to apply and follow the GNU AGPL, see
   <object class="GtkTextBuffer" id="tmp_textbuffer1">
     <property name="text">Watch output
 Automatically scroll to last line on append</property>
+  </object>
+  <object class="GtkTextBuffer" id="tmp_textbuffer2">
+    <property name="text" translatable="yes">Load config
+Edit config
+Save config</property>
   </object>
   <object class="GtkApplicationWindow" id="main_window">
     <property name="width_request">600</property>
@@ -868,7 +877,7 @@ Automatically scroll to last line on append</property>
                 <property name="can_focus">True</property>
                 <property name="focus_on_click">False</property>
                 <property name="receives_default">True</property>
-                <property name="image">eye-icon1</property>
+                <property name="image">eye_icon1</property>
               </object>
               <packing>
                 <property name="x">494</property>
@@ -1219,9 +1228,205 @@ Automatically scroll to last line on append</property>
       </object>
     </child>
   </object>
-  <object class="GtkTextBuffer" id="tmp_textbuffer2">
-    <property name="text" translatable="yes">Load config
-Edit config
-Save config</property>
+  <object class="GtkAboutDialog" id="about_dialog">
+    <property name="can_focus">False</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="icon">resource:/net/olback/library-loader/icon-512</property>
+    <property name="type_hint">dialog</property>
+    <property name="transient_for">main_window</property>
+    <property name="program_name">Library Loader</property>
+    <property name="version">version not found</property>
+    <property name="copyright" translatable="yes">Edwin Svensson</property>
+    <property name="website">https://github.com/olback/library-loader</property>
+    <property name="website_label" translatable="yes">Library Loader on Github</property>
+    <property name="authors">Edwin Svensson</property>
+    <property name="logo">resource:/net/olback/library-loader/icon-100</property>
+    <property name="license_type">agpl-3-0</property>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkDialog" id="error_dialog">
+    <property name="width_request">500</property>
+    <property name="height_request">120</property>
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Library Loader Error</property>
+    <property name="default_width">500</property>
+    <property name="default_height">120</property>
+    <property name="type_hint">dialog</property>
+    <property name="transient_for">main_window</property>
+    <child>
+      <placeholder/>
+    </child>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLayout">
+            <property name="width_request">400</property>
+            <property name="height_request">120</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkImage">
+                <property name="width_request">80</property>
+                <property name="height_request">80</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="resource">/net/olback/library-loader/icon/error</property>
+              </object>
+              <packing>
+                <property name="x">20</property>
+                <property name="y">20</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="error_label">
+                <property name="width_request">360</property>
+                <property name="height_request">80</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy </property>
+                <property name="wrap">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="x">120</property>
+                <property name="y">20</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkDialog" id="warning_dialog">
+    <property name="width_request">500</property>
+    <property name="height_request">120</property>
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Library Loader Warning</property>
+    <property name="default_width">500</property>
+    <property name="default_height">120</property>
+    <property name="type_hint">dialog</property>
+    <property name="transient_for">main_window</property>
+    <child>
+      <placeholder/>
+    </child>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLayout">
+            <property name="width_request">400</property>
+            <property name="height_request">120</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkImage">
+                <property name="width_request">80</property>
+                <property name="height_request">80</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="resource">/net/olback/library-loader/icon/warning</property>
+              </object>
+              <packing>
+                <property name="x">20</property>
+                <property name="y">20</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="warning_label">
+                <property name="width_request">360</property>
+                <property name="height_request">80</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy </property>
+                <property name="wrap">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="x">120</property>
+                <property name="y">20</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
   </object>
 </interface>

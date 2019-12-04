@@ -25,7 +25,10 @@ pub fn build(builder: &Builder) -> AboutDialog {
 
     let about_dialog_clone = about_dialog.clone();
     open_about_dialog_button.connect_clicked(move |_| {
-        about_dialog_clone.show();
+        let res = about_dialog_clone.run();
+        match res {
+            _ => about_dialog_clone.hide()
+        };
     });
 
     about_dialog.connect_delete_event(|ad, _| {

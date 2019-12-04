@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
     <gresource prefix="/net/olback/library-loader">
-        <!-- <file preprocess="xml-stripblanks">assets/main.glade</file> -->
+        <!-- UI -->
+        <file preprocess="xml-stripblanks">assets/library-loader.glade</file>
+
         <!-- App icon -->
         <file alias="icon-svg">assets/library-loader-icon.svg</file>
         <file alias="icon-22">assets/library-loader-icon-22.png</file>
@@ -11,5 +13,7 @@
 
         <!-- Icons -->
         <file alias="icon/eye">assets/icons/eye.png</file>
+        <file alias="icon/warning">assets/icons/warning.png</file>
+        <file alias="icon/error">assets/icons/error.png</file>
     </gresource>
 </gresources>
