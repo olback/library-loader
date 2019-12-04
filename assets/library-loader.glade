@@ -671,11 +671,6 @@ For more information on this, and how to apply and follow the GNU AGPL, see
       <pattern>*.toml</pattern>
     </patterns>
   </object>
-  <object class="GtkStatusIcon">
-    <property name="file">resource:///net/olback/library-loader/icon-512</property>
-    <property name="visible">False</property>
-    <property name="title" translatable="yes">Library Loader</property>
-  </object>
   <object class="GtkDialog">
     <property name="width_request">500</property>
     <property name="height_request">260</property>
@@ -731,6 +726,10 @@ For more information on this, and how to apply and follow the GNU AGPL, see
     <property name="can_focus">False</property>
     <property name="resource">/net/olback/library-loader/icon/eye</property>
   </object>
+  <object class="GtkTextBuffer" id="output_log_buffer">
+    <property name="text">Watch output
+Automatically scroll to last line on append</property>
+  </object>
   <object class="GtkPopoverMenu" id="popovermenu1">
     <property name="can_focus">False</property>
     <child>
@@ -761,10 +760,6 @@ For more information on this, and how to apply and follow the GNU AGPL, see
         <property name="position">1</property>
       </packing>
     </child>
-  </object>
-  <object class="GtkTextBuffer" id="tmp_textbuffer1">
-    <property name="text">Watch output
-Automatically scroll to last line on append</property>
   </object>
   <object class="GtkTextBuffer" id="tmp_textbuffer2">
     <property name="text" translatable="yes">Load config
@@ -816,11 +811,12 @@ Save config</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkEntry">
+              <object class="GtkEntry" id="login_email">
                 <property name="width_request">380</property>
                 <property name="height_request">30</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="input_purpose">email</property>
               </object>
               <packing>
                 <property name="x">150</property>
@@ -842,7 +838,7 @@ Save config</property>
               </packing>
             </child>
             <child>
-              <object class="GtkEntry">
+              <object class="GtkEntry" id="login_password">
                 <property name="width_request">334</property>
                 <property name="height_request">30</property>
                 <property name="visible">True</property>
@@ -870,13 +866,14 @@ Save config</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="login_password_toggle_visibility">
                 <property name="width_request">30</property>
                 <property name="height_request">30</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="focus_on_click">False</property>
                 <property name="receives_default">True</property>
+                <property name="tooltip_text" translatable="yes">Show password</property>
                 <property name="image">eye_icon1</property>
               </object>
               <packing>
@@ -885,7 +882,7 @@ Save config</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="login_button">
                 <property name="label" translatable="yes">Login</property>
                 <property name="width_request">100</property>
                 <property name="height_request">30</property>
@@ -899,16 +896,11 @@ Save config</property>
               </packing>
             </child>
             <child>
-              <object class="GtkLabel">
+              <object class="GtkLabel" id="login_status">
                 <property name="width_request">390</property>
                 <property name="height_request">30</property>
-                <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">(login status) Success!</property>
                 <property name="xalign">1</property>
-                <attributes>
-                  <attribute name="foreground" value="#4e4e9a9a0606"/>
-                </attributes>
               </object>
               <packing>
                 <property name="x">20</property>
@@ -916,12 +908,10 @@ Save config</property>
               </packing>
             </child>
             <child>
-              <object class="GtkSpinner">
+              <object class="GtkSpinner" id="login_spinner">
                 <property name="width_request">20</property>
                 <property name="height_request">20</property>
-                <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="active">True</property>
               </object>
               <packing>
                 <property name="x">390</property>
@@ -929,7 +919,7 @@ Save config</property>
               </packing>
             </child>
             <child>
-              <object class="GtkCheckButton">
+              <object class="GtkCheckButton" id="login_save_info">
                 <property name="label" translatable="yes">Save login information</property>
                 <property name="width_request">171</property>
                 <property name="height_request">30</property>
@@ -1104,7 +1094,7 @@ Save config</property>
             <property name="can_focus">True</property>
             <property name="shadow_type">in</property>
             <child>
-              <object class="GtkTextView">
+              <object class="GtkTextView" id="output_log">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="margin_left">10</property>
@@ -1113,7 +1103,7 @@ Save config</property>
                 <property name="margin_bottom">10</property>
                 <property name="editable">False</property>
                 <property name="cursor_visible">False</property>
-                <property name="buffer">tmp_textbuffer1</property>
+                <property name="buffer">output_log_buffer</property>
                 <property name="accepts_tab">False</property>
                 <property name="monospace">True</property>
               </object>
@@ -1233,6 +1223,8 @@ Save config</property>
     <property name="destroy_with_parent">True</property>
     <property name="icon">resource:/net/olback/library-loader/icon-512</property>
     <property name="type_hint">dialog</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="skip_pager_hint">True</property>
     <property name="transient_for">main_window</property>
     <property name="program_name">Library Loader</property>
     <property name="version">version not found</property>
@@ -1273,14 +1265,86 @@ Save config</property>
       </object>
     </child>
   </object>
+  <object class="GtkWindow" id="devtools_window">
+    <property name="width_request">140</property>
+    <property name="height_request">170</property>
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Devtools</property>
+    <property name="resizable">False</property>
+    <property name="default_width">120</property>
+    <property name="default_height">170</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="skip_pager_hint">True</property>
+    <property name="transient_for">main_window</property>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <object class="GtkFixed">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkButton" id="devbutton1">
+            <property name="label" translatable="yes">Button 1</property>
+            <property name="width_request">100</property>
+            <property name="height_request">30</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">20</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="devbutton2">
+            <property name="label" translatable="yes">Button 2</property>
+            <property name="width_request">100</property>
+            <property name="height_request">30</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">70</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="devbutton3">
+            <property name="label" translatable="yes">Button 3</property>
+            <property name="width_request">100</property>
+            <property name="height_request">30</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="x">20</property>
+            <property name="y">120</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkDialog" id="error_dialog">
     <property name="width_request">500</property>
     <property name="height_request">120</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Library Loader Error</property>
+    <property name="resizable">False</property>
+    <property name="modal">True</property>
+    <property name="window_position">center</property>
     <property name="default_width">500</property>
-    <property name="default_height">120</property>
+    <property name="default_height">170</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="icon">resource:/net/olback/library-loader/icon-512</property>
     <property name="type_hint">dialog</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="skip_pager_hint">True</property>
+    <property name="gravity">center</property>
     <property name="transient_for">main_window</property>
     <child>
       <placeholder/>
@@ -1310,7 +1374,7 @@ Save config</property>
         <child>
           <object class="GtkLayout">
             <property name="width_request">400</property>
-            <property name="height_request">120</property>
+            <property name="height_request">170</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
@@ -1332,13 +1396,26 @@ Save config</property>
                 <property name="height_request">80</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy </property>
                 <property name="wrap">True</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="x">120</property>
                 <property name="y">20</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="error_close">
+                <property name="label" translatable="yes">Close</property>
+                <property name="width_request">100</property>
+                <property name="height_request">30</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="x">380</property>
+                <property name="y">120</property>
               </packing>
             </child>
           </object>
@@ -1353,12 +1430,20 @@ Save config</property>
   </object>
   <object class="GtkDialog" id="warning_dialog">
     <property name="width_request">500</property>
-    <property name="height_request">120</property>
+    <property name="height_request">170</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Library Loader Warning</property>
+    <property name="resizable">False</property>
+    <property name="modal">True</property>
+    <property name="window_position">center</property>
     <property name="default_width">500</property>
-    <property name="default_height">120</property>
+    <property name="default_height">170</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="icon">resource:/net/olback/library-loader/icon-512</property>
     <property name="type_hint">dialog</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="skip_pager_hint">True</property>
+    <property name="gravity">center</property>
     <property name="transient_for">main_window</property>
     <child>
       <placeholder/>
@@ -1388,7 +1473,7 @@ Save config</property>
         <child>
           <object class="GtkLayout">
             <property name="width_request">400</property>
-            <property name="height_request">120</property>
+            <property name="height_request">170</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
@@ -1410,13 +1495,26 @@ Save config</property>
                 <property name="height_request">80</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy </property>
                 <property name="wrap">True</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="x">120</property>
                 <property name="y">20</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="warning_close">
+                <property name="label" translatable="yes">Close</property>
+                <property name="width_request">100</property>
+                <property name="height_request">30</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="x">380</property>
+                <property name="y">120</property>
               </packing>
             </child>
           </object>

@@ -31,10 +31,7 @@ pub fn build(builder: &Builder) -> AboutDialog {
         };
     });
 
-    about_dialog.connect_delete_event(|ad, _| {
-        ad.hide();
-        Inhibit(true)
-    });
+    about_dialog.hide_on_delete();
 
     // Fetch version from Cargo.toml and show it in the About window.
     let ct: CargoToml = toml::from_str(consts::CARGO_TOML).unwrap();

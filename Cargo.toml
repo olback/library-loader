@@ -1,6 +1,6 @@
 [package]
 name = "library-loader"
-version = "1.0.0-alpha"
+version = "1.0.0-dev"
 authors = ["Edwin Svensson <libloader@olback.net>"]
 edition = "2018"
 build = "build/build.rs"
