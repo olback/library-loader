@@ -40,7 +40,12 @@ jobs:
 
       - run:
           name: Build Binary
-          command: cargo build --release --target=x86_64-unknown-linux-gnu
+          command: |
+                    if [ $CIRCLE_BRANCH = "master" ]; then
+                      cargo build --release --target=x86_64-unknown-linux-gnu
+                    else
+                      cargo build --target=x86_64-unknown-linux-gnu
+                    fi
 
       - save_cache:
           name: Save Linux Rust Cache
@@ -108,7 +113,14 @@ jobs:
 
       - run:
           name: Build Binary
-          command: RUST_BACKTRACE=full PKG_CONFIG_ALLOW_CROSS=1 cargo build --release --target=x86_64-pc-windows-gnu
+          command: |
+                    export RUST_BACKTRACE=full
+                    export PKG_CONFIG_ALLOW_CROSS=1
+                    if [ $CIRCLE_BRANCH = "master" ]; then
+                      cargo build --release --target=x86_64-pc-windows-gnu
+                    else
+                      cargo build --target=x86_64-pc-windows-gnu
+                    fi
 
       - save_cache:
           name: Save Windows Rust Cache
