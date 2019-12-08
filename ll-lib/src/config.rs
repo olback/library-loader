@@ -83,7 +83,9 @@ impl Config {
                 None => {
                     match matches.is_present("generate") {
                         true => Profile::new("", ""),
-                        false => Profile::prompt()
+                        false => {
+                            Profile::prompt()
+                        }
                     }
                 }
             };
@@ -141,7 +143,8 @@ impl Config {
                 },
                 profile: match matches.is_present("generate") {
                     true => Profile::new("", ""),
-                    false => Profile::prompt()
+                    // false => Profile::prompt()
+                    false => Profile::new("", "")
                 }
             };
 

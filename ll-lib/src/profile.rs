@@ -1,7 +1,5 @@
 use base64;
 use serde::Deserialize;
-use std::io::Write;
-use rpassword;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Profile {
@@ -21,17 +19,25 @@ impl Profile {
 
     pub fn prompt() -> Self {
 
-        println!("No login information found. Please log in to Component Search Engine:");
+        #[cfg(feature = "cli-auth")]
+        {
+            use std::io::Write;
 
-        print!("Username: ");
-        std::io::stdout().flush().unwrap();
-        let mut username = String::new();
-        std::io::stdin().read_line(&mut username).expect("Failed to get user input");
-        username = username.trim().to_owned();
+            println!("Please log in to Component Search Engine:");
 
-        let password = rpassword::prompt_password_stdout("Password: ").expect("Failed to get password");
+            print!("Username: ");
+            std::io::stdout().flush().unwrap();
+            let mut username = String::new();
+            std::io::stdin().read_line(&mut username).expect("Failed to get user input");
+            username = username.trim().to_owned();
 
-        Self::new(username, password)
+            let password = rpassword::prompt_password_stdout("Password: ").expect("Failed to get password");
+
+            Self::new(username, password)
+        }
+
+        #[cfg(not(feature = "cli-auth"))]
+        Self::new("", "")
 
     }
 
