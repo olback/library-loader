@@ -21,15 +21,15 @@ fn main() {
         let ui = Ui::build(app);
 
 
+        // Dev...
         let output_clone1 = ui.notebook.output.clone();
         let output_clone2 = ui.notebook.output.clone();
-        // Dev...
         #[cfg(debug_assertions)]
         {
             use gtk::prelude::*;
             use std::time::{SystemTime, UNIX_EPOCH};
 
-            ui.devtools.show();
+            // ui.devtools.show();
 
             ui.devtools.button1.connect_clicked(move |_| {
                 let nanos = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().subsec_nanos();

@@ -1217,6 +1217,7 @@ Save config</property>
   <object class="GtkWindow" id="devtools_window">
     <property name="width_request">140</property>
     <property name="height_request">170</property>
+    <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Devtools</property>
     <property name="resizable">False</property>

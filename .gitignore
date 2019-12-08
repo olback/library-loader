@@ -5,7 +5,6 @@
 LibraryLoader.toml
 aLibraryLoader.toml
 resources.bin
-/out/
 /dist/
 *.sha256
 *.pfx

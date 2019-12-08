@@ -1,0 +1,101 @@
+name: "Library Loader"
+# version: "0.1.0"
+author: "olback <libloader@olback.net>"
+about: "Download libraries from componentsearchengine.com"
+args:
+    - INPUT:
+        help: "Path to .eqw/.zip file"
+        # required: true
+        index: 1
+    - id:
+        help: "Treat input as an id"
+        short: i
+        long: id
+        takes_value: false
+        multiple: false
+    - config:
+        help: "Path to custom config file"
+        short: c
+        long: config
+        value_name: config
+        takes_value: true
+        multiple: false
+    - watch:
+        help: "Path to watch for .epw/.zip files. Setting this will enable watch-mode"
+        short: w
+        long: watch
+        value_name: watch
+        takes_value: true
+        multiple: false
+        conflicts_with:
+            - INPUT
+            - id
+            - generate
+    - output:
+        help: "Path to save output in"
+        short: o
+        long: output
+        value_name: output
+        takes_value: true
+        multiple: false
+    - format:
+        help: "Specify which format to output"
+        short: f
+        long: format
+        value_name: format
+        takes_value: true
+        multiple: false
+        possible_values:
+            # - 3d
+            # - allegro
+            # - altium
+            # - cadstar
+            # - capture
+            # - circuitstudio
+            # - cr_5000
+            # - cr_8000
+            # - dehdl
+            # - designspark_pcb
+            # - designspark_pcb_pro
+            # - diptrace
+            - eagle
+            - easyeda
+            # - easy_pc
+            # - ecadstar
+            - kicad
+            # - orcad_allegro16
+            # - pads
+            # - proteus
+            # - pulsonix
+            # - solidworks_pcb
+            # - target_3001
+            # - xdx_designer
+            # - xpedition
+            - zip
+    - generate:
+        help: "Generate sample config"
+        short: g
+        long: generate
+        takes_value: false
+        multiple: false
+        conflicts_with:
+            - id
+            - config
+            - watch
+            - output
+            - format
+    - home_dir:
+        help: "Save config to your home directory. This will act as your global config."
+        short: u
+        long: home-dir
+        takes_value: false
+        multiple: false
+        requires:
+            - generate
+        conflicts_with:
+            - INPUT
+            - id
+            - config
+            - watch
+            - output
+            - format
