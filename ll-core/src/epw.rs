@@ -1,5 +1,10 @@
-// use super::error::LLError;
-use super::error::{LLResult, LLError};
+use super::{
+    error::{
+        LLResult,
+        LLError
+    },
+    new_err
+};
 use std::{
     fs,
     collections::HashMap,
@@ -50,7 +55,7 @@ impl Epw {
         let id = match lines.next() {
             Some(v) => v.parse::<u32>()?,
             None => {
-                return Err(LLError::new("No data in file"))
+                return Err(new_err!("No data in file"))
             }
         };
 
@@ -99,7 +104,7 @@ impl Epw {
         // The zip library crashes if the archive is empty,
         // lets prevent that.
         if raw_data.len() == 0 {
-            return Err(LLError::new("Zip archive seems to be empty"))
+            return Err(new_err!("Zip archive seems to be empty"))
         }
 
         // If the last byte is 0x0A, which it always seems to
@@ -134,7 +139,7 @@ impl Epw {
 
         }
 
-        Err(LLError::new("No .epw file found in archive"))
+        Err(new_err!("No .epw file found in archive"))
 
     }
 

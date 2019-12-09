@@ -1,10 +1,23 @@
-use super::profile::Profile;
-use super::consts::LL_CONFIG;
-use super::error::{LLResult, LLError};
-use super::format::Format;
-use serde::{Deserialize};
-use std::{fs, path::PathBuf};
-use clap::{self, load_yaml, crate_version};
+use super::{
+    new_err,
+    profile::Profile,
+    consts::LL_CONFIG,
+    error::{
+        LLResult,
+        LLError
+    },
+    format::Format
+};
+use serde::Deserialize;
+use std::{
+    fs,
+    path::PathBuf
+};
+use clap::{
+    self,
+    load_yaml,
+    crate_version
+};
 use dirs;
 use toml;
 
@@ -191,7 +204,7 @@ impl Config {
 
         match conf {
             Some(c) => Ok(c),
-            None => Err(LLError::new(format!("{file}#{line}: {p} not found", file = std::file!(), line = std::line!(), p = LL_CONFIG)))
+            None => Err(new_err!(format!("{} not found", LL_CONFIG)))
         }
 
     }
@@ -218,7 +231,7 @@ impl Config {
 
         if path.clone().exists() {
 
-            return Err(LLError::new(format!("{file}#{line}: {err} already exists", file = std::file!(), line = std::line!(), err = path.to_str().unwrap())))
+            return Err(new_err!(format!("{} already exists", path.to_str().unwrap())));
 
         }
 
@@ -227,7 +240,7 @@ impl Config {
                 let path_as_string = String::from(path.to_str().unwrap());
                 Ok(path_as_string)
             },
-            Err(e) => Err(LLError::new(format!("{}#{}: {}", std::file!(), std::line!(), e)))
+            Err(e) => Err(new_err!(e))
         }
 
     }

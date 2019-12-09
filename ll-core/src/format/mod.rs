@@ -69,7 +69,7 @@ impl Format {
             ECAD::EAGLE => extractors::eagle::extract(&self, files, file_path, item)?,
             ECAD::EASYEDA => extractors::easyeda::extract(&self, files, file_path, item)?,
             ECAD::KICAD => extractors::kicad::extract(&self, files, file_path, item)?,
-            ECAD::ZIP => panic!("This should be unreachable!")
+            ECAD::ZIP => unreachable!("ZIP not handled!")
             // ! NOTE: DO NOT ADD A _ => {} CATCHER HERE!
         };
 

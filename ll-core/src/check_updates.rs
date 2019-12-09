@@ -2,7 +2,6 @@ use reqwest;
 use toml;
 use serde::Deserialize;
 use super::error::LLResult;
-use super::consts::REMOTE_CARGO_TOML;
 
 pub struct UpdateInfo {
     pub local: String,
@@ -19,11 +18,9 @@ struct Package {
     version: String
 }
 
-pub fn check() -> LLResult<Option<UpdateInfo>> {
+pub fn check(local_toml_str: &str, remote_toml_url: &str) -> LLResult<Option<UpdateInfo>> {
 
-    let remote_toml_str = reqwest::get(REMOTE_CARGO_TOML)?.text()?;
-    let local_toml_str = std::include_str!("../Cargo.toml");
-
+    let remote_toml_str = reqwest::get(remote_toml_url)?.text()?;
 
     let remote_toml: CargoToml = toml::from_str(remote_toml_str.as_str())?;
     let local_toml: CargoToml = toml::from_str(local_toml_str)?;

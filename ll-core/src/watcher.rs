@@ -8,9 +8,15 @@ use std::{
     time::Duration,
     path::PathBuf
 };
-use super::error::{LLResult, LLError};
-use super::cse::CSE;
-use super::epw::Epw;
+use super::{
+    error::{
+        LLResult,
+        LLError
+    },
+    cse::CSE,
+    epw::Epw,
+    new_err
+};
 
 pub use notify::Error as NotifyError;
 
@@ -61,7 +67,8 @@ impl Watcher {
                                 &self.stop()?;
                                 break;
                             } else {
-                                return Err(LLError::new(format!("{}#{}: {}", std::file!(), std::line!(), e)))
+                                // return Err(LLError::new(format!("{}#{}: {}", std::file!(), std::line!(), e)))
+                                return Err(new_err!(e))
                             }
                         }
 
@@ -69,7 +76,7 @@ impl Watcher {
 
                 },
                 Err(e) => {
-                    return Err(LLError::new(format!("{}#{}: {}", std::file!(), std::line!(), e)))
+                    return Err(new_err!(e))
                 }
 
             };
@@ -90,7 +97,7 @@ impl Watcher {
 
         match &self.watcher.unwatch(&self.path) {
             Ok(v) => Ok(*v),
-            Err(e) => Err(LLError::new(format!("{}#{}: {}", std::file!(), std::line!(), e)))
+            Err(e) => Err(new_err!(e))
         }
 
     }

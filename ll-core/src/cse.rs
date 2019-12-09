@@ -1,9 +1,18 @@
-use super::config::Config;
-use super::format::{Files, ECAD};
-use super::epw::Epw;
-use super::error::{LLResult, LLError};
-use super::cse_result::CSEResult;
-use super::consts::COMPONENT_SEARCH_ENGINE_URL;
+use super::{
+    config::Config,
+    format::{
+        Files,
+        ECAD
+    },
+    epw::Epw,
+    error::{
+        LLResult,
+        LLError
+    },
+    cse_result::CSEResult,
+    consts::COMPONENT_SEARCH_ENGINE_URL,
+    new_err
+};
 use std::{
     path::PathBuf,
     collections::HashMap
@@ -41,17 +50,17 @@ impl CSE {
 
         if !res.status().is_success() {
 
-            return Err(LLError::new(format!("Error downloading file: {}", res.status())))
+            return Err(new_err!(format!("Error downloading file: {}", res.status())))
 
         } else if res_header != "application/x-zip" {
 
-            return Err(LLError::new("Error downloading file: Could not determine content type"))
+            return Err(new_err!("Error downloading file: Could not determine content type"))
 
         }
 
         let mut body = Vec::<u8>::new();
         if res.copy_to(&mut body).is_err() {
-            return Err(LLError::new("Error copying data from response"))
+            return Err(new_err!("Error copying data from response"))
         }
 
         let filename = match res.headers().get("content-disposition") {

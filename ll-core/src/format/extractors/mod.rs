@@ -6,9 +6,14 @@ pub mod kicad;
 use std::collections::HashMap;
 
 pub(super) use zip::read::ZipFile;
-pub(super) use super::super::error::LLResult;
-pub(super) use std::{io::Read, path::PathBuf};
-pub(super) use super::Format;
+pub(super) use std::{
+    io::Read,
+    path::PathBuf
+};
+pub(super) use super::{
+    Format,
+    super::LLResult
+};
 
 pub type Files = HashMap::<String, Vec<u8>>;
 

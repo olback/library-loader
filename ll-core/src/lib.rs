@@ -8,6 +8,7 @@ mod format;
 pub mod consts;
 mod watcher;
 pub mod check_updates;
+#[macro_use] mod macros;
 
 pub use error::{LLError, LLResult};
 pub use profile::Profile;
@@ -19,3 +20,4 @@ pub use format::Format;
 // pub use consts;
 pub use watcher::{Watcher, NotifyError};
 pub use check_updates::UpdateInfo;
+// pub use macros::new_err;

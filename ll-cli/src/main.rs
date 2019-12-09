@@ -2,14 +2,29 @@
  * Library Loader
  */
 
-use library_loader_core::{check_updates, consts, Config, Epw, CSE, Watcher, NotifyError, LLResult, LLError};
+use library_loader_core::{
+    is_debug,
+    new_err,
+    check_updates,
+    consts,
+    Config,
+    Epw,
+    CSE,
+    Watcher,
+    NotifyError,
+    LLResult,
+    LLError
+};
 use std::io::Read;
 
 fn main() {
 
     // Check for updates
     let update_handle = std::thread::spawn(move || {
-        match check_updates::check() {
+        match check_updates::check(
+            include_str!("../Cargo.toml"),
+            "https://raw.githubusercontent.com/olback/library-loader/master/ll-cli/Cargo.toml"
+        ) {
             Ok(available) => {
                 match available {
                     Some(update) => {
@@ -20,7 +35,11 @@ fn main() {
                 }
             },
             Err(e) => {
-                eprintln!("{}#{}: Error checking for updates: {}", std::file!(), std::line!(), e);
+                if is_debug!() {
+                    eprintln!("{}", new_err!(e));
+                } else {
+                    eprintln!("{}", new_err!("Error checking for updates"))
+                }
             }
         }
     });
@@ -83,7 +102,7 @@ fn real_main() -> LLResult<()> {
     } else if conf.cli.input.is_empty() {
 
         let args: Vec<String> = std::env::args().collect();
-        return Err(LLError::new(format!("No input specified, run `{} --help` for more help", args[0])))
+        return Err(new_err!(format!("No input specified, run `{} --help` for more help", args[0])))
 
     } else {
 

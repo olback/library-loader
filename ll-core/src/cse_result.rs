@@ -1,4 +1,10 @@
-use super::error::{LLResult, LLError};
+use super::{
+    new_err,
+    error::{
+        LLResult,
+        LLError
+    }
+};
 use std::{
     path::{Path, PathBuf},
     fs,
@@ -38,7 +44,7 @@ impl CSEResult {
 
         } else {
 
-            Err(LLError::new("No files found for your specified library"))
+            Err(new_err!("No files found for your specified library"))
 
         }
 
@@ -49,12 +55,12 @@ impl CSEResult {
         let p = path.to_str().unwrap().to_string();
 
         if path.exists() {
-            return Err(LLError::new(format!("{}#{}: {} already exists!", std::file!(), std::line!(), p)));
+            return Err(new_err!(format!("{} already exists!", p)));
         }
 
         match fs::write(&path, &data) {
             Ok(_) => Ok(p),
-            Err(e) => Err(LLError::new(format!("{}#{}: {}", std::file!(), std::line!(), e)))
+            Err(e) => Err(new_err!(e))
         }
 
     }

@@ -1,15 +1,24 @@
+use super::{
+    is_debug,
+    impl_from
+};
+
 pub type LLResult<T> = std::result::Result<T, LLError>;
 
 #[derive(Debug)]
 pub struct LLError {
-    pub cause: String
+    cause: String,
+    file: String,
+    line: u32
 }
 
 impl LLError {
 
-    pub fn new<S: Into<String>>(cause: S) -> Self {
+    pub fn new<S: Into<String>>(cause: S, file: &str, line: u32) -> LLError {
         LLError {
-            cause: cause.into()
+            cause: cause.into(),
+            file: String::from(file),
+            line: line
         }
     }
 
@@ -17,42 +26,19 @@ impl LLError {
 
 impl std::fmt::Display for LLError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.cause)
+
+        if is_debug!() {
+            return write!(f, "{}#{}: {}", self.file, self.line, self.cause);
+        } else {
+            return write!(f, "{}", self.cause);
+        }
+
     }
 }
 
-impl From<std::io::Error> for LLError {
-    fn from(err: std::io::Error) -> Self {
-        Self::new(format!("{}#{}: {}", std::file!(), std::line!(), err))
-    }
-}
-
-impl From<std::num::ParseIntError> for LLError {
-    fn from(err: std::num::ParseIntError) -> Self {
-        Self::new(format!("{}#{}: {}", std::file!(), std::line!(), err))
-    }
-}
-
-impl From<reqwest::Error> for LLError {
-    fn from(err: reqwest::Error) -> Self {
-        Self::new(format!("{}#{}: {}", std::file!(), std::line!(), err))
-    }
-}
-
-impl From<toml::de::Error> for LLError {
-    fn from(err: toml::de::Error) -> Self {
-        Self::new(format!("{}#{}: {}", std::file!(), std::line!(), err))
-    }
-}
-
-impl From <notify::Error> for LLError {
-    fn from(err: notify::Error) -> Self {
-        Self::new(format!("{}#{}: {}", std::file!(), std::line!(), err))
-    }
-}
-
-impl From<zip::result::ZipError> for LLError {
-    fn from(err: zip::result::ZipError) -> Self {
-        Self::new(format!("{}#{}: {}", std::file!(), std::line!(), err))
-    }
-}
+impl_from!(std::io::Error);
+impl_from!(std::num::ParseIntError);
+impl_from!(reqwest::Error);
+impl_from!(toml::de::Error);
+impl_from!(notify::Error);
+impl_from!(zip::result::ZipError);
