@@ -1,5 +1,5 @@
 [package]
-name = "ll-lib"
+name = "library-loader-core"
 version = "0.1.0"
 authors = ["Edwin Svensson <git@olback.net>"]
 edition = "2018"

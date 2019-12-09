@@ -2,7 +2,7 @@
  * Library Loader
  */
 
-use ll_lib::{check_updates, consts, Config, Epw, CSE, Watcher, NotifyError, LLResult, LLError};
+use library_loader_core::{check_updates, consts, Config, Epw, CSE, Watcher, NotifyError, LLResult, LLError};
 use std::io::Read;
 
 fn main() {
