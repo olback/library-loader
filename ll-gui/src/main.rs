@@ -23,26 +23,6 @@ fn main() {
         ui.error_dialog.set_text("Hello this is a message.");
         ui.error_dialog.show();
 
-
-        // Dev...
-        let output_clone1 = ui.notebook.output.clone();
-        let output_clone2 = ui.notebook.output.clone();
-
-        use gtk::prelude::*;
-        use std::time::{SystemTime, UNIX_EPOCH};
-
-        ui.devtools.show();
-
-        ui.devtools.button1.connect_clicked(move |_| {
-            let nanos = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().subsec_nanos();
-            output_clone1.append_line(&format!("{} Hello!", nanos));
-            output_clone1.scroll_to_bottom();
-        });
-
-        ui.devtools.button2.connect_clicked(move |_| {
-            output_clone2.clear();
-        });
-
     });
 
     application.run(&args().collect::<Vec<_>>());

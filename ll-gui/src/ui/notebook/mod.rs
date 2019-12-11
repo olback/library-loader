@@ -1,13 +1,13 @@
 use gtk::Builder;
 
-mod login;
+mod account;
 mod watch;
 mod output;
 mod configuration;
 mod updates;
 
 pub struct Notebook {
-    pub login: login::Login,
+    pub account: account::Account,
     pub watch: watch::Watch,
     pub output: output::Output,
     pub configuration: configuration::Configuration,
@@ -19,7 +19,7 @@ impl Notebook {
     pub fn build(builder: &Builder) -> Self {
 
         Self {
-            login: login::Login::build(&builder),
+            account: account::Account::build(&builder),
             watch: watch::Watch::build(&builder),
             output: output::Output::build(&builder),
             configuration: configuration::Configuration::build(&builder),
