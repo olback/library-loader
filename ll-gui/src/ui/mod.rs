@@ -6,17 +6,12 @@ mod about;
 mod alert;
 mod notebook;
 
-#[cfg(debug_assertions)]
-pub mod devtools;
-
 pub struct Ui {
     pub main: gtk::ApplicationWindow,
     pub notebook: notebook::Notebook,
     pub about_dialog: gtk::AboutDialog,
     pub warning_dialog: alert::Alert,
-    pub error_dialog: alert::Alert,
-    #[cfg(debug_assertions)]
-    pub devtools: devtools::Devtools
+    pub error_dialog: alert::Alert
 }
 
 impl Ui {
@@ -30,9 +25,7 @@ impl Ui {
             notebook: notebook::Notebook::build(&builder),
             about_dialog: about::build(&builder),
             warning_dialog: alert::Alert::new(&builder, "warning"),
-            error_dialog: alert::Alert::new(&builder, "error"),
-            #[cfg(debug_assertions)]
-            devtools: devtools::Devtools::build(&builder)
+            error_dialog: alert::Alert::new(&builder, "error")
         }
 
     }

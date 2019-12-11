@@ -1,14 +1,14 @@
-use gtk::{Builder, Button, CheckButton, Entry, Spinner, Label, prelude::*};
+use gtk::{Builder, Button, Switch, Entry, Spinner, Label, prelude::*};
 
-pub struct Login {
+pub struct Account {
     email: Entry,
     password: Entry,
     spinner: Spinner,
     status: Label,
-    save_info: CheckButton
+    save_info: Switch
 }
 
-impl Login {
+impl Account {
 
     pub fn build(builder: &Builder) -> Self {
 
@@ -61,8 +61,10 @@ impl Login {
     pub fn show_spinner(&self, show: bool) {
 
         if show {
+            self.spinner.set_visible(true);
             self.spinner.start();
         } else {
+            self.spinner.set_visible(false);
             self.spinner.stop();
         }
 
@@ -78,6 +80,7 @@ impl Login {
     pub fn hide_status(&self) {
 
         self.status.set_visible(false);
+        self.status.set_text("");
 
     }
 
