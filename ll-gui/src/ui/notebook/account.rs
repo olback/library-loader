@@ -12,7 +12,6 @@ impl Account {
 
     pub fn build(builder: &Builder) -> Self {
 
-        let email: Entry = builder.get_object("login_email").expect("could not get login_email");
         let password: Entry = builder.get_object("login_password").expect("could not get login_password");
         let toggle_btn: Button = builder.get_object("login_password_toggle_visibility").expect("could not get password_toggle_visibility");
         let login_btn: Button = builder.get_object("login_button").expect("could not get login_button");
@@ -25,7 +24,7 @@ impl Account {
         });
 
         Self {
-            email: email,
+            email: builder.get_object("login_email").expect("could not get login_email"),
             password: password,
             spinner: builder.get_object("login_spinner").expect("could not get login_spinner"),
             status: builder.get_object("login_status").expect("could not get login_status"),

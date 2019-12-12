@@ -1,4 +1,4 @@
-use gtk::Builder;
+use gtk::{Builder, ApplicationWindow};
 
 mod account;
 mod watch;
@@ -16,11 +16,11 @@ pub struct Notebook {
 
 impl Notebook {
 
-    pub fn build(builder: &Builder) -> Self {
+    pub fn build(builder: &Builder, main_window: &ApplicationWindow) -> Self {
 
         Self {
             account: account::Account::build(&builder),
-            watch: watch::Watch::build(&builder),
+            watch: watch::Watch::build(&builder, &main_window),
             output: output::Output::build(&builder),
             configuration: configuration::Configuration::build(&builder),
             updates: updates::Updates::build(&builder)

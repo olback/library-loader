@@ -20,9 +20,12 @@ impl Ui {
 
         let builder = gtk::Builder::new_from_string(consts::GLADE_STRING);
 
+        let main = main::build(&builder, &app);
+        let notebook = notebook::Notebook::build(&builder, &main);
+
         Self {
-            main: main::build(&builder, &app),
-            notebook: notebook::Notebook::build(&builder),
+            main: main,
+            notebook: notebook,
             about_dialog: about::build(&builder),
             warning_dialog: alert::Alert::new(&builder, "warning"),
             error_dialog: alert::Alert::new(&builder, "error")
