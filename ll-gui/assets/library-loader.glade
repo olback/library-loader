@@ -1116,7 +1116,6 @@ Elionas (download icon)
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="halign">end</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -1171,7 +1170,7 @@ Elionas (download icon)
                 <child>
                   <object class="GtkEntry" id="watch_watch_folder">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
+                    <property name="can_focus">False</property>
                     <property name="hexpand">True</property>
                     <property name="editable">False</property>
                     <property name="primary_icon_stock">gtk-directory</property>
@@ -1212,7 +1211,7 @@ Elionas (download icon)
                 <child>
                   <object class="GtkEntry" id="watch_output_folder">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
+                    <property name="can_focus">False</property>
                     <property name="hexpand">True</property>
                     <property name="editable">False</property>
                     <property name="primary_icon_stock">gtk-directory</property>
@@ -1393,7 +1392,7 @@ Elionas (download icon)
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="spacing">12</property>
+                <property name="spacing">18</property>
                 <child>
                   <object class="GtkImage" id="updates_icon">
                     <property name="visible">True</property>

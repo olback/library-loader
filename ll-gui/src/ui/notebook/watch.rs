@@ -7,6 +7,7 @@ use gtk::{
     FileChooserDialog,
     FileChooserAction,
     Label,
+    ToggleButton,
     ResponseType,
     prelude::*
 };
@@ -19,7 +20,7 @@ pub struct Watch {
     output_folder_entry: Entry,
     output_folder_button: Button,
     output_folder_dialog: FileChooserDialog,
-    start_button: Button,
+    start_button: ToggleButton,
     status: Label
 }
 
@@ -55,9 +56,15 @@ impl Watch {
 
         });
 
-        inner.start_button.connect_clicked(move |_| {
+        inner.start_button.connect_clicked(move |b| {
 
-            println!("Start clicked!");
+            if b.get_active() {
+                b.set_label("Stop");
+                println!("Starting...");
+            } else {
+                b.set_label("Start");
+                println!("Stopping...");
+            }
 
         });
 
