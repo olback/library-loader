@@ -13,13 +13,15 @@ use std::{
     fs,
     path::PathBuf
 };
+use dirs;
+use toml;
+
+#[cfg(feature = "cli-opts")]
 use clap::{
     self,
     load_yaml,
     crate_version
 };
-use dirs;
-use toml;
 
 #[derive(Deserialize, Debug)]
 struct ParseConfig {
@@ -57,6 +59,7 @@ pub struct Config {
 
 impl Config {
 
+    #[cfg(feature = "cli-opts")]
     pub fn load() -> Self {
 
         let conf: Self;
@@ -170,6 +173,44 @@ impl Config {
         }
 
         conf
+    }
+
+    #[cfg(not(feature = "cli-opts"))]
+    pub fn load() -> Self {
+
+        let default = Self::default();
+
+        match Self::try_from_fs(None) {
+            Ok(v) => {
+                let settings = match v.settings {
+                    Some(fs) => {
+                        Settings {
+                            output_path: fs.output_path.unwrap_or(default.settings.output_path),
+                            watch_path: fs.watch_path.or(default.settings.watch_path),
+                            format: match fs.format {
+                                Some(f) => Format::from(f),
+                                None => default.settings.format
+                            }
+                        }
+                    },
+                    None => default.settings
+                };
+                Self {
+                    settings: settings,
+                    profile: v.profile.unwrap_or(Profile::new("", "")),
+                    cli: Cli {
+                        input: String::new(),
+                        generate_config: (false, false),
+                        treat_input_as_id: false
+                    }
+                }
+            },
+            Err(e) => {
+                new_err!(e);
+                default
+            }
+        }
+
     }
 
     fn try_from_fs(path_input: Option<&str>) -> LLResult<ParseConfig> {
