@@ -15,6 +15,7 @@ pub enum ECAD {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Format {
+    pub name: String,
     pub ecad: ECAD,
     pub create_folder: bool,
     match_path: &'static str,
@@ -30,24 +31,28 @@ impl Format {
         // * Keep these in alphabetical order
         match f.as_str() {
             "eagle" => Self {
+                name: f,
                 ecad: ECAD::EAGLE,
                 create_folder: false,
                 match_path: "EAGLE",
                 ignore: vec!["Readme.html"]
             },
             "easyeda" => Self {
+                name: f,
                 ecad: ECAD::EASYEDA,
                 create_folder: false,
                 match_path: "EasyEDA",
                 ignore: vec!["Readme.html"]
             },
             "kicad" => Self {
+                name: f,
                 ecad: ECAD::KICAD,
                 create_folder: true,
                 match_path: "KiCad",
                 ignore: vec![]
             },
             "zip" => Self {
+                name: f,
                 ecad: ECAD::ZIP,
                 create_folder: false,
                 match_path: "",

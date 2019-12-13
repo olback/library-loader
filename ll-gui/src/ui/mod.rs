@@ -1,11 +1,12 @@
 use gtk;
-pub(super) use super::consts;
+pub(super) use super::{consts, types::AMState};
 
-mod main;
-mod about;
-mod alert;
-mod notebook;
+pub mod main;
+pub mod about;
+pub mod alert;
+pub mod notebook;
 
+#[derive(Debug)]
 pub struct Ui {
     pub main: gtk::ApplicationWindow,
     pub notebook: notebook::Notebook,
@@ -16,12 +17,12 @@ pub struct Ui {
 
 impl Ui {
 
-    pub fn build(app: &gtk::Application) -> Self {
+    pub fn build(app: &gtk::Application, state: &AMState) -> Self {
 
         let builder = gtk::Builder::new_from_string(consts::GLADE_STRING);
 
         let main = main::build(&builder, &app);
-        let notebook = notebook::Notebook::build(&builder, &main);
+        let notebook = notebook::Notebook::build(&builder, &main, &state);
 
         Self {
             main: main,

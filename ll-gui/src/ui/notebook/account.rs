@@ -1,5 +1,7 @@
 use gtk::{Builder, Button, Switch, Entry, Spinner, Label, prelude::*};
+use crate::{types::AMState, tasks};
 
+#[derive(Debug, Clone)]
 pub struct Account {
     email: Entry,
     password: Entry,
@@ -10,26 +12,56 @@ pub struct Account {
 
 impl Account {
 
-    pub fn build(builder: &Builder) -> Self {
+    pub fn build(builder: &Builder, state: &AMState) -> Self {
 
-        let password: Entry = builder.get_object("login_password").expect("could not get login_password");
+        let inner = Self {
+            email: builder.get_object("login_email").expect("could not get login_email"),
+            password: builder.get_object("login_password").expect("could not get login_password"),
+            spinner: builder.get_object("login_spinner").expect("could not get login_spinner"),
+            status: builder.get_object("login_status").expect("could not get login_status"),
+            save_info: builder.get_object("login_save_info").expect("could not get login_save_info")
+        };
+
+        let state_lock = state.lock().unwrap();
+        if state_lock.config.profile.username.len() > 0 {
+            inner.email.set_text(&state_lock.config.profile.username);
+        }
+        drop(state_lock);
+
         let toggle_btn: Button = builder.get_object("login_password_toggle_visibility").expect("could not get password_toggle_visibility");
-        let login_btn: Button = builder.get_object("login_button").expect("could not get login_button");
-
-        let password_clone = password.clone();
+        let password_clone = inner.password.clone();
         toggle_btn.connect_clicked(move |_| {
             let visibility = password_clone.get_visibility();
             password_clone.set_visibility(!visibility);
 
         });
 
-        Self {
-            email: builder.get_object("login_email").expect("could not get login_email"),
-            password: password,
-            spinner: builder.get_object("login_spinner").expect("could not get login_spinner"),
-            status: builder.get_object("login_status").expect("could not get login_status"),
-            save_info: builder.get_object("login_save_info").expect("could not get login_save_info")
-        }
+        let login_btn: Button = builder.get_object("login_button").expect("could not get login_button");
+        let save_info_switch = inner.save_info.clone();
+        let email_clone = inner.email.clone();
+        let password_clone = inner.password.clone();
+        let label_clone = inner.status.clone();
+        let spinner_clone = inner.spinner.clone();
+        let state_clone = state.clone();
+        login_btn.connect_clicked(move |b| {
+
+            let email = match email_clone.get_text() {
+                Some(v) => v.to_string(),
+                None => String::new()
+            };
+
+            let password = match password_clone.get_text() {
+                Some(v) => v.to_string(),
+                None => String::new()
+            };
+
+            let save_info = save_info_switch.get_state();
+
+            tasks::login(&state_clone, save_info, email, password, &label_clone, &spinner_clone, b);
+
+        });
+
+        inner
 
     }
 

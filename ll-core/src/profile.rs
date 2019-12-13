@@ -1,5 +1,7 @@
 use base64;
 use serde::Deserialize;
+use reqwest::{self, header::AUTHORIZATION};
+use crate::{new_err, consts, error::LLResult};
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Profile {
@@ -52,6 +54,21 @@ impl Profile {
 
         let content = &self.to_string();
         base64::encode(&content)
+
+    }
+
+    pub fn try_auth(&self) -> LLResult<bool> {
+
+        let client = reqwest::Client::new();
+        let req = client.get(consts::TRY_AUTH_URL).header(AUTHORIZATION, format!("Basic {}", self.to_base64()));
+        let res = req.send()?;
+
+        if res.status().is_server_error() {
+            return Err(new_err!("Server error"));
+        }
+
+        Ok(res.status().is_success())
+
 
     }
 

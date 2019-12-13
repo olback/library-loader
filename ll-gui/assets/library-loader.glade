@@ -738,6 +738,8 @@ fsd
 Pixabay account 2998800 (eye icon)
 janjf93 (check icon)
 Elionas (download icon)
+freeiconshop.com
+pixabay.com
 </property>
     <property name="logo">resource:/net/olback/library-loader/icon-100</property>
     <property name="license_type">agpl-3-0</property>
@@ -1013,7 +1015,6 @@ Elionas (download icon)
                     <property name="can_focus">False</property>
                     <property name="halign">end</property>
                     <property name="hexpand">True</property>
-                    <property name="active">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1025,7 +1026,6 @@ Elionas (download icon)
                   <object class="GtkLabel" id="login_status">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Status area</property>
                     <property name="xalign">1</property>
                   </object>
                   <packing>
@@ -1155,6 +1155,7 @@ Elionas (download icon)
                   <item id="eagle" translatable="yes">Eagle</item>
                   <item id="easyeda" translatable="yes">EasyEDA</item>
                   <item id="kicad" translatable="yes">KiCad</item>
+                  <item id="zip" translatable="yes">Zip</item>
                 </items>
               </object>
               <packing>
@@ -1409,9 +1410,7 @@ Elionas (download icon)
                   <object class="GtkLabel" id="updates_label">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">New updates available!
-Version 0.1.3 is now available.
-No updates available.</property>
+                    <property name="label" translatable="yes">No updates available.</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1475,7 +1474,7 @@ No updates available.</property>
           </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel" id="updates_tab">
+          <object class="GtkLabel" id="notebook_updates_label">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="label" translatable="yes">Updates</property>

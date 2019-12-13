@@ -1,3 +1,5 @@
+use crate::types::AMState;
+use library_loader_core::Format;
 use gtk::{
     ApplicationWindow,
     Builder,
@@ -12,6 +14,7 @@ use gtk::{
     prelude::*
 };
 
+#[derive(Debug, Clone)]
 pub struct Watch {
     format: ComboBoxText,
     watch_folder_entry: Entry,
@@ -26,7 +29,7 @@ pub struct Watch {
 
 impl Watch {
 
-    pub fn build(builder: &Builder, main_window: &ApplicationWindow) -> Self {
+    pub fn build(builder: &Builder, main_window: &ApplicationWindow, state: &AMState) -> Self {
 
         let inner = Self {
             format: builder.get_object("watch_format").expect("could not get watch_format"),
@@ -40,23 +43,74 @@ impl Watch {
             status: builder.get_object("watch_status").expect("could not get watch_status")
         };
 
-        inner.watch_folder_dialog.hide_on_delete();
-        inner.output_folder_dialog.hide_on_delete();
+        // Set initial values
+        let state_lock = state.lock().unwrap();
+        Self::_set_format(&inner.format, &state_lock.config.settings.format.name);
+        let wp = match &state_lock.config.settings.watch_path {
+            Some(v) => v.clone(),
+            None => String::new()
+        };
+        inner.watch_folder_entry.set_text(&wp);
+        inner.output_folder_entry.set_text(&state_lock.config.settings.output_path);
+        drop(state_lock);
 
+        // Format changed signal
+        let format_state = state.clone();
+        inner.format.connect_changed(move |f| {
+
+            let res = f.get_active_id().unwrap().to_string();
+            let mut format_state_lock = format_state.lock().unwrap();
+            format_state_lock.config.settings.format = Format::from(&res);
+            println!("{}", res);
+
+
+        });
+
+        // Watch folder dialog setup
+        let watch_dialog_state = state.clone();
         let watch_dialog_clone = inner.watch_folder_dialog.clone();
+        let watch_folder_entry = inner.watch_folder_entry.clone();
         inner.watch_folder_button.connect_clicked(move |_| {
 
             let res = watch_dialog_clone.run();
             watch_dialog_clone.hide_on_delete();
 
             if res == ResponseType::Accept {
-                let path = watch_dialog_clone.get_filename();
-                println!("{:#?}", path);
+                let path = watch_dialog_clone.get_filename().unwrap();
+                let path_str = path.into_os_string().into_string().unwrap();
+                watch_folder_entry.set_text(&path_str);
+                let mut lock = watch_dialog_state.lock().unwrap();
+                lock.config.settings.watch_path = Some(path_str);
+                drop(lock);
             }
 
         });
 
+        // Output folder dialog setup
+        let output_dialog_state = state.clone();
+        let output_dialog_clone = inner.watch_folder_dialog.clone();
+        let out_folder_entry = inner.output_folder_entry.clone();
+        inner.output_folder_button.connect_clicked(move |_| {
+
+            let res = output_dialog_clone.run();
+            output_dialog_clone.hide_on_delete();
+
+            if res == ResponseType::Accept {
+                let path = output_dialog_clone.get_filename().unwrap();
+                let path_str = path.into_os_string().into_string().unwrap();
+                out_folder_entry.set_text(&path_str);
+                let mut lock = output_dialog_state.lock().unwrap();
+                lock.config.settings.output_path = path_str;
+                drop(lock);
+            }
+
+        });
+
+        let run_state = state.clone();
         inner.start_button.connect_clicked(move |b| {
+
+            let run_state_lock = run_state.lock().unwrap();
+            println!("{:#?}", *run_state_lock);
 
             if b.get_active() {
                 b.set_label("Stop");
@@ -74,7 +128,13 @@ impl Watch {
 
     pub fn set_format(&self, format: &str) {
 
-        let model = self.format.get_model().expect("could not get model");
+        Self::_set_format(&self.format, format);
+
+    }
+
+    fn _set_format(format_combo_box: &ComboBoxText, format: &str) {
+
+        let model = format_combo_box.get_model().expect("could not get model");
         let iter = model.get_iter_from_string("0:1").expect("failed to get iter from string");
         let mut index = 0;
 
@@ -84,7 +144,7 @@ impl Watch {
             println!("val: {}, index: {}", val, index);
 
             if val == format {
-                self.format.set_active(Some(index));
+                format_combo_box.set_active(Some(index));
                 break;
             }
 

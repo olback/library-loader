@@ -2,7 +2,7 @@
 macro_rules! new_err {
     ($e:expr) => {
         // Error::new($e, std::file!(), std::line!())
-        LLError::new(format!("{}", $e), std::file!(), std::line!())
+        $crate::LLError::new(format!("{}", $e), std::file!(), std::line!())
     };
 }
 

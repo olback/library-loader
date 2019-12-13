@@ -7,8 +7,8 @@ BLOCK "StringFileInfo"
 BEGIN
     BLOCK "040904E4"
     BEGIN
-        VALUE "CompanyName", "My Company Name"
-        VALUE "FileDescription", "My excellent application"
+        VALUE "CompanyName", "github.com/olback/library-loader"
+        VALUE "FileDescription", "[Unofficial] Samacsys Library Loader for all platforms!"
         VALUE "FileVersion", "1.0"
         VALUE "InternalName", "library-loader"
         VALUE "LegalCopyright", "Edwin Svensson"

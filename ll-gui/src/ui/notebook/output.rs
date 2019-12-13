@@ -1,6 +1,6 @@
 use gtk::{Builder, TextBuffer, TextView, prelude::*};
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Output {
     buffer: TextBuffer,
     text_view: TextView

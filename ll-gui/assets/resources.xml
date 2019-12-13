@@ -17,5 +17,6 @@
         <file alias="icon/error">assets/icons/error.png</file>
         <file alias="icon/check">assets/icons/check.png</file>
         <file alias="icon/download">assets/icons/download.png</file>
+        <file alias="icon/exclamation">assets/icons/exclamation.png</file>
     </gresource>
 </gresources>

@@ -1,5 +1,6 @@
 use gtk::{Builder, Dialog, Label, Button, prelude::*};
 
+#[derive(Debug)]
 pub struct Alert {
     dialog: Dialog,
     label: Label
