@@ -1,9 +1,6 @@
 use super::{
     new_err,
-    error::{
-        LLResult,
-        LLError
-    }
+    error::LLResult
 };
 use std::{
     path::{Path, PathBuf},

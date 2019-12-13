@@ -9,10 +9,7 @@ use std::{
     path::PathBuf
 };
 use super::{
-    error::{
-        LLResult,
-        LLError
-    },
+    error::LLResult,
     cse::CSE,
     epw::Epw,
     new_err

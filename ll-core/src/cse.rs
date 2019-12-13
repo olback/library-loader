@@ -5,10 +5,7 @@ use super::{
         ECAD
     },
     epw::Epw,
-    error::{
-        LLResult,
-        LLError
-    },
+    error::LLResult,
     cse_result::CSEResult,
     consts::COMPONENT_SEARCH_ENGINE_URL,
     new_err

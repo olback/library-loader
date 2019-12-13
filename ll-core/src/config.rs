@@ -2,10 +2,7 @@ use super::{
     new_err,
     profile::Profile,
     consts::LL_CONFIG,
-    error::{
-        LLResult,
-        LLError
-    },
+    error::LLResult,
     format::Format
 };
 use serde::Deserialize;

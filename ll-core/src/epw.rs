@@ -1,8 +1,5 @@
 use super::{
-    error::{
-        LLResult,
-        LLError
-    },
+    error::LLResult,
     new_err
 };
 use std::{

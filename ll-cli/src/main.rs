@@ -12,8 +12,7 @@ use library_loader_core::{
     CSE,
     Watcher,
     NotifyError,
-    LLResult,
-    LLError
+    LLResult
 };
 use std::io::Read;
 
@@ -22,7 +21,7 @@ fn main() {
     // Check for updates
     let update_handle = std::thread::spawn(move || {
         match check_updates::check(
-            include_str!("../Cargo.toml"),
+            env!("CARGO_PKG_VERSION"),
             "https://raw.githubusercontent.com/olback/library-loader/master/ll-cli/Cargo.toml"
         ) {
             Ok(available) => {
