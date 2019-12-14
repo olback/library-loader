@@ -16,13 +16,14 @@ use super::{
 };
 
 pub use notify::Error as NotifyError;
+pub type TX = crossbeam_channel::Sender<Result<notify::Event, notify::Error>>;
 
 pub struct Watcher {
     path: PathBuf,
     cse: CSE,
     watcher: notify::RecommendedWatcher,
     rx: crossbeam_channel::Receiver<Result<notify::Event, notify::Error>>,
-    tx: crossbeam_channel::Sender<Result<notify::Event, notify::Error>>
+    tx: TX
 }
 
 impl Watcher {

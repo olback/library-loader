@@ -32,7 +32,9 @@ pub fn login(state: &AMState, save_info: bool, email: String, password: String, 
                 let mut state_lock = local_state.lock().unwrap();
                 state_lock.save_login_info = save_info;
                 state_lock.config.profile = profile;
+                state_lock.logged_in = true;
                 drop(state_lock);
+                local_button.set_label("Log out");
             },
             LoginStatus::Error(reason) => local_status.set_text(&reason)
         };

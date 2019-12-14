@@ -1,9 +1,9 @@
 use base64;
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 use reqwest::{self, header::AUTHORIZATION};
 use crate::{new_err, consts, error::LLResult};
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Profile {
     pub username: String,
     pub password: String

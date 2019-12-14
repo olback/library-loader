@@ -4,19 +4,6 @@ use gtk::{
     Builder,
     Button
 };
-use toml;
-use super::consts;
-use serde::Deserialize;
-
-#[derive(Deserialize)]
-struct CargoTomlPackage {
-    version: String
-}
-
-#[derive(Deserialize)]
-struct CargoToml {
-    package: CargoTomlPackage
-}
 
 pub fn build(builder: &Builder) -> AboutDialog {
 
@@ -33,9 +20,7 @@ pub fn build(builder: &Builder) -> AboutDialog {
 
     about_dialog.hide_on_delete();
 
-    // Fetch version from Cargo.toml and show it in the About window.
-    let ct: CargoToml = toml::from_str(consts::CARGO_TOML).unwrap();
-    about_dialog.set_version(Some(&ct.package.version));
+    about_dialog.set_version(Some(env!("CARGO_PKG_VERSION")));
 
     about_dialog
 

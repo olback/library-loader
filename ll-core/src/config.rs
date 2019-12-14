@@ -5,7 +5,7 @@ use super::{
     error::LLResult,
     format::Format
 };
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 use std::{
     fs,
     path::PathBuf
@@ -20,17 +20,17 @@ use clap::{
     crate_version
 };
 
-#[derive(Deserialize, Debug)]
-struct ParseConfig {
-    settings: Option<ParseSettings>,
-    profile: Option<Profile>,
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ParseConfig {
+    pub settings: Option<ParseSettings>,
+    pub profile: Option<Profile>,
 }
 
-#[derive(Deserialize, Debug)]
-struct ParseSettings {
-    output_path: Option<String>,
-    watch_path: Option<String>, // If set, enable watch mode
-    format: Option<String> // If set, extract relevant files and place them in output_path
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ParseSettings {
+    pub output_path: Option<String>,
+    pub watch_path: Option<String>, // If set, enable watch mode
+    pub format: Option<String> // If set, extract relevant files and place them in output_path
 }
 
 #[derive(Debug, Clone)]
@@ -51,7 +51,8 @@ pub struct Cli {
 pub struct Config {
     pub settings: Settings,
     pub profile: Profile,
-    pub cli: Cli
+    pub cli: Cli,
+    pub config_file: Option<PathBuf>
 }
 
 impl Config {
@@ -69,7 +70,7 @@ impl Config {
         // This needs to be refactored
         if internal.is_ok() {
 
-            let int = internal.unwrap();
+            let (int, int_path) = internal.unwrap();
 
             let settings: Settings = match int.settings {
                 Some(s) => {
@@ -127,6 +128,7 @@ impl Config {
                     treat_input_as_id: matches.is_present("id")
                 },
                 profile: profile,
+                config_file: Some(int_path)
             }
 
         } else {
@@ -156,9 +158,9 @@ impl Config {
                 },
                 profile: match matches.is_present("generate") {
                     true => Profile::new("", ""),
-                    // false => Profile::prompt()
-                    false => Profile::new("", "")
-                }
+                    false => Profile::prompt()
+                },
+                config_file: None
             };
 
         }
@@ -178,7 +180,7 @@ impl Config {
         let default = Self::default();
 
         match Self::try_from_fs(None) {
-            Ok(v) => {
+            Ok((v, p)) => {
                 let settings = match v.settings {
                     Some(fs) => {
                         Settings {
@@ -199,7 +201,8 @@ impl Config {
                         input: String::new(),
                         generate_config: (false, false),
                         treat_input_as_id: false
-                    }
+                    },
+                    config_file: Some(p)
                 }
             },
             Err(e) => {
@@ -210,18 +213,19 @@ impl Config {
 
     }
 
-    fn try_from_fs(path_input: Option<&str>) -> LLResult<ParseConfig> {
+    fn try_from_fs(path_input: Option<&str>) -> LLResult<(ParseConfig, PathBuf)> {
 
         let path = match path_input {
             Some(p) => p,
             None => LL_CONFIG
         };
 
-        let mut conf: Option<ParseConfig> = None;
+        let mut conf: Option<(ParseConfig, PathBuf)> = None;
 
-        if PathBuf::from(path).exists() {
+        let pb = PathBuf::from(path);
+        if pb.exists() {
             let data = fs::read(path)?;
-            conf = Some(toml::from_slice(&data)?);
+            conf = Some((toml::from_slice(&data)?, pb));
         }
 
         // Don't bother checking global config is local is already set.
@@ -233,10 +237,13 @@ impl Config {
                 None => None
             };
 
-            if home_path.is_some() {
-                let data = fs::read(home_path.unwrap())?;
-                conf = Some(toml::from_slice(&data)?);
-            }
+            match home_path {
+                Some(v) => {
+                    let data = fs::read(&v)?;
+                    conf = Some((toml::from_slice(&data)?, v));
+                },
+                None => {}
+            };
 
         }
 
@@ -302,7 +309,8 @@ impl Default for Config {
                 input: String::new(),
                 generate_config: (false, false),
                 treat_input_as_id: false
-            }
+            },
+            config_file: None
         }
 
     }

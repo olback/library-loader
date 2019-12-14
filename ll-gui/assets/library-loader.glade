@@ -893,7 +893,7 @@ pixabay.com
       </object>
     </child>
     <child>
-      <object class="GtkNotebook">
+      <object class="GtkNotebook" id="notebook">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <child>
@@ -992,19 +992,6 @@ pixabay.com
               </packing>
             </child>
             <child>
-              <object class="GtkSwitch" id="login_save_info">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="tooltip_text" translatable="yes">This will store your credential in plaintext on disk</property>
-                <property name="halign">start</property>
-                <property name="active">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">2</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -1052,6 +1039,20 @@ pixabay.com
                 <property name="left_attach">0</property>
                 <property name="top_attach">3</property>
                 <property name="width">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="login_save_info">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="tooltip_text" translatable="yes">This will store your credential in plaintext on disk</property>
+                <property name="halign">start</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">2</property>
               </packing>
             </child>
           </object>

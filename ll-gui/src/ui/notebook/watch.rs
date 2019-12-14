@@ -13,6 +13,7 @@ use gtk::{
     ResponseType,
     prelude::*
 };
+use crate::tasks::watcher;
 
 #[derive(Debug, Clone)]
 pub struct Watch {
@@ -25,6 +26,7 @@ pub struct Watch {
     output_folder_dialog: FileChooserDialog,
     start_button: ToggleButton,
     status: Label
+    // TODO: glib::MainContext::channel<String>?
 }
 
 impl Watch {
@@ -45,7 +47,7 @@ impl Watch {
 
         // Set initial values
         let state_lock = state.lock().unwrap();
-        Self::_set_format(&inner.format, &state_lock.config.settings.format.name);
+        Self::set_format(&inner.format, &state_lock.config.settings.format.name);
         let wp = match &state_lock.config.settings.watch_path {
             Some(v) => v.clone(),
             None => String::new()
@@ -61,6 +63,7 @@ impl Watch {
             let res = f.get_active_id().unwrap().to_string();
             let mut format_state_lock = format_state.lock().unwrap();
             format_state_lock.config.settings.format = Format::from(&res);
+            drop(format_state_lock);
             println!("{}", res);
 
 
@@ -111,6 +114,7 @@ impl Watch {
 
             let run_state_lock = run_state.lock().unwrap();
             println!("{:#?}", *run_state_lock);
+            drop(run_state_lock);
 
             if b.get_active() {
                 b.set_label("Stop");
@@ -126,13 +130,7 @@ impl Watch {
 
     }
 
-    pub fn set_format(&self, format: &str) {
-
-        Self::_set_format(&self.format, format);
-
-    }
-
-    fn _set_format(format_combo_box: &ComboBoxText, format: &str) {
+    fn set_format(format_combo_box: &ComboBoxText, format: &str) {
 
         let model = format_combo_box.get_model().expect("could not get model");
         let iter = model.get_iter_from_string("0:1").expect("failed to get iter from string");

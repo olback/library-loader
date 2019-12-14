@@ -18,30 +18,34 @@ use std::io::Read;
 
 fn main() {
 
+    let mut update_handle: Option<std::thread::JoinHandle<()>> = None;
+
     // Check for updates
-    let update_handle = std::thread::spawn(move || {
-        match check_updates::check(
-            env!("CARGO_PKG_VERSION"),
-            "https://raw.githubusercontent.com/olback/library-loader/master/ll-cli/Cargo.toml"
-        ) {
-            Ok(available) => {
-                match available {
-                    Some(update) => {
-                        println!("New update available! {} -> {}", update.local, update.remote);
-                        println!("{}", consts::DOWNLOAD_URL);
-                    },
-                    None => {}
-                }
-            },
-            Err(e) => {
-                if is_debug!() {
-                    eprintln!("{}", new_err!(e));
-                } else {
-                    eprintln!("{}", new_err!("Error checking for updates"))
+    if !is_debug!() {
+        update_handle = Some(std::thread::spawn(move || {
+            match check_updates::check(
+                env!("CARGO_PKG_VERSION"),
+                "https://raw.githubusercontent.com/olback/library-loader/master/ll-cli/Cargo.toml"
+            ) {
+                Ok(available) => {
+                    match available {
+                        Some(update) => {
+                            println!("New update available! {} -> {}", update.local, update.remote);
+                            println!("{}", consts::DOWNLOAD_URL);
+                        },
+                        None => {}
+                    }
+                },
+                Err(e) => {
+                    if is_debug!() {
+                        eprintln!("{}", new_err!(e));
+                    } else {
+                        eprintln!("{}", new_err!("Error checking for updates"))
+                    }
                 }
             }
-        }
-    });
+        }));
+    }
 
     match real_main() {
         Ok(v) => v,
@@ -51,7 +55,10 @@ fn main() {
         }
     }
 
-    update_handle.join().unwrap();
+    match update_handle {
+        Some(h) => h.join().unwrap(),
+        None => {}
+    };
 
 }
 

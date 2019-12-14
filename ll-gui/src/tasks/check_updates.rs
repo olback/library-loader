@@ -26,7 +26,7 @@ pub fn check(updates_tab: &Updates) -> std::thread::JoinHandle<()> {
 
     return std::thread::spawn(move || {
 
-        match check_updates::check(consts::CARGO_TOML, consts::REMOTE_CARGO_TOML) {
+        match check_updates::check(env!("CARGO_PKG_VERSION"), consts::REMOTE_CARGO_TOML) {
             Ok(res) => {
                 match res {
                     Some(update) => { tx.send(Some(update)).unwrap(); },

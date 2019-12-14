@@ -1,6 +1,9 @@
+# Since workspaces are a mess and don't actually work...
+# See https://github.com/rust-lang/cargo/issues/4463
+
 [workspace]
 members = [
     "ll-core",
+    "ll-gui",
     "ll-cli",
-    "ll-gui"
 ]

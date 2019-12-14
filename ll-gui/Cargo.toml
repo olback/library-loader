@@ -13,7 +13,7 @@ gio = "0.7"
 glib = "0.8"
 toml = "0.5"
 serde = { version = "1.0", features = ["derive"] }
-library-loader-core = { path = "../ll-core" }
+library-loader-core = { path = "../ll-core", default-features = false }
 
 [build-dependencies]
 regex = "1"

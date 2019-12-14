@@ -40,5 +40,6 @@ impl_from!(std::io::Error);
 impl_from!(std::num::ParseIntError);
 impl_from!(reqwest::Error);
 impl_from!(toml::de::Error);
+impl_from!(toml::ser::Error);
 impl_from!(notify::Error);
 impl_from!(zip::result::ZipError);
