@@ -1,5 +1,5 @@
 use gtk::{Builder, Button, CheckButton, Entry, Spinner, Label, prelude::*};
-use crate::{types::AMState, tasks};
+use crate::{types::AMState, tasks, utils::safe_lock};
 use library_loader_core::Profile;
 
 #[derive(Debug, Clone)]
@@ -23,22 +23,21 @@ impl Account {
             save_info: builder.get_object("login_save_info").expect("could not get login_save_info")
         };
 
-        let state_set_clone = state.clone();
-        inner.save_info.connect_toggled(move |cb| {
-            let mut state_set_lock = state_set_clone.lock().unwrap();
-            state_set_lock.save_login_info = cb.get_active();
-            drop(state_set_lock);
+        let login_btn: Button = builder.get_object("login_button").expect("could not get login_button");
+        safe_lock(&state, |lock| {
+            if lock.logged_in {
+                inner.email.set_text(&lock.config.profile.username);
+                login_btn.set_label("Log out");
+                inner.save_info.set_active(true);
+            }
         });
 
-        let login_btn: Button = builder.get_object("login_button").expect("could not get login_button");
-
-        let state_lock = state.lock().unwrap();
-        inner.save_info.set_active(state_lock.save_login_info);
-        if state_lock.logged_in {
-            inner.email.set_text(&state_lock.config.profile.username);
-            login_btn.set_label("Log out");
-        }
-        drop(state_lock);
+        let state_set_clone = state.clone();
+        inner.save_info.connect_toggled(move |cb| {
+            safe_lock(&state_set_clone, |lock| {
+                lock.save_login_info = cb.get_active();
+            });
+        });
 
         let toggle_btn: Button = builder.get_object("login_password_toggle_visibility").expect("could not get password_toggle_visibility");
         let password_clone = inner.password.clone();
@@ -56,19 +55,19 @@ impl Account {
         let state_clone = state.clone();
         login_btn.connect_clicked(move |b| {
 
-            let state_lock = state_clone.lock().unwrap();
-            let logged_in = state_lock.logged_in;
-            drop(state_lock);
+            let logged_in = safe_lock(&state_clone, |lock| {
+                return lock.logged_in;
+            });
 
             if logged_in {
 
                 // Log out
                 b.set_label("Login");
                 label_clone.set_text("Log out successful");
-                let mut state_lock = state_clone.lock().unwrap();
-                state_lock.logged_in = false;
-                state_lock.config.profile = Profile::new("", "");
-                drop(state_lock);
+                safe_lock(&state_clone, |lock| {
+                    lock.logged_in = false;
+                    lock.config.profile = Profile::new("", "");
+                });
 
             } else {
 

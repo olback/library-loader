@@ -25,7 +25,7 @@ impl Notebook {
             inner: builder.get_object("notebook").expect("could not get notebook"),
             account: account::Account::build(&builder, &state),
             watch: watch::Watch::build(&builder, &main_window, &state),
-            output: output::Output::build(&builder),
+            output: output::Output::build(&builder, &state),
             configuration: configuration::Configuration::build(&builder, &state),
             updates: updates::Updates::build(&builder)
         }

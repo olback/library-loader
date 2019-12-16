@@ -1,4 +1,8 @@
-use crate::types::AMState;
+use crate::{
+    tasks,
+    types::AMState,
+    utils::safe_lock
+};
 use library_loader_core::Format;
 use gtk::{
     ApplicationWindow,
@@ -13,7 +17,6 @@ use gtk::{
     ResponseType,
     prelude::*
 };
-use crate::tasks::watcher;
 
 #[derive(Debug, Clone)]
 pub struct Watch {
@@ -45,27 +48,24 @@ impl Watch {
             status: builder.get_object("watch_status").expect("could not get watch_status")
         };
 
-        // Set initial values
-        let state_lock = state.lock().unwrap();
-        Self::set_format(&inner.format, &state_lock.config.settings.format.name);
-        let wp = match &state_lock.config.settings.watch_path {
-            Some(v) => v.clone(),
-            None => String::new()
-        };
-        inner.watch_folder_entry.set_text(&wp);
-        inner.output_folder_entry.set_text(&state_lock.config.settings.output_path);
-        drop(state_lock);
+        safe_lock(&state, |lock| {
+            Self::set_format(&inner.format, &lock.config.settings.format.name);
+            let wp = match &lock.config.settings.watch_path {
+                Some(v) => v.clone(),
+                None => String::new()
+            };
+            inner.watch_folder_entry.set_text(&wp);
+            inner.output_folder_entry.set_text(&lock.config.settings.output_path);
+        });
 
         // Format changed signal
         let format_state = state.clone();
         inner.format.connect_changed(move |f| {
 
-            let res = f.get_active_id().unwrap().to_string();
-            let mut format_state_lock = format_state.lock().unwrap();
-            format_state_lock.config.settings.format = Format::from(&res);
-            drop(format_state_lock);
-            println!("{}", res);
-
+            safe_lock(&format_state, |lock| {
+                let res = f.get_active_id().unwrap().to_string();
+                lock.config.settings.format = Format::from(&res);
+            });
 
         });
 
@@ -82,9 +82,9 @@ impl Watch {
                 let path = watch_dialog_clone.get_filename().unwrap();
                 let path_str = path.into_os_string().into_string().unwrap();
                 watch_folder_entry.set_text(&path_str);
-                let mut lock = watch_dialog_state.lock().unwrap();
-                lock.config.settings.watch_path = Some(path_str);
-                drop(lock);
+                safe_lock(&watch_dialog_state, |lock| {
+                    lock.config.settings.watch_path = Some((&path_str).to_string());
+                });
             }
 
         });
@@ -102,26 +102,47 @@ impl Watch {
                 let path = output_dialog_clone.get_filename().unwrap();
                 let path_str = path.into_os_string().into_string().unwrap();
                 out_folder_entry.set_text(&path_str);
-                let mut lock = output_dialog_state.lock().unwrap();
-                lock.config.settings.output_path = path_str;
-                drop(lock);
+                safe_lock(&output_dialog_state, |lock| {
+                    lock.config.settings.output_path = (&path_str).to_string();
+                });
             }
 
         });
 
         let run_state = state.clone();
+        let tx = safe_lock(&run_state, |lock| {
+            lock.get_log_tx()
+        });
         inner.start_button.connect_clicked(move |b| {
 
-            let run_state_lock = run_state.lock().unwrap();
-            println!("{:#?}", *run_state_lock);
-            drop(run_state_lock);
+            println!("{:#?}", run_state);
+
+            let already_running = safe_lock(&run_state, |lock| {
+                lock.watcher_running()
+            });
 
             if b.get_active() {
-                b.set_label("Stop");
-                println!("Starting...");
+                if !already_running {
+                    b.set_label("Stop");
+                    match tasks::watcher(&run_state) {
+                        Ok(_) => tx.send(String::from("Starting...")).unwrap(),
+                        Err(e) => tx.send(format!("{}", e)).unwrap()
+                    };
+                } else {
+                    // TODO: Show error
+                    println!("Button and state out of sync!");
+                }
             } else {
-                b.set_label("Start");
-                println!("Stopping...");
+                if already_running {
+                    b.set_label("Start");
+                    println!("Stopping...");
+                    safe_lock(&run_state, |lock| {
+                        lock.stop_watcher();
+                    });
+                } else {
+                    // TODO: Show error
+                    println!("Button and state out of sync!");
+                }
             }
 
         });
@@ -138,8 +159,7 @@ impl Watch {
 
         loop {
 
-            let val: String = model.get_value(&iter, 1).get().expect("failed to get value");
-            println!("val: {}, index: {}", val, index);
+            let val: String = model.get_value(&iter, 1).get().expect("failed to get value").unwrap_or(String::from("zip"));
 
             if val == format {
                 format_combo_box.set_active(Some(index));

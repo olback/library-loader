@@ -1,4 +1,4 @@
-use crate::types::AMState;
+use crate::{types::AMState, utils::safe_lock};
 use gtk::{Button, Label, Spinner, prelude::*};
 use library_loader_core::Profile;
 
@@ -29,11 +29,11 @@ pub fn login(state: &AMState, save_info: bool, email: String, password: String, 
         match status {
             LoginStatus::Success(profile) => {
                 local_status.set_text("Login successful");
-                let mut state_lock = local_state.lock().unwrap();
-                state_lock.save_login_info = save_info;
-                state_lock.config.profile = profile;
-                state_lock.logged_in = true;
-                drop(state_lock);
+                safe_lock(&local_state, |lock| {
+                    lock.save_login_info = save_info;
+                    lock.config.profile = (&profile).clone();
+                    lock.logged_in = true;
+                });
                 local_button.set_label("Log out");
             },
             LoginStatus::Error(reason) => local_status.set_text(&reason)

@@ -13,21 +13,12 @@ pub mod types {
     pub type AMState = std::sync::Arc<std::sync::Mutex<super::state::State>>;
 }
 use std::sync::{Arc, Mutex};
-use library_loader_core::{
-    Config,
-    is_debug
-};
+use library_loader_core::is_debug;
 use ui::Ui;
 
 fn main() {
 
-    let config = Config::load();
-
-    let state: types::AMState = Arc::new(Mutex::new(state::State {
-        save_login_info: config.profile.username.len() > 0 && config.profile.password.len() > 0,
-        logged_in: config.profile.username.len() > 0 && config.profile.password.len() > 0,
-        config: config
-    }));
+    let state: types::AMState = Arc::new(Mutex::new(state::State::new()));
 
     // Load resources
     utils::load_resources();
@@ -44,11 +35,11 @@ fn main() {
         let ui = Ui::build(app, &state_clone);
 
         // If already logged in, show the 'watch' tab.
-        let state_clone_lock = state_clone.lock().unwrap();
-        if state_clone_lock.logged_in {
-            ui.notebook.inner.set_current_page(Some(1));
-        }
-        drop(state_clone_lock);
+        utils::safe_lock(&state_clone, |lock| {
+            if lock.logged_in {
+                ui.notebook.inner.set_current_page(Some(1));
+            }
+        });
 
         // If not in debug mode, check for updates.
         if !is_debug!() {
@@ -57,20 +48,22 @@ fn main() {
 
     });
 
+    println!("{:#?}", state);
+
     // Run app
     application.run(&args().collect::<Vec<_>>());
 
     // Save config on exit
-    let state_lock = state.lock().unwrap();
-    let deref = &*state_lock;
-    match utils::save_config(deref) {
-        Ok(b) => {
-            if b {
-                println!("Config saved");
-            }
-        },
-        Err(e) => eprintln!("{}", e)
-    };
-    drop(state_lock);
+    utils::safe_lock(&state, |lock| {
+        let deref = &**lock;
+        match utils::save_config(deref) {
+            Ok(b) => {
+                if b {
+                    println!("Config saved");
+                }
+            },
+            Err(e) => eprintln!("{}", e)
+        };
+    });
 
 }
