@@ -32,7 +32,7 @@ pub fn watcher(state: &AMState) -> LLResult<()> {
     println!("Starting watcher thread");
 
     let cse = CSE::new(&config);
-    let mut w = Watcher::new(config.settings.watch_path.unwrap(), cse)?;
+    let mut w = Watcher::new(config.settings.watch_path.unwrap(), cse, log_tx)?;
     let c = w.get_tx();
 
     let jh = std::thread::spawn::<_, LLResult<()>>(move || {

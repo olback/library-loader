@@ -7,4 +7,4 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-library-loader-core = { path = "../ll-core", features = ["cli-auth", "cli-opts"] }
+library-loader-core = { path = "../ll-core", default-features = false, features = ["cli-auth", "cli-opts"] }

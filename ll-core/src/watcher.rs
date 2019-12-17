@@ -15,6 +15,9 @@ use super::{
     new_err
 };
 
+#[cfg(feature = "gui")]
+type Logger = glib::Sender<String>;
+
 pub use notify::Error as NotifyError;
 pub type TX = crossbeam_channel::Sender<Result<notify::Event, notify::Error>>;
 
@@ -23,23 +26,43 @@ pub struct Watcher {
     cse: CSE,
     watcher: notify::RecommendedWatcher,
     rx: crossbeam_channel::Receiver<Result<notify::Event, notify::Error>>,
-    tx: TX
+    tx: TX,
+    #[cfg(feature = "gui")]
+    logger: glib::Sender<String>
 }
 
 impl Watcher {
 
+    #[cfg(feature = "gui")]
+    pub fn new<P: Into<PathBuf>>(path: P, cse: CSE, logger: Logger) -> LLResult<Self> {
+
+        let (tx, rx) = crossbeam_channel::unbounded();
+        let w: notify::RecommendedWatcher = notify::Watcher::new(tx.clone(), Duration::from_secs(2))?;
+
+        return Ok(Self {
+            path: path.into(),
+            cse: cse,
+            watcher: w,
+            rx: rx,
+            tx: tx,
+            logger: logger
+        });
+
+    }
+
+    #[cfg(not(feature = "gui"))]
     pub fn new<P: Into<PathBuf>>(path: P, cse: CSE) -> LLResult<Self> {
 
         let (tx, rx) = crossbeam_channel::unbounded();
         let w: notify::RecommendedWatcher = notify::Watcher::new(tx.clone(), Duration::from_secs(2))?;
 
-        Ok(Self {
+        return Ok(Self {
             path: path.into(),
             cse: cse,
             watcher: w,
             rx: rx,
             tx: tx
-        })
+        });
 
     }
 
@@ -93,6 +116,9 @@ impl Watcher {
 
         println!("Stopping...");
 
+        #[cfg(feature = "gui")]
+        self.logger.send(String::from("Stopping...")).unwrap();
+
         match &self.watcher.unwatch(&self.path) {
             Ok(v) => Ok(*v),
             Err(e) => Err(new_err!(e))
@@ -115,11 +141,24 @@ impl Watcher {
 
                         if path.as_path().is_file() {
 
-                            println!("=> Detected: {}", path.as_path().to_str().unwrap());
+                            let s = format!("=> Detected: {}", path.as_path().to_str().unwrap());
+                            println!("{}", s);
+                            #[cfg(feature = "gui")]
+                            self.logger.send(s).unwrap();
 
                             match &self.handle_file(path) {
-                                Ok(p) => println!("=> Success: Saved to {}", p),
-                                Err(e) => eprintln!("=> Error: {}", e)
+                                Ok(p) => {
+                                    let s = format!("=> Success: Saved to {}", p);
+                                    println!("{}", s);
+                                    #[cfg(feature = "gui")]
+                                    self.logger.send(s).unwrap();
+                                },
+                                Err(e) => {
+                                    let s = format!("=> Error: {}", e);
+                                    eprintln!("{}", s);
+                                    #[cfg(feature = "gui")]
+                                    self.logger.send(s).unwrap();
+                                }
                             };
 
                         }
