@@ -869,7 +869,7 @@ pixabay.com
     <property name="icon">resource:/net/olback/library-loader/icon-512</property>
     <property name="has_resize_grip">True</property>
     <child type="titlebar">
-      <object class="GtkHeaderBar">
+      <object class="GtkHeaderBar" id="header_bar">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="title" translatable="yes">Library Loader</property>
@@ -1315,6 +1315,8 @@ pixabay.com
                   <object class="GtkTextView">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="editable">False</property>
+                    <property name="cursor_visible">False</property>
                     <property name="buffer">configuration_buffer</property>
                     <property name="monospace">True</property>
                   </object>

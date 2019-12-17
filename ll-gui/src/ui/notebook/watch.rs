@@ -29,7 +29,6 @@ pub struct Watch {
     output_folder_dialog: FileChooserDialog,
     start_button: ToggleButton,
     status: Label
-    // TODO: glib::MainContext::channel<String>?
 }
 
 impl Watch {
@@ -109,21 +108,40 @@ impl Watch {
 
         });
 
+        let watch_folder_entry = inner.watch_folder_entry.clone();
+        let status_label = inner.status.clone();
         let run_state = state.clone();
         let tx = safe_lock(&run_state, |lock| {
             lock.get_log_tx()
         });
         inner.start_button.connect_clicked(move |b| {
 
-            println!("{:#?}", run_state);
-
             let already_running = safe_lock(&run_state, |lock| {
                 lock.watcher_running()
             });
 
             if b.get_active() {
+
+                // TODO: Move this?
+                safe_lock(&run_state, |lock| {
+                    let wp = lock.config.settings.watch_path.clone();
+                    if wp.is_none() {
+                        match dirs::download_dir() {
+                            Some(p) => {
+                                let ps = p.to_string_lossy().to_string();
+                                lock.config.settings.watch_path = Some(ps.clone());
+                                watch_folder_entry.set_text(&ps);
+                            },
+                            None => {
+                                // FIXME: Error!
+                            }
+                        }
+                    }
+                });
+
                 if !already_running {
                     b.set_label("Stop");
+                    status_label.set_text("Status: Running...");
                     match tasks::watcher(&run_state) {
                         Ok(_) => tx.send(String::from("Starting...")).unwrap(),
                         Err(e) => tx.send(format!("{}", e)).unwrap()
@@ -134,6 +152,7 @@ impl Watch {
                 }
             } else {
                 if already_running {
+                    status_label.set_text("Status: Ready");
                     b.set_label("Start");
                     println!("Stopping...");
                     safe_lock(&run_state, |lock| {

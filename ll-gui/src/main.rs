@@ -53,8 +53,14 @@ fn main() {
     // Run app
     application.run(&args().collect::<Vec<_>>());
 
-    // Save config on exit
+    // Before exit
     utils::safe_lock(&state, |lock| {
+
+        if lock.watcher_running() {
+            lock.stop_watcher();
+        }
+
+        // Save config on exit
         let deref = &**lock;
         match utils::save_config(deref) {
             Ok(b) => {
@@ -64,6 +70,7 @@ fn main() {
             },
             Err(e) => eprintln!("{}", e)
         };
+
     });
 
 }

@@ -5,10 +5,12 @@ pub mod main;
 pub mod about;
 pub mod alert;
 pub mod notebook;
+pub mod header_bar;
 
 #[derive(Debug)]
 pub struct Ui {
     pub main: gtk::ApplicationWindow,
+    pub header_bar: header_bar::HeaderBar,
     pub notebook: notebook::Notebook,
     pub about_dialog: gtk::AboutDialog,
     pub warning_dialog: alert::Alert,
@@ -26,6 +28,7 @@ impl Ui {
 
         Self {
             main: main,
+            header_bar: header_bar::HeaderBar::build(&builder, &state),
             notebook: notebook,
             about_dialog: about::build(&builder),
             warning_dialog: alert::Alert::new(&builder, "warning"),
