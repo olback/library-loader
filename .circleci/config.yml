@@ -1,7 +1,8 @@
-version: 2.1
+# version: 2.1
 
-orbs:
-  windows: circleci/windows@2.2.0
+# orbs:
+#   windows: circleci/windows@2.2.0
+version: 2
 
 jobs:
   fmt:
