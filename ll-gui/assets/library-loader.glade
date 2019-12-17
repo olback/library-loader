@@ -1336,7 +1336,9 @@ pixabay.com
                 <child>
                   <object class="GtkFileChooserButton">
                     <property name="visible">True</property>
+                    <property name="sensitive">False</property>
                     <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Not implemented</property>
                     <property name="hexpand">True</property>
                     <property name="filter">toml_filter</property>
                     <property name="local_only">False</property>
@@ -1353,8 +1355,10 @@ pixabay.com
                   <object class="GtkButton">
                     <property name="label" translatable="yes">Save</property>
                     <property name="visible">True</property>
+                    <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Not implemented</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
