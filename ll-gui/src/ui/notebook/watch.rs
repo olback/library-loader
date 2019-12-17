@@ -122,23 +122,6 @@ impl Watch {
 
             if b.get_active() {
 
-                // TODO: Move this?
-                safe_lock(&run_state, |lock| {
-                    let wp = lock.config.settings.watch_path.clone();
-                    if wp.is_none() {
-                        match dirs::download_dir() {
-                            Some(p) => {
-                                let ps = p.to_string_lossy().to_string();
-                                lock.config.settings.watch_path = Some(ps.clone());
-                                watch_folder_entry.set_text(&ps);
-                            },
-                            None => {
-                                // FIXME: Error!
-                            }
-                        }
-                    }
-                });
-
                 if !already_running {
                     b.set_label("Stop");
                     status_label.set_text("Status: Running...");

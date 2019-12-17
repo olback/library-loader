@@ -1,13 +1,11 @@
-use library_loader_core::{LLResult, ParseConfig, ParseSettings};
+use library_loader_core::{Profile, LLResult, ParseConfig, ParseSettings};
 use toml;
 use crate::types::State;
 use std::fs;
 
 pub fn save_config(state: &State) -> LLResult<bool> {
 
-    if state.config.config_file.is_some() &&
-    state.config.profile.username.len() > 0 &&
-    state.config.profile.password.len() > 0 {
+    if state.config.config_file.is_some() {
 
         let settings = ParseSettings {
             output_path: Some(state.config.settings.output_path.clone()),
@@ -17,7 +15,7 @@ pub fn save_config(state: &State) -> LLResult<bool> {
 
         let profile = match state.save_login_info {
             true => Some(state.config.profile.clone()),
-            false => None
+            false => Some(Profile::new(state.config.profile.username.clone(), ""))
         };
 
         let fs_config = ParseConfig {

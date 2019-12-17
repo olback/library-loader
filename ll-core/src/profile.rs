@@ -12,7 +12,7 @@ pub struct Profile {
 impl Profile {
 
     // Constructors
-    pub fn new<S: Into<String>>(u: S, p: S) -> Self {
+    pub fn new<U: Into<String>, P: Into<String>>(u: U, p: P) -> Self {
         Profile {
             username: u.into(),
             password: p.into()

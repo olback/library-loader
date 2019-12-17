@@ -983,7 +983,7 @@ pixabay.com
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="tooltip_text" translatable="yes">This will store your credential in plaintext on disk</property>
-                <property name="label" translatable="yes">Save Credentials</property>
+                <property name="label" translatable="yes">Save Password</property>
                 <property name="xalign">1</property>
               </object>
               <packing>

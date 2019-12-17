@@ -17,8 +17,24 @@ impl State {
 
     pub fn new() -> Self {
 
-        let config = Config::load();
+        let mut config = Config::load();
         let (tx, rx) = glib::MainContext::channel::<String>(glib::PRIORITY_DEFAULT);
+
+        // If a watch path isn't set, set it to the downloads folder
+        if config.settings.watch_path.is_none() {
+            config.settings.watch_path = match dirs::download_dir() {
+                Some(p) => Some(p.to_string_lossy().to_string()),
+                None => None
+            };
+        }
+
+        // If a config file isn't set, set it to <conf_dir>/LibraryLoader.toml
+        if config.config_file.is_none() {
+            config.config_file = match dirs::config_dir() {
+                Some(cd) => Some(cd.join(library_loader_core::consts::LL_CONFIG)),
+                None => None
+            }
+        }
 
         Self {
             save_login_info: config.profile.username.len() > 0 && config.profile.password.len() > 0,

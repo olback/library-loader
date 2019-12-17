@@ -25,8 +25,8 @@ impl Account {
 
         let login_btn: Button = builder.get_object("login_button").expect("could not get login_button");
         safe_lock(&state, |lock| {
+            inner.email.set_text(&lock.config.profile.username);
             if lock.logged_in {
-                inner.email.set_text(&lock.config.profile.username);
                 login_btn.set_label("Log out");
                 inner.save_info.set_active(true);
             }
@@ -36,6 +36,7 @@ impl Account {
         inner.save_info.connect_toggled(move |cb| {
             safe_lock(&state_set_clone, |lock| {
                 lock.save_login_info = cb.get_active();
+                println!("{:#?}", lock);
             });
         });
 
