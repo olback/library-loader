@@ -36,7 +36,6 @@ impl Account {
         inner.save_info.connect_toggled(move |cb| {
             safe_lock(&state_set_clone, |lock| {
                 lock.save_login_info = cb.get_active();
-                println!("{:#?}", lock);
             });
         });
 

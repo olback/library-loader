@@ -48,7 +48,9 @@ fn main() {
 
     });
 
-    println!("{:#?}", state);
+    if is_debug!() {
+        println!("{:#?}", state);
+    }
 
     // Run app
     application.run(&args().collect::<Vec<_>>());
