@@ -173,37 +173,37 @@ jobs:
           destination: "/llwpu.zip"
 
 
-  sign_windows:
-    executor:
-      name: windows/default
-    steps:
-      - checkout
+  # sign_windows:
+  #   executor:
+  #     name: windows/default
+  #   steps:
+  #     - checkout
 
-      - restore_cache:
-          name: Restore Windows pre-dist cache
-          key: ll-windows-pre-dist-{{ .Environment.CIRCLE_SHA1 }}
+  #     - restore_cache:
+  #         name: Restore Windows pre-dist cache
+  #         key: ll-windows-pre-dist-{{ .Environment.CIRCLE_SHA1 }}
 
-      - run:
-          name: Get certificate (pfx)
-          command: .\tools\get_pfx.ps1 -pfxpath library-loade.pfx
+  #     - run:
+  #         name: Get certificate (pfx)
+  #         command: .\tools\get_pfx.ps1 -pfxpath library-loade.pfx
 
-      - run:
-          name: Unzip archive
-          command: Expand-Archive -Path .\llwpu.zip -DestinationPath .
+  #     - run:
+  #         name: Unzip archive
+  #         command: Expand-Archive -Path .\llwpu.zip -DestinationPath .
 
-      - run:
-          name: Sign library-loader.exe
-          command: .\tools\sign.ps1 -binpath .\library-loader-windows-portable\library-loader.exe -pfxpath library-loader.pfx -password $env:pfxpass
+  #     - run:
+  #         name: Sign library-loader.exe
+  #         command: .\tools\sign.ps1 -binpath .\library-loader-windows-portable\library-loader.exe -pfxpath library-loader.pfx -password $env:pfxpass
 
-      - run:
-          name: Compress windows dist
-          command: |
-                    Compress-Archive .\library-loader-windows-portable\ library-loader-windows-portable.zip
+  #     - run:
+  #         name: Compress windows dist
+  #         command: |
+  #                   Compress-Archive .\library-loader-windows-portable\ library-loader-windows-portable.zip
 
-      - save_cache:
-          paths:
-            - ./library-loader-windows-portable.zip
-          key: ll-windows-dist-{{ .Environment.CIRCLE_SHA1 }}
+  #     - save_cache:
+  #         paths:
+  #           - ./library-loader-windows-portable.zip
+  #         key: ll-windows-dist-{{ .Environment.CIRCLE_SHA1 }}
 
 
   deploy:
@@ -271,18 +271,17 @@ workflows:
       # - fmt
       - build_linux
       - build_windows
-      - sign_windows:
-          requires:
-            - build_windows
-          filters:
-            branches:
-              only: master
+      # - sign_windows:
+      #     requires:
+      #       - build_windows
+      #     filters:
+      #       branches:
+      #         only: master
       - request_deploy:
           type: approval
           requires:
             - build_linux
-            - build_windows
-            - sign_windows
+            # - sign_windows
           filters:
             branches:
               only: master
@@ -290,7 +289,7 @@ workflows:
           requires:
             - build_linux
             - build_windows
-            - sign_windows
+            # - sign_windows
             - request_deploy
           filters:
             branches:
