@@ -42,9 +42,11 @@ jobs:
           name: Build Binary
           command: |
                     if [ $CIRCLE_BRANCH = "master" ]; then
-                      cargo build --release --target=x86_64-unknown-linux-gnu
+                      cd ll-gui && cargo build --release --target=x86_64-unknown-linux-gnu && cd ..
+                      cd ll-cli && cargo build --release --target=x86_64-unknown-linux-gnu && cd ..
                     else
-                      cargo build --target=x86_64-unknown-linux-gnu
+                      cd ll-gui && cargo build --target=x86_64-unknown-linux-gnu && cd ..
+                      cd ll-cli && cargo build --target=x86_64-unknown-linux-gnu && cd ..
                     fi
 
       - save_cache:
@@ -57,32 +59,43 @@ jobs:
 
       - run:
           name: "Generate hash file"
-          command: "cd target/x86_64-unknown-linux-gnu/release && sha256sum library-loader > library-loader.sha256"
+          command: |
+                    cd target/x86_64-unknown-linux-gnu/release
+                    sha256sum library-loader-gui > library-loader-gui.sha256
+                    sha256sum library-loader-cli > library-loader-cli.sha256
 
       - run:
           name: "Verify hash"
-          command: "cd target/x86_64-unknown-linux-gnu/release && sha256sum -c library-loader.sha256"
+          command: |
+                    cd target/x86_64-unknown-linux-gnu/release
+                    sha256sum -c library-loader-gui.sha256
+                    sha256sum -c library-loader-cli.sha256"
 
       - run:
           name: "Show hash"
-          command: "cd target/x86_64-unknown-linux-gnu/release && cat library-loader.sha256"
+          command: |
+                    cd target/x86_64-unknown-linux-gnu/release
+                    cat library-loader-gui.sha256
+                    cat library-loader-cli.sha256
 
       - save_cache:
           name: Save Linux Build Cache
           key: ll-linux-dist-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            - "./target/x86_64-unknown-linux-gnu/release/library-loader"
-            - "./target/x86_64-unknown-linux-gnu/release/library-loader.sha256"
+            - "./target/x86_64-unknown-linux-gnu/release/library-loader-gui"
+            - "./target/x86_64-unknown-linux-gnu/release/library-loader-gui.sha256"
+            - "./target/x86_64-unknown-linux-gnu/release/library-loader-cli"
+            - "./target/x86_64-unknown-linux-gnu/release/library-loader-cli.sha256"
 
-    #   - store_artifacts:
-    #       name: Store Build
-    #       path: "./target/x86_64-unknown-linux-gnu/release/library-loader"
-    #       destination: "/linux/library-loader"
+      - store_artifacts:
+          name: Store GUI Build
+          path: "./target/x86_64-unknown-linux-gnu/release/library-loader-gui"
+          destination: "/linux/library-loader-gui"
 
-    #   - store_artifacts:
-    #       name: Store Build Checksum
-    #       path: "./target/x86_64-unknown-linux-gnu/release/library-loader.sha256"
-    #       destination: "/linux/library-loader.sha256"
+      - store_artifacts:
+          name: Store CLI Build
+          path: "./target/x86_64-unknown-linux-gnu/release/library-loader-cli"
+          destination: "/linux/library-loader-cli"
 
 
   build_windows:
