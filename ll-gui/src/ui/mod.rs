@@ -31,8 +31,8 @@ impl Ui {
             header_bar: header_bar::HeaderBar::build(&builder, &state),
             notebook: notebook,
             about_dialog: about::build(&builder),
-            warning_dialog: alert::Alert::new(&builder, "warning"),
-            error_dialog: alert::Alert::new(&builder, "error")
+            warning_dialog: alert::Alert::new(&builder, "warning", &state),
+            error_dialog: alert::Alert::new(&builder, "error", &state)
         }
 
     }

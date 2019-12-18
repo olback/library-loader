@@ -108,7 +108,6 @@ impl Watch {
 
         });
 
-        let watch_folder_entry = inner.watch_folder_entry.clone();
         let status_label = inner.status.clone();
         let run_state = state.clone();
         let tx = safe_lock(&run_state, |lock| {
@@ -119,6 +118,25 @@ impl Watch {
             let already_running = safe_lock(&run_state, |lock| {
                 lock.watcher_running()
             });
+
+            // Check if there is anything missing...
+            let cont = safe_lock(&run_state, |lock| {
+                if lock.config.settings.watch_path.is_none() {
+                    return Some((lock.get_error_tx(), String::from("Watch path not set")))
+                }
+                None
+            });
+
+            match cont {
+                Some((etx, msg)) => {
+                    if b.get_active() {
+                        b.set_active(false);
+                        etx.send(msg).unwrap();
+                    }
+                    return;
+                },
+                None => {}
+            };
 
             if b.get_active() {
 
@@ -180,18 +198,6 @@ impl Watch {
             }
 
         }
-
-    }
-
-    pub fn set_watch_folder(&self, path: &str) {
-
-        self.watch_folder_entry.set_text(path);
-
-    }
-
-    pub fn set_output_folder(&self, path: &str) {
-
-        self.output_folder_entry.set_text(path);
 
     }
 
