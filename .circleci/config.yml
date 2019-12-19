@@ -109,7 +109,7 @@ jobs:
           command: |
                     cd dist/linux
                     sha256sum -c library-loader-gui.sha256
-                    sha256sum -c library-loader-cli.sha256"
+                    sha256sum -c library-loader-cli.sha256
 
       - run:
           name: Show hashes
