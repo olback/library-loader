@@ -26,11 +26,11 @@ impl CSEResult {
 
         let save_dir = Path::new(&self.output_path);
 
-        if !save_dir.exists() {
-            fs::create_dir_all(save_dir)?;
-        }
-
         if &self.files.len() > &0 {
+
+            if !save_dir.exists() {
+                fs::create_dir_all(save_dir)?;
+            }
 
             for (filename, data) in &self.files {
                 let path = save_dir.join(filename);
