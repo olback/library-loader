@@ -16,6 +16,32 @@ jobs:
           name: "Check formatting"
           command: rustfmt --check **/**.rs
 
+  checks:
+    docker:
+      - image: circleci/node:latest
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          name: Restore Deploy Node Cache
+          key: checks-cache-{{ checksum "checks/package.json" }}-{{ checksum "checks/package-lock.json" }}
+
+      - run:
+          name: Install dependencies
+          command: |
+                    cd checks
+                    npm install
+
+      - save_cache:
+          name: Save Node Cache
+          key: checks-cache-{{ checksum "checks/package.json" }}-{{ checksum "checks/package-lock.json" }}
+          paths:
+            - "./checks/node_modules"
+
+      - run:
+          name: Run checks
+          command: ./tools/run_checks.sh
 
   build_linux:
     docker:
@@ -28,9 +54,10 @@ jobs:
           name: Restore Linux Rust Cache
           key: cargo-cache-linux-v2-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
 
-      - run:
-          name: Use Stable as Default
-          command: rustup default stable
+      # Not needed
+      # - run:
+      #     name: Use Stable as Default
+      #     command: rustup default stable
 
       - run:
           name: Show Version
@@ -46,8 +73,8 @@ jobs:
                       cd ll-gui && cargo build --release --target=x86_64-unknown-linux-gnu && cd ..
                       cd ll-cli && cargo build --release --target=x86_64-unknown-linux-gnu && cd ..
                     else
-                      cd ll-gui && cargo build --target=x86_64-unknown-linux-gnu && cd ..
-                      cd ll-cli && cargo build --target=x86_64-unknown-linux-gnu && cd ..
+                      cd ll-gui && cargo build --debug --target=x86_64-unknown-linux-gnu && cd ..
+                      cd ll-cli && cargo build --debug --target=x86_64-unknown-linux-gnu && cd ..
                     fi
 
       - save_cache:
@@ -59,23 +86,39 @@ jobs:
             - "./target/"
 
       - run:
-          name: "Generate hash file"
+          name: Make dist
           command: |
-                    cd target/x86_64-unknown-linux-gnu/release
+                    mkdir -p dist/linux
+                    if [ $CIRCLE_BRANCH = "master" ]; then
+                      cp target/x86_64-unknown-linux-gnu/release/library-loader-gui dist/linux/
+                      cp target/x86_64-unknown-linux-gnu/release/library-loader-cli dist/linux/
+                      cp target/x86_64-unknown-linux-gnu/release/library-loader-gui.sha256 dist/linux/
+                      cp target/x86_64-unknown-linux-gnu/release/library-loader-cli.sha256 dist/linux/
+                    else
+                      cp target/x86_64-unknown-linux-gnu/debug/library-loader-gui dist/linux/
+                      cp target/x86_64-unknown-linux-gnu/debug/library-loader-cli dist/linux/
+                      cp target/x86_64-unknown-linux-gnu/debug/library-loader-gui.sha256 dist/linux/
+                      cp target/x86_64-unknown-linux-gnu/debug/library-loader-cli.sha256 dist/linux/
+                    fi
+
+      - run:
+          name: Generate hashes
+          command: |
+                    cd dist/linux
                     sha256sum library-loader-gui > library-loader-gui.sha256
                     sha256sum library-loader-cli > library-loader-cli.sha256
 
       - run:
-          name: "Verify hash"
+          name: Verify hashes
           command: |
-                    cd target/x86_64-unknown-linux-gnu/release
+                    cd dist/linux
                     sha256sum -c library-loader-gui.sha256
                     sha256sum -c library-loader-cli.sha256"
 
       - run:
-          name: "Show hash"
+          name: Show hashes
           command: |
-                    cd target/x86_64-unknown-linux-gnu/release
+                    cd dist/linux
                     cat library-loader-gui.sha256
                     cat library-loader-cli.sha256
 
@@ -83,20 +126,30 @@ jobs:
           name: Save Linux Build Cache
           key: ll-linux-dist-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            - "./target/x86_64-unknown-linux-gnu/release/library-loader-gui"
-            - "./target/x86_64-unknown-linux-gnu/release/library-loader-gui.sha256"
-            - "./target/x86_64-unknown-linux-gnu/release/library-loader-cli"
-            - "./target/x86_64-unknown-linux-gnu/release/library-loader-cli.sha256"
+            - "./dist/linux/library-loader-gui"
+            - "./dist/linux/library-loader-cli"
+            - "./dist/linux/library-loader-gui.sha256"
+            - "./dist/linux/library-loader-cli.sha256"
 
       - store_artifacts:
           name: Store GUI Build
-          path: "./target/x86_64-unknown-linux-gnu/release/library-loader-gui"
+          path: "./dist/linux/library-loader-gui"
           destination: "/linux/library-loader-gui"
 
       - store_artifacts:
           name: Store CLI Build
-          path: "./target/x86_64-unknown-linux-gnu/release/library-loader-cli"
+          path: "./dist/linux/library-loader-cli"
           destination: "/linux/library-loader-cli"
+
+      - store_artifacts:
+          name: Store GUI Build Hash
+          path: "./dist/linux/library-loader-gui.sha256"
+          destination: "/linux/library-loader-gui.sha256"
+
+      - store_artifacts:
+          name: Store CLI Build Hash
+          path: "./dist/linux/library-loader-cli.sha256"
+          destination: "/linux/library-loader-cli.sha256"
 
 
   build_windows:
