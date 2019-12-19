@@ -7,6 +7,7 @@ pub use extractors::Files;
 #[derive(Debug, Clone, PartialEq)]
 pub enum ECAD {
     // * Keep these in alphabetical order
+    D3, // 3D
     EAGLE,
     EASYEDA,
     KICAD,
@@ -30,6 +31,13 @@ impl Format {
 
         // * Keep these in alphabetical order
         match f.as_str() {
+            "3d" => Self {
+                name: f,
+                ecad: ECAD::D3,
+                create_folder: true,
+                match_path: "3D",
+                ignore: vec![]
+            },
             "eagle" => Self {
                 name: f,
                 ecad: ECAD::EAGLE,
@@ -71,6 +79,7 @@ impl Format {
 
         match &self.ecad {
             // * Keep these in alphabetical order
+            ECAD::D3 => extractors::d3::extract(&self, files, file_path, item)?,
             ECAD::EAGLE => extractors::eagle::extract(&self, files, file_path, item)?,
             ECAD::EASYEDA => extractors::easyeda::extract(&self, files, file_path, item)?,
             ECAD::KICAD => extractors::kicad::extract(&self, files, file_path, item)?,

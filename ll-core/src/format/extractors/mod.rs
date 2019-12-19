@@ -2,6 +2,7 @@
 pub mod eagle;
 pub mod easyeda;
 pub mod kicad;
+pub mod d3;
 
 use std::collections::HashMap;
 

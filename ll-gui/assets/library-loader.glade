@@ -1153,6 +1153,7 @@ pixabay.com
                 <property name="can_focus">False</property>
                 <property name="hexpand">True</property>
                 <items>
+                  <item id="3d" translatable="yes">3D</item>
                   <item id="eagle" translatable="yes">Eagle</item>
                   <item id="easyeda" translatable="yes">EasyEDA</item>
                   <item id="kicad" translatable="yes">KiCad</item>
