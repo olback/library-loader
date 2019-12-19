@@ -163,9 +163,9 @@ jobs:
           name: Restore Windows Rust Cache
           key: cargo-cache-windows-v2-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
 
-      - run:
-          name: Use Stable as Default
-          command: rustup default stable
+    #   - run:
+    #       name: Use Stable as Default
+    #       command: rustup default stable
 
       - run:
           name: Show Version
@@ -180,9 +180,11 @@ jobs:
                     export RUST_BACKTRACE=full
                     export PKG_CONFIG_ALLOW_CROSS=1
                     if [ $CIRCLE_BRANCH = "master" ]; then
-                      cargo build --release --target=x86_64-pc-windows-gnu
+                      cd ll-gui && cargo build --release --target=x86_64-pc-windows-gnu cd ..
+                      cd ll-cli && cargo build --release --target=x86_64-pc-windows-gnu cd ..
                     else
-                      cargo build --target=x86_64-pc-windows-gnu
+                      cd ll-gui && cargo build --target=x86_64-pc-windows-gnu cd ..
+                      cd ll-cli && cargo build --target=x86_64-pc-windows-gnu cd ..
                     fi
 
       - save_cache:
@@ -194,32 +196,54 @@ jobs:
             - "./target/"
 
       - run:
-          name: Make dist package
+          name: Package GUI version
           command: |
                     mkdir $DIST # Make dist dir
-                    cp ./target/x86_64-pc-windows-gnu/release/library-loader.exe $DIST/library-loader.exe
+                    mkdir pre-dist
+                    if [ $CIRCLE_BRANCH = "master" ]; then
+                      cp ./target/x86_64-pc-windows-gnu/release/library-loader-gui.exe $DIST/library-loader-gui.exe
+                    else
+                      cp ./target/x86_64-pc-windows-gnu/debug/library-loader-gui.exe $DIST/library-loader-gui.exe
+                    fi
                     ./tools/get_dlls.sh
                     ./tools/get_schemas.sh
                     ./tools/get_icons.sh
                     ./tools/get_theme.sh
                     ./tools/settings.sh
-                    zip -r llwpu.zip $DIST
+                    zip -r pre-dist/library-loader-gui.zip $DIST
 
       - run:
-          name: "Show hash"
-          command: "sha256sum llwpu.zip"
+          name: Copy CLI version to pre-dist
+          command: |
+                    if [ $CIRCLE_BRANCH = "master" ]; then
+                      cp ./target/x86_64-pc-windows-gnu/release/library-loader-cli.exe pre-dist/library-loader-cli.exe
+                    else
+                      cp ./target/x86_64-pc-windows-gnu/debug/library-loader-cli.exe pre-dist/library-loader-cli.exe
+                    fi
+
+      - run:
+          name: Show hash
+          command: |
+                    sha256sum pre-dist/library-loader-gui.zip
+                    sha256sum pre-dist/library-loader-cli.exe
 
       - save_cache:
           name: Save Windows Build
           key: ll-windows-pre-dist-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            - "./llwpu.zip"
+            - "./pre-dist/library-loader-gui.zip"
+            - "./pre-dist/library-loader-cli.exe"
 
       # Upload artifact to make testing easier
       - store_artifacts:
-          name: Upload dist as artifact
-          path: "llwpu.zip"
-          destination: "/llwpu.zip"
+          name: Upload GUI version
+          path: "./pre-dist/library-loader-gui.zip"
+          destination: "/pre-dist/library-loader-gui.zip"
+
+      - store_artifacts:
+          name: Upload CLI version
+          path: "./pre-dist/library-loader-cli.exe"
+          destination: "/pre-dist/library-loader-cli.exe"
 
 
   # sign_windows:
