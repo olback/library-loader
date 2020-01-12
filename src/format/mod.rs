@@ -17,7 +17,7 @@ pub enum ECAD {
 pub struct Format {
     pub ecad: ECAD,
     pub create_folder: bool,
-    match_path: &'static str,
+    match_path: Vec<&'static str>,
     ignore: Vec<&'static str>
 }
 
@@ -32,25 +32,25 @@ impl Format {
             "eagle" => Self {
                 ecad: ECAD::EAGLE,
                 create_folder: false,
-                match_path: "EAGLE",
+                match_path: vec!["EAGLE/", "/3D/"],
                 ignore: vec!["Readme.html"]
             },
             "easyeda" => Self {
                 ecad: ECAD::EASYEDA,
                 create_folder: false,
-                match_path: "EasyEDA",
+                match_path: vec!["EasyEDA/", "/3D/"],
                 ignore: vec!["Readme.html"]
             },
             "kicad" => Self {
                 ecad: ECAD::KICAD,
                 create_folder: true,
-                match_path: "KiCad",
+                match_path: vec!["KiCad/", "/3D/"],
                 ignore: vec![]
             },
             "zip" => Self {
                 ecad: ECAD::ZIP,
                 create_folder: false,
-                match_path: "",
+                match_path: vec![""],
                 ignore: vec![]
             },
             _ => {
