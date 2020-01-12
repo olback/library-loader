@@ -140,12 +140,20 @@ impl Watcher {
 
     }
 
-    fn handle_file<P: Into<PathBuf>>(&self, path: P) -> LLResult<String> {
-
-        let epw = Epw::from_file(path)?;
-        let res = &self.cse.get(epw)?;
-        res.save()
-
+    fn handle_file(&self, path: &PathBuf) -> LLResult<String> {
+        let extension = path.extension().and_then(|ext| { ext.to_str() });
+        match extension {
+            Some(s) => if s.eq_ignore_ascii_case("zip") {
+                let epw = Epw::from_file(path)?;
+                let res = &self.cse.get(epw)?;
+                res.save()
+            } else {
+                Err(LLError::new(format!("=> Ignoring non-zip: {}", path.to_str().unwrap())))
+            }
+            None => {
+                Err(LLError::new(format!("=> Ignoring: {}", path.to_str().unwrap())))
+            }
+        }
     }
 
 }
