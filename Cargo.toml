@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 reqwest = "0.9.22"
-base64 = "0.11.0"
+base64 = "0.12.1"
 clap = { version = "2.33.0", features = ["yaml"] }
 serde = "1.0.102"
 dirs = "2.0.2"
