@@ -10,7 +10,7 @@ edition = "2018"
 reqwest = "0.9.22"
 base64 = "0.11.0"
 clap = { version = "2.33.0", features = ["yaml"] }
-serde = "1.0.102"
+serde = "1.0.111"
 dirs = "2.0.2"
 toml = "0.5.4"
 rpassword = "4.0.1"
