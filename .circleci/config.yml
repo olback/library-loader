@@ -1,7 +1,5 @@
 # version: 2.1
 
-# orbs:
-#   windows: circleci/windows@2.2.0
 version: 2
 
 jobs:
@@ -148,137 +146,6 @@ jobs:
           destination: "/linux/library-loader-cli.sha256"
 
 
-  build_windows:
-    docker:
-      - image: olback/rust-gtk-windows:latest
-
-    environment:
-      DIST: library-loader-windows-portable
-      GTK_INSTALL_PATH: /usr/x86_64-w64-mingw32/sys-root/mingw
-
-    steps:
-      - checkout
-
-      - restore_cache:
-          name: Restore Windows Rust Cache
-          key: cargo-cache-windows-v2-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
-
-    #   - run:
-    #       name: Use Stable as Default
-    #       command: rustup default stable
-
-      - run:
-          name: Show Version
-          command: |
-                    rustc --version --verbose
-                    rustup --version
-                    cargo --version --verbose
-
-      - run:
-          name: Build Binary
-          command: |
-                    export RUST_BACKTRACE=full
-                    export PKG_CONFIG_ALLOW_CROSS=1
-                    if [ $CIRCLE_BRANCH = "master" ]; then
-                      cd ll-gui && cargo build --release --target=x86_64-pc-windows-gnu && cd ..
-                      cd ll-cli && cargo build --release --target=x86_64-pc-windows-gnu && cd ..
-                    else
-                      cd ll-gui && cargo build --target=x86_64-pc-windows-gnu && cd ..
-                      cd ll-cli && cargo build --target=x86_64-pc-windows-gnu && cd ..
-                    fi
-
-      - save_cache:
-          name: Save Windows Rust Cache
-          key: cargo-cache-windows-v2-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
-          paths:
-            - "~/.cargo/"
-            - "~/.rustup/"
-            - "./target/"
-
-      - run:
-          name: Package GUI version
-          command: |
-                    mkdir $DIST # Make dist dir
-                    mkdir pre-dist
-                    if [ $CIRCLE_BRANCH = "master" ]; then
-                      cp ./target/x86_64-pc-windows-gnu/release/library-loader-gui.exe $DIST/library-loader-gui.exe
-                    else
-                      cp ./target/x86_64-pc-windows-gnu/debug/library-loader-gui.exe $DIST/library-loader-gui.exe
-                    fi
-                    ./tools/get_dlls.sh
-                    ./tools/get_schemas.sh
-                    ./tools/get_icons.sh
-                    ./tools/get_theme.sh
-                    ./tools/settings.sh
-                    zip -r pre-dist/library-loader-gui.zip $DIST
-
-      - run:
-          name: Copy CLI version to pre-dist
-          command: |
-                    if [ $CIRCLE_BRANCH = "master" ]; then
-                      cp ./target/x86_64-pc-windows-gnu/release/library-loader-cli.exe pre-dist/library-loader-cli.exe
-                    else
-                      cp ./target/x86_64-pc-windows-gnu/debug/library-loader-cli.exe pre-dist/library-loader-cli.exe
-                    fi
-
-      - run:
-          name: Show hash
-          command: |
-                    sha256sum pre-dist/library-loader-gui.zip
-                    sha256sum pre-dist/library-loader-cli.exe
-
-      - save_cache:
-          name: Save Windows Build
-          key: ll-windows-pre-dist-{{ .Environment.CIRCLE_SHA1 }}
-          paths:
-            - "./pre-dist/library-loader-gui.zip"
-            - "./pre-dist/library-loader-cli.exe"
-
-      # Upload artifact to make testing easier
-      - store_artifacts:
-          name: Upload GUI version
-          path: "./pre-dist/library-loader-gui.zip"
-          destination: "/pre-dist/library-loader-gui.zip"
-
-      - store_artifacts:
-          name: Upload CLI version
-          path: "./pre-dist/library-loader-cli.exe"
-          destination: "/pre-dist/library-loader-cli.exe"
-
-
-  # sign_windows:
-  #   executor:
-  #     name: windows/default
-  #   steps:
-  #     - checkout
-
-  #     - restore_cache:
-  #         name: Restore Windows pre-dist cache
-  #         key: ll-windows-pre-dist-{{ .Environment.CIRCLE_SHA1 }}
-
-  #     - run:
-  #         name: Get certificate (pfx)
-  #         command: .\tools\get_pfx.ps1 -pfxpath library-loade.pfx
-
-  #     - run:
-  #         name: Unzip archive
-  #         command: Expand-Archive -Path .\llwpu.zip -DestinationPath .
-
-  #     - run:
-  #         name: Sign library-loader.exe
-  #         command: .\tools\sign.ps1 -binpath .\library-loader-windows-portable\library-loader.exe -pfxpath library-loader.pfx -password $env:pfxpass
-
-  #     - run:
-  #         name: Compress windows dist
-  #         command: |
-  #                   Compress-Archive .\library-loader-windows-portable\ library-loader-windows-portable.zip
-
-  #     - save_cache:
-  #         paths:
-  #           - ./library-loader-windows-portable.zip
-  #         key: ll-windows-dist-{{ .Environment.CIRCLE_SHA1 }}
-
-
   deploy:
     docker:
       - image: circleci/node:latest
@@ -304,10 +171,6 @@ jobs:
           name: Restore Linux Build
           key: ll-linux-dist-{{ .Environment.CIRCLE_SHA1 }}
 
-      - restore_cache:
-          name: Restore Windows Build
-          key: ll-windows-dist-{{ .Environment.CIRCLE_SHA1 }}
-
       - store_artifacts:
           name: Store Linux Build
           path: "./target/x86_64-unknown-linux-gnu/release/library-loader"
@@ -317,20 +180,6 @@ jobs:
           name: Store Linux Build Checksum
           path: "./target/x86_64-unknown-linux-gnu/release/library-loader.sha256"
           destination: "/linux/library-loader.sha256"
-
-      - store_artifacts:
-          name: Store Windows Build
-          path: "./library-loader-windows-portable.zip"
-          destination: "/windows/library-loader-windows-portable.zip"
-
-      - run:
-          name: library-loader-windows-portable.zip checksum
-          command: sha256sum library-loader-windows-portable.zip > library-loader-windows-portable.zip.sha256
-
-      - store_artifacts:
-          name: Store Build Checksum
-          path: "./library-loader-windows-portable.zip.sha256"
-          destination: "/windows/library-loader-windows-portable.zip.sha256"
 
       - run:
           name: Deploy
@@ -344,25 +193,16 @@ workflows:
       # - fmt
       - build_linux
       - build_windows
-      # - sign_windows:
-      #     requires:
-      #       - build_windows
-      #     filters:
-      #       branches:
-      #         only: master
       - request_deploy:
           type: approval
           requires:
             - build_linux
-            # - sign_windows
           filters:
             branches:
               only: master
       - deploy:
           requires:
             - build_linux
-            - build_windows
-            # - sign_windows
             - request_deploy
           filters:
             branches:

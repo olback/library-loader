@@ -15,7 +15,7 @@ output_path = "download"
 # watch_path = ""
 
 # What format should be saved?
-# eagle, kikad, ..
+# eagle, kicad, ..
 # Run with --help to see a list of available values.
 # format = ""
 

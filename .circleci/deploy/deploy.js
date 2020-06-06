@@ -22,11 +22,10 @@ const gh = {
 
 const files = [
     // Linux files
-    new File('./target/x86_64-unknown-linux-gnu/release/library-loader'),
-    new File('./target/x86_64-unknown-linux-gnu/release/library-loader.sha256'),
-    // Windows files
-    new File('./library-loader-windows-portable.zip'),
-    new File('./library-loader-windows-portable.zip.sha256')
+    new File('./target/x86_64-unknown-linux-gnu/release/library-loader-cli'),
+    new File('./target/x86_64-unknown-linux-gnu/release/library-loader-cli.sha256'),
+    new File('./target/x86_64-unknown-linux-gnu/release/library-loader-gui'),
+    new File('./target/x86_64-unknown-linux-gnu/release/library-loader-gui.sha256')
 ];
 
 let cargoToml = fs.readFileSync('Cargo.toml', 'utf8').toString().split('\n');

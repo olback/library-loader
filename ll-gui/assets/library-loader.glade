@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 
+<!-- Generated with glade 3.36.0 
 
 GNU AFFERO GENERAL PUBLIC LICENSE
                        Version 3, 19 November 2007
@@ -743,9 +743,6 @@ pixabay.com
 </property>
     <property name="logo">resource:/net/olback/library-loader/icon-100</property>
     <property name="license_type">agpl-3-0</property>
-    <child>
-      <placeholder/>
-    </child>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
@@ -773,6 +770,9 @@ pixabay.com
         </child>
       </object>
     </child>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
   </object>
   <object class="GtkDialog" id="error_dialog">
     <property name="width_request">400</property>
@@ -787,9 +787,6 @@ pixabay.com
     <property name="skip_taskbar_hint">True</property>
     <property name="gravity">center</property>
     <property name="transient_for">main_window</property>
-    <child>
-      <placeholder/>
-    </child>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
@@ -861,6 +858,9 @@ pixabay.com
         </child>
       </object>
     </child>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
   </object>
   <object class="GtkApplicationWindow" id="main_window">
     <property name="width_request">600</property>
@@ -868,30 +868,6 @@ pixabay.com
     <property name="can_focus">True</property>
     <property name="icon">resource:/net/olback/library-loader/icon-512</property>
     <property name="has_resize_grip">True</property>
-    <child type="titlebar">
-      <object class="GtkHeaderBar" id="header_bar">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="title" translatable="yes">Library Loader</property>
-        <property name="subtitle" translatable="yes">&lt;config path / status&gt;</property>
-        <property name="show_close_button">True</property>
-        <child>
-          <object class="GtkMenuButton" id="menubutton1">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <property name="popover">popovermenu1</property>
-            <child>
-              <object class="GtkImage">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="resource">/net/olback/library-loader/icon-22</property>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
     <child>
       <object class="GtkNotebook" id="notebook">
         <property name="visible">True</property>
@@ -1494,37 +1470,61 @@ pixabay.com
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkPopoverMenu" id="popovermenu1">
-    <property name="can_focus">False</property>
-    <property name="relative_to">menubutton1</property>
-    <child>
-      <object class="GtkListBox">
+    <child type="titlebar">
+      <object class="GtkHeaderBar" id="header_bar">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="title" translatable="yes">Library Loader</property>
+        <property name="subtitle" translatable="yes">&lt;config path / status&gt;</property>
+        <property name="show_close_button">True</property>
         <child>
-          <object class="GtkListBoxRow">
+          <object class="GtkMenuButton" id="menubutton1">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="selectable">False</property>
+            <property name="receives_default">True</property>
+            <property name="popover">popovermenu1</property>
             <child>
-              <object class="GtkButton" id="open_about_dialog">
-                <property name="label" translatable="yes">About</property>
+              <object class="GtkImage">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="relief">none</property>
-                <style>
-                  <class name="flat"/>
-                </style>
+                <property name="can_focus">False</property>
+                <property name="resource">/net/olback/library-loader/icon-22</property>
               </object>
             </child>
           </object>
         </child>
       </object>
+    </child>
+  </object>
+  <object class="GtkPopoverMenu" id="popovermenu1">
+    <property name="can_focus">False</property>
+    <property name="relative_to">menubutton1</property>
+    <child>
+      <object class="GtkBox">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkModelButton" id="open_about_dialog">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="text" translatable="yes">About</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
       <packing>
         <property name="submenu">main</property>
-        <property name="position">1</property>
       </packing>
     </child>
   </object>
@@ -1541,9 +1541,6 @@ pixabay.com
     <property name="skip_taskbar_hint">True</property>
     <property name="gravity">center</property>
     <property name="transient_for">main_window</property>
-    <child>
-      <placeholder/>
-    </child>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
@@ -1614,6 +1611,9 @@ pixabay.com
           </packing>
         </child>
       </object>
+    </child>
+    <child type="titlebar">
+      <placeholder/>
     </child>
   </object>
 </interface>

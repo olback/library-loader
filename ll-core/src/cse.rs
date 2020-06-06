@@ -51,7 +51,7 @@ impl CSE {
 
         } else if res_header != "application/x-zip" {
 
-            return Err(new_err!("Error downloading file: Could not determine content type"))
+            return Err(new_err!("Error downloading file: Could not determine content type. This may be because the terms have changed. Log in at componentsearchengine.com and accept the new terms."))
 
         }
 
