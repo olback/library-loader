@@ -192,7 +192,6 @@ workflows:
     jobs:
       # - fmt
       - build_linux
-      - build_windows
       - request_deploy:
           type: approval
           requires:
