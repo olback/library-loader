@@ -19,6 +19,12 @@ jobs:
           toolchain: stable
           override: true
     - uses: actions-rs/cargo@v1
+      working-directory: ${{env.working-directory}}/ll-cli
       with:
         command: build
-        args: --release --all-features
+        args: --release --bin library-loader-cli
+    - uses: actions-rs/cargo@v1
+      working-directory: ${{env.working-directory}}/ll-gui
+      with:
+        command: build
+        args: --release --bin library-loader-gui
