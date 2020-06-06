@@ -3,18 +3,28 @@ name: MacOS Build
 on: [push]
 
 jobs:
-  build:
+  macos_build:
 
     runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v1
+    - name: Install glib
+      run: brew install glib
+    - name: Install gtk3
+      run: brew install gtk+3
     - name: Install latest stable
       uses: actions-rs/toolchain@v1
       with:
           toolchain: stable
           override: true
     - uses: actions-rs/cargo@v1
+      working-directory: ./ll-cli
       with:
         command: build
-        args: --release --all-features
+        args: --release --bin library-loader-cli
+    - uses: actions-rs/cargo@v1
+      working-directory: ./ll-gui
+      with:
+        command: build
+        args: --release --bin library-loader-gui

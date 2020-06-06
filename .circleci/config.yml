@@ -1,7 +1,9 @@
+# version: 2.1
+
 version: 2
 
 jobs:
-  linux:
+  fmt:
     docker:
       - image: circleci/rust:latest
 
@@ -9,22 +11,51 @@ jobs:
       - checkout
 
       - run:
-          name: Change Permissions for Cargo Cache
-          command: |
-                    if [ -d "/usr/local/cargo" ]; then
-                      sudo chown -R circleci:circleci /usr/local/cargo
-                    fi
-      - restore_cache:
-          name: Restore Linux Rust Cache
-          key: cargo-cache-linux-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
+          name: "Check formatting"
+          command: rustfmt --check **/**.rs
 
-    #   - run:
-    #       name: Install Rust Stable
-    #       command: rustup toolchain install stable
+  checks:
+    docker:
+      - image: circleci/node:latest
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          name: Restore Deploy Node Cache
+          key: checks-cache-{{ checksum "checks/package.json" }}-{{ checksum "checks/package-lock.json" }}
 
       - run:
-          name: Use Stable as Default
-          command: rustup default stable
+          name: Install dependencies
+          command: |
+                    cd checks
+                    npm install
+
+      - save_cache:
+          name: Save Node Cache
+          key: checks-cache-{{ checksum "checks/package.json" }}-{{ checksum "checks/package-lock.json" }}
+          paths:
+            - "./checks/node_modules"
+
+      - run:
+          name: Run checks
+          command: ./tools/run_checks.sh
+
+  build_linux:
+    docker:
+      - image: olback/rust-gtk-linux:latest
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          name: Restore Linux Rust Cache
+          key: cargo-cache-linux-v2-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
+
+      # Not needed
+      # - run:
+      #     name: Use Stable as Default
+      #     command: rustup default stable
 
       - run:
           name: Show Version
@@ -35,138 +66,85 @@ jobs:
 
       - run:
           name: Build Binary
-          command: cargo build --release --target=x86_64-unknown-linux-gnu
+          command: |
+                    if [ $CIRCLE_BRANCH = "master" ]; then
+                      cd ll-gui && cargo build --release --target=x86_64-unknown-linux-gnu && cd ..
+                      cd ll-cli && cargo build --release --target=x86_64-unknown-linux-gnu && cd ..
+                    else
+                      cd ll-gui && cargo build --target=x86_64-unknown-linux-gnu && cd ..
+                      cd ll-cli && cargo build --target=x86_64-unknown-linux-gnu && cd ..
+                    fi
 
       - save_cache:
           name: Save Linux Rust Cache
-          key: cargo-cache-linux-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
+          key: cargo-cache-linux-v2-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
           paths:
             - "~/.cargo/"
             - "~/.rustup/"
             - "./target/"
-            - "/usr/local/cargo"
 
       - run:
-          name: "Generate hash file"
-          command: "cd target/x86_64-unknown-linux-gnu/release && sha256sum library-loader > library-loader.sha256"
+          name: Make dist
+          command: |
+                    mkdir -p dist/linux
+                    if [ $CIRCLE_BRANCH = "master" ]; then
+                      cp target/x86_64-unknown-linux-gnu/release/library-loader-gui dist/linux/
+                      cp target/x86_64-unknown-linux-gnu/release/library-loader-cli dist/linux/
+                    else
+                      cp target/x86_64-unknown-linux-gnu/debug/library-loader-gui dist/linux/
+                      cp target/x86_64-unknown-linux-gnu/debug/library-loader-cli dist/linux/
+                    fi
 
       - run:
-          name: "Verify hash"
-          command: "cd target/x86_64-unknown-linux-gnu/release && sha256sum -c library-loader.sha256"
+          name: Generate hashes
+          command: |
+                    cd dist/linux
+                    sha256sum library-loader-gui > library-loader-gui.sha256
+                    sha256sum library-loader-cli > library-loader-cli.sha256
 
       - run:
-          name: "Show hash"
-          command: "cd target/x86_64-unknown-linux-gnu/release && cat library-loader.sha256"
+          name: Verify hashes
+          command: |
+                    cd dist/linux
+                    sha256sum -c library-loader-gui.sha256
+                    sha256sum -c library-loader-cli.sha256
+
+      - run:
+          name: Show hashes
+          command: |
+                    cd dist/linux
+                    cat library-loader-gui.sha256
+                    cat library-loader-cli.sha256
 
       - save_cache:
           name: Save Linux Build Cache
           key: ll-linux-dist-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            - "./target/x86_64-unknown-linux-gnu/release/library-loader"
-            - "./target/x86_64-unknown-linux-gnu/release/library-loader.sha256"
+            - "./dist/linux/library-loader-gui"
+            - "./dist/linux/library-loader-cli"
+            - "./dist/linux/library-loader-gui.sha256"
+            - "./dist/linux/library-loader-cli.sha256"
 
-    #   - store_artifacts:
-    #       name: Store Build
-    #       path: "./target/x86_64-unknown-linux-gnu/release/library-loader"
-    #       destination: "/linux/library-loader"
+      - store_artifacts:
+          name: Store GUI Build
+          path: "./dist/linux/library-loader-gui"
+          destination: "/linux/library-loader-gui"
 
-    #   - store_artifacts:
-    #       name: Store Build Checksum
-    #       path: "./target/x86_64-unknown-linux-gnu/release/library-loader.sha256"
-    #       destination: "/linux/library-loader.sha256"
+      - store_artifacts:
+          name: Store CLI Build
+          path: "./dist/linux/library-loader-cli"
+          destination: "/linux/library-loader-cli"
 
-  windows:
-    docker:
-      - image: circleci/rust:latest
+      - store_artifacts:
+          name: Store GUI Build Hash
+          path: "./dist/linux/library-loader-gui.sha256"
+          destination: "/linux/library-loader-gui.sha256"
 
-    steps:
-      - checkout
+      - store_artifacts:
+          name: Store CLI Build Hash
+          path: "./dist/linux/library-loader-cli.sha256"
+          destination: "/linux/library-loader-cli.sha256"
 
-      - run:
-          name: Change Permissions for Cargo Cache
-          command: |
-                    if [ -d "/usr/local/cargo" ]; then
-                      sudo chown -R circleci:circleci /usr/local/cargo
-                    fi
-      - restore_cache:
-          name: Restore Windows Rust Cache
-          key: cargo-cache-windows-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
-
-      - run:
-          name: Install Rust Stable
-          command: rustup toolchain install stable
-
-      - run:
-          name: Use Stable as Default
-          command: rustup default stable
-
-      - run:
-          name: Show Version
-          command: |
-                    rustc --version --verbose
-                    rustup --version
-                    cargo --version --verbose
-
-      - run:
-          name: Install mingw-w64
-          command: sudo apt install mingw-w64 -y
-
-      - run:
-          name: Install the stable-x86_64-pc-windows-gnu toolchain
-          command: rustup toolchain install stable-x86_64-pc-windows-gnu
-
-      - run:
-          name: Install rust-std for target x86_64-pc-windows-gnu
-          command: rustup component add rust-std --target=x86_64-pc-windows-gnu
-
-      - run:
-          name: Copy a working version of crt2.o into the rust toolchain
-          command: |
-                    export CRT2="/usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/x86_64-pc-windows-gnu/lib/crt2.o"
-                    sudo mv $CRT2 "$CRT2.bak"
-                    sudo cp /usr/x86_64-w64-mingw32/lib/crt2.o $CRT2
-
-      - run:
-          name: Build Binary
-          command: cargo build --release --target=x86_64-pc-windows-gnu
-
-      - save_cache:
-          name: Save Windows Rust Cache
-          key: cargo-cache-windows-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
-          paths:
-            - "~/.cargo/"
-            - "~/.rustup/"
-            - "./target/"
-            - "/usr/local/cargo"
-
-      - run:
-          name: "Generate hash file"
-          command: "cd target/x86_64-pc-windows-gnu/release && sha256sum library-loader.exe > library-loader.exe.sha256"
-
-      - run:
-          name: "Verify hash"
-          command: "cd target/x86_64-pc-windows-gnu/release && sha256sum -c library-loader.exe.sha256"
-
-      - run:
-          name: "Show hash"
-          command: "cd target/x86_64-pc-windows-gnu/release && cat library-loader.exe.sha256"
-
-      - save_cache:
-          name: Save Windows Build
-          key: ll-windows-dist-{{ .Environment.CIRCLE_SHA1 }}
-          paths:
-            - "./target/x86_64-pc-windows-gnu/release/library-loader.exe"
-            - "./target/x86_64-pc-windows-gnu/release/library-loader.exe.sha256"
-
-    #   - store_artifacts:
-    #       name: Store Build
-    #       path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe"
-    #       destination: "/windows/library-loader.exe"
-
-    #   - store_artifacts:
-    #       name: Store Build Checksum
-    #       path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe.sha256"
-    #       destination: "/windows/library-loader.exe.sha256"
 
   deploy:
     docker:
@@ -193,52 +171,37 @@ jobs:
           name: Restore Linux Build
           key: ll-linux-dist-{{ .Environment.CIRCLE_SHA1 }}
 
-      - restore_cache:
-          name: Restore Windows Build
-          key: ll-windows-dist-{{ .Environment.CIRCLE_SHA1 }}
-
       - store_artifacts:
-          name: Store Build
+          name: Store Linux Build
           path: "./target/x86_64-unknown-linux-gnu/release/library-loader"
           destination: "/linux/library-loader"
 
       - store_artifacts:
-          name: Store Build Checksum
+          name: Store Linux Build Checksum
           path: "./target/x86_64-unknown-linux-gnu/release/library-loader.sha256"
           destination: "/linux/library-loader.sha256"
-
-      - store_artifacts:
-          name: Store Build
-          path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe"
-          destination: "/windows/library-loader.exe"
-
-      - store_artifacts:
-          name: Store Build Checksum
-          path: "./target/x86_64-pc-windows-gnu/release/library-loader.exe.sha256"
-          destination: "/windows/library-loader.exe.sha256"
 
       - run:
           name: Deploy
           command: node .circleci/deploy/deploy.js
 
+
 workflows:
   version: 2
   build:
     jobs:
-      - linux
-      - windows
+      # - fmt
+      - build_linux
       - request_deploy:
           type: approval
           requires:
-            - linux
-            - windows
+            - build_linux
           filters:
             branches:
               only: master
       - deploy:
           requires:
-            - linux
-            - windows
+            - build_linux
             - request_deploy
           filters:
             branches:

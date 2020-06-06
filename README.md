@@ -13,8 +13,11 @@ Mac | WIP
 --->
 
 ## Getting started
+
 1. Create an account on [componentsearchengine.com](https://componentsearchengine.com/) if you don't have one already.
 2. Download a prebuilt version of library-loader from the [releases page](https://github.com/olback/library-loader/releases).
+
+### Extra steps for Library Loader CLI
 3. Generate a config file to store your settings in.  
 Option 1: Generate a global config `library-loader -gh`  
 Option 2: Generate a local config `library-loader -g` (current working directory).
@@ -22,15 +25,15 @@ Option 2: Generate a local config `library-loader -g` (current working directory
 Windows: `C:\Users\%user%\AppData\Roaming\LibraryLoader.toml`  
 Linux: `/home/$USER/.config/LibraryLoader.toml`  
 Mac: `$HOME/Library/Preferences/LibraryLoader.toml`
-5. Enjoy!
 
-## Build from source
+### Build from source
 1. Make sure you have the rust toolchain installed.
 2. Download the source. `git clone https://github.com/olback/library-loader.git`.
-3. CD into `library-loader`.
-4. Run `cargo build` to build, or `cargo run` to run.
-5. The binary is stored in `target/[debug/release]/library-loader[.exe]`
-6. Install by running `cargo install --path .`.
+3. `cd` into `library-loader/ll-[cli/gui]`.
+4. `cargo build --release --bin library-loader-[cli/bin]`
+
+#### Extra steps for Library Loader GUI
+5. `sudo ./install.sh`
 
 ## What/Why?
 This is an implementation of [https://www.samacsys.com/library-loader/](https://www.samacsys.com/library-loader/) in Rust. Why? Well, since the library-loader SamacSys provides only works on Windows, I thought it would be neat to make something similar but available to everyone.
