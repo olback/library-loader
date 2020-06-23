@@ -30,7 +30,7 @@ Mac: `$HOME/Library/Preferences/LibraryLoader.toml`
 1. Make sure you have the rust toolchain installed.
 2. Download the source. `git clone https://github.com/olback/library-loader.git`.
 3. `cd` into `library-loader/ll-[cli/gui]`.
-4. `cargo build --release --bin library-loader-[cli/bin]`
+4. `cargo build --release --bin library-loader-[cli/gui]`
 
 #### Extra steps for Library Loader GUI
 5. `sudo ./install.sh`
