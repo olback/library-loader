@@ -1,0 +1,9 @@
+version: '3.4'
+
+services:
+  rust:
+    image: olback/library-loader-rust:1-buster
+    build:
+      context: .
+    volumes:
+      - .:/usr/src/library-loader

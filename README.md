@@ -32,6 +32,15 @@ Mac: `$HOME/Library/Preferences/LibraryLoader.toml`
 3. `cd` into `library-loader/ll-[cli/gui]`.
 4. `cargo build --release --bin library-loader-[cli/bin]`
 
+### Building fromo source using Docker/docker-compose ###
+```bash
+git clone https://github.com/olback/library-loader.git
+cd library-loader
+docker-compose build
+docker-compose run --rm rust sh -c "(cd ll-gui && cargo build --release --bin library-loader-gui) && (cd ll-cli && cargo build --release --bin library-loader-cli)"
+```
+This will first build a container image containing the rust toolchain and dependencies, followed by the gui and cli applications inside a container based on that image.
+
 #### Extra steps for Library Loader GUI
 5. `sudo ./install.sh`
 
