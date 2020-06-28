@@ -22,13 +22,11 @@ const gh = {
 
 const files = [
     // Linux files
-    new File('./target/x86_64-unknown-linux-gnu/release/library-loader-cli'),
-    new File('./target/x86_64-unknown-linux-gnu/release/library-loader-cli.sha256'),
     new File('./target/x86_64-unknown-linux-gnu/release/library-loader-gui'),
     new File('./target/x86_64-unknown-linux-gnu/release/library-loader-gui.sha256')
 ];
 
-let cargoToml = fs.readFileSync('Cargo.toml', 'utf8').toString().split('\n');
+let cargoToml = fs.readFileSync('ll-gui/Cargo.toml', 'utf8').toString().split('\n');
 let currentVersion = cargoToml.filter(l => l.includes('version = '))[0].split(' = ')[1].replace(/\"/g, '');
 
 (async () => {
