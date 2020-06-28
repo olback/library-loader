@@ -1,4 +1,11 @@
-# 0.2.0
+# 0.2.1
+* Updated 'Update Instructions'
+* Added Docker build instructions(thanks @4c0n)
+* Fixed typo (thanks @4c0n)
+* Hopefully fixed automatic releases
+* Fix version missmatch in `ll-core`
+
+## 0.2.0
 * Added GUI version
 * Major refactor
 

@@ -1436,7 +1436,11 @@ pixabay.com
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Update instructions for the diffrent install methods</property>
+                    <property name="label" translatable="yes">Download the latest version from &lt;a href="https://github.com/olback/library-loader/releases"&gt;https://github.com/olback/library-loader/releases&lt;/a&gt; or follow the instructions at &lt;a href="https://github.com/olback/library-loader/blob/master/README.md"&gt;https://github.com/olback/library-loader/blob/master/README.md&lt;/a&gt;</property>
+                    <property name="use_markup">True</property>
+                    <property name="wrap">True</property>
+                    <property name="wrap_mode">word-char</property>
+                    <property name="max_width_chars">50</property>
                     <property name="xalign">0</property>
                   </object>
                   <packing>
@@ -1525,6 +1529,7 @@ pixabay.com
       </object>
       <packing>
         <property name="submenu">main</property>
+        <property name="position">1</property>
       </packing>
     </child>
   </object>

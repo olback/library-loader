@@ -1,6 +1,6 @@
 # Library Loader :books:
 
-![Screenshot](libloader.png)
+<!-- ![Screenshot](libloader.png) -->
 
 Status: [![CircleCI](https://circleci.com/gh/olback/library-loader/tree/master.svg?style=svg)](https://circleci.com/gh/olback/library-loader/tree/master)
 
@@ -29,8 +29,15 @@ Mac: `$HOME/Library/Preferences/LibraryLoader.toml`
 ### Build from source
 1. Make sure you have the rust toolchain installed.
 2. Download the source. `git clone https://github.com/olback/library-loader.git`.
-3. `cd` into `library-loader/ll-[cli/gui]`.
+3. `cd` into `library-loader/ll-[cli/gui]`. This is **REQUIRED** because workspaces and features does not work at all together. :(
 4. `cargo build --release --bin library-loader-[cli/gui]`
+
+### Building from source using Docker
+This allows you to build without installing any dependencies on your machine.
+```
+docker run --volume=$(pwd):/home/circleci/project olback/rust-gtk-linux cargo build --release --bin library-loader-[cli/gui]
+
+```
 
 #### Extra steps for Library Loader GUI
 5. `sudo ./install.sh`
