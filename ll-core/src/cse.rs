@@ -37,7 +37,9 @@ impl CSE {
         let url = format!("{base}{id}", base = COMPONENT_SEARCH_ENGINE_URL, id = id);
 
         let client = reqwest::Client::new();
-        let req = client.get(&url).header(header::AUTHORIZATION, format!("Basic {auth}", auth = &self.auth));
+        let req = client.get(&url)
+            .header(header::AUTHORIZATION, format!("Basic {auth}", auth = &self.auth))
+            .header(header::USER_AGENT, format!("Library Loader {} github.com/olback/library-loader", env!("CARGO_PKG_VERSION")));
         let mut res = req.send()?;
 
         let res_header = match res.headers().get("content-type") {

@@ -1,4 +1,7 @@
-# 0.2.1
+# 0.2.2
+* Update download url (fixes 401 errors)
+
+## 0.2.1
 * Updated 'Update Instructions'
 * Added Docker build instructions(thanks @4c0n)
 * Fixed typo (thanks @4c0n)

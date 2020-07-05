@@ -71,15 +71,8 @@ impl Account {
 
             } else {
 
-                let email = match email_clone.get_text() {
-                    Some(v) => v.to_string(),
-                    None => String::new()
-                };
-
-                let password = match password_clone.get_text() {
-                    Some(v) => v.to_string(),
-                    None => String::new()
-                };
+                let email = email_clone.get_text().to_string();
+                let password = password_clone.get_text().to_string();
 
                 let save_info = save_info_switch.get_active();
 

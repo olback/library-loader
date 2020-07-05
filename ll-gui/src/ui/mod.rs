@@ -21,7 +21,7 @@ impl Ui {
 
     pub fn build(app: &gtk::Application, state: &AMState) -> Self {
 
-        let builder = gtk::Builder::new_from_string(consts::GLADE_STRING);
+        let builder = gtk::Builder::from_string(consts::GLADE_STRING);
 
         let main = main::build(&builder, &app);
         let notebook = notebook::Notebook::build(&builder, &main, &state);
