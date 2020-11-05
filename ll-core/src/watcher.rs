@@ -9,6 +9,7 @@ use std::{
     path::PathBuf
 };
 use super::{
+    error::LLError,
     error::LLResult,
     cse::CSE,
     epw::Epw,
@@ -183,7 +184,6 @@ impl Watcher {
             _ => {}
 
         };
-
     }
 
     fn handle_file(&self, path: &PathBuf) -> LLResult<String> {
@@ -194,10 +194,10 @@ impl Watcher {
                 let res = &self.cse.get(epw)?;
                 res.save()
             } else {
-                Err(LLError::new(format!("=> Ignoring non-zip: {}", path.to_str().unwrap())))
+                Err(LLError::new(format!("=> Ignoring non-zip: {}", path.to_str().unwrap()), "ll-gui/watcher.rs", 198))
             }
             None => {
-                Err(LLError::new(format!("=> Ignoring: {}", path.to_str().unwrap())))
+                Err(LLError::new(format!("=> Ignoring: {}", path.to_str().unwrap()), "ll-gui/watcher.rs", 201))
             }
         }
     }

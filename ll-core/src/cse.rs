@@ -2,11 +2,13 @@ use super::{
     config::Config,
     format::{
         Files,
-        ECAD
+        ECAD,
+        Output
     },
     epw::Epw,
     error::LLResult,
     cse_result::CSEResult,
+    cse_result::CSEUnprocessedResult,
     consts::COMPONENT_SEARCH_ENGINE_URL,
     new_err
 };
@@ -104,13 +106,13 @@ impl CSE {
                 false => filename.replace(".zip", "")
             };
 
-            self.unzip(lib_name, body)
-
+            let mut v = self.unzip(lib_name, body)?;
+            self.process(&mut v)
         }
 
     }
 
-    fn unzip(&self, lib_name: String, data: Vec<u8>) -> LLResult<CSEResult> {
+    fn unzip(&self, lib_name: String, data: Vec<u8>) -> LLResult<CSEUnprocessedResult> {
 
         let reader = std::io::Cursor::new(&data);
         let mut archive = zip::ZipArchive::new(reader)?;
@@ -130,11 +132,27 @@ impl CSE {
             false => PathBuf::from(&self.config.settings.output_path)
         };
 
-        Ok(CSEResult {
+        Ok(CSEUnprocessedResult {
             output_path: path.to_string_lossy().to_string(),
             files: files
         })
 
+    }
+
+    fn process(&self,rawres : &mut CSEUnprocessedResult) -> LLResult<CSEResult>
+    {
+        let mut output_files = Files::new();
+
+        for (filename, mut file) in rawres.files.iter_mut()
+        {
+            self.config.settings.format.process(rawres.output_path.clone(), &mut output_files, filename.clone(), &mut file)?;
+        }
+
+        Ok(CSEResult
+        {
+            output_path : rawres.output_path.clone(),
+            files : output_files,
+        })
     }
 
 }
