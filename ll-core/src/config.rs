@@ -69,100 +69,79 @@ impl Config {
 
         // This needs to be refactored
         if internal.is_ok() {
-
             let (int, int_path) = internal.unwrap();
 
-            let settings: Settings = match int.settings {
-                Some(s) => {
-                    Settings {
-                        output_path: match s.output_path {
-                            Some (v) => String::from(v),
-                            None => Self::default().settings.output_path
-                        },
-                        watch_path: match s.watch_path {
-                            Some(v) => Some(String::from(v)),
-                            None => None
-                        },
-                        format: match s.format {
-                            Some(v) => Format::from(v),
-                            None => Self::default().settings.format
-                        },
-                    }
-                },
-                None => Self::default().settings
-            };
+            let settings = int.settings.map_or(Self::default().settings, |s| Settings {
+                output_path: s
+                    .output_path
+                    .map_or(Self::default().settings.output_path, |v| String::from(v)),
+                watch_path: s.watch_path.map(|v| String::from(v)),
+                format: s
+                    .format
+                    .map_or(Self::default().settings.format, |v| Format::from(v)),
+            });
 
-            let profile: Profile = match int.profile {
-                Some(p) => p,
-                None => {
-                    match matches.is_present("generate") {
-                        true => Profile::new("", ""),
-                        false => {
-                            Profile::prompt()
-                        }
-                    }
-                }
-            };
+            let profile = int.profile.unwrap_or(match matches.is_present("generate") {
+                true => Profile::new("", ""),
+                false => Profile::prompt(),
+            });
 
             conf = Self {
                 settings: Settings {
-                    output_path: match matches.value_of("output") {
-                        Some(v) => String::from(v),
-                        None => settings.output_path
-                    },
-                    watch_path: match matches.value_of("watch") {
-                        Some(v) => Some(String::from(v)),
-                        None => settings.watch_path
-                    },
-                    format: match matches.value_of("format") {
-                        Some(v) => Format::from(v),
-                        None => settings.format
-                    }
+                    output_path: matches
+                        .value_of("output")
+                        .map_or(settings.output_path, |v| String::from(v)),
+                    watch_path: matches
+                        .value_of("watch")
+                        .map_or(settings.watch_path, |v| Some(String::from(v))),
+                    format: matches
+                        .value_of("format")
+                        .map_or(settings.format, |v| Format::from(v)),
                 },
                 cli: Cli {
-                    input: match matches.value_of("INPUT") {
-                        Some(v) => String::from(v),
-                        None => Self::default().cli.input
-                    },
-                    generate_config: (matches.is_present("generate"), matches.is_present("home_dir")),
-                    treat_input_as_id: matches.is_present("id")
+                    input: matches
+                        .value_of("INPUT")
+                        .map_or(Self::default().cli.input, |v| String::from(v)),
+                    generate_config: (
+                        matches.is_present("generate"),
+                        matches.is_present("home_dir"),
+                    ),
+                    treat_input_as_id: matches.is_present("id"),
                 },
                 profile: profile,
-                config_file: Some(int_path)
+                config_file: Some(int_path),
             }
-
         } else {
-
             conf = Self {
                 settings: Settings {
-                    output_path: match matches.value_of("output") {
-                        Some(v) => String::from(v),
-                        None => Self::default().settings.output_path
-                    },
-                    watch_path: match matches.value_of("watch") {
-                        Some(v) => Some(String::from(v)),
-                        None => Self::default().settings.watch_path
-                    },
-                    format: match matches.value_of("format") {
-                        Some(v) => Format::from(v),
-                        None => Self::default().settings.format
-                    },
+                    output_path: matches
+                        .value_of("output")
+                        .map_or(Self::default().settings.output_path, |v| String::from(v)),
+                    watch_path: matches
+                        .value_of("watch")
+                        .map_or(Self::default().settings.watch_path, |v| {
+                            Some(String::from(v))
+                        }),
+                    format: matches
+                        .value_of("format")
+                        .map_or(Self::default().settings.format, |v| Format::from(v)),
                 },
                 cli: Cli {
-                    input: match matches.value_of("INPUT") {
-                        Some(v) => String::from(v),
-                        None => Self::default().cli.input
-                    },
-                    generate_config: (matches.is_present("generate"), matches.is_present("home_dir")),
-                    treat_input_as_id: matches.is_present("id")
+                    input: matches
+                        .value_of("INPUT")
+                        .map_or(Self::default().cli.input, |v| String::from(v)),
+                    generate_config: (
+                        matches.is_present("generate"),
+                        matches.is_present("home_dir"),
+                    ),
+                    treat_input_as_id: matches.is_present("id"),
                 },
                 profile: match matches.is_present("generate") {
                     true => Profile::new("", ""),
-                    false => Profile::prompt()
+                    false => Profile::prompt(),
                 },
-                config_file: None
+                config_file: None,
             };
-
         }
 
         #[cfg(debug_assertions)]
