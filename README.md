@@ -19,7 +19,7 @@ Mac | WIP
 
 ### Extra steps for Library Loader CLI
 3. Generate a config file to store your settings in.  
-Option 1: Generate a global config `library-loader -gh`  
+Option 1: Generate a global config `library-loader -gu`  
 Option 2: Generate a local config `library-loader -g` (current working directory).
 4. Edit the config file to your liking. Global config locations:  
 Windows: `C:\Users\%user%\AppData\Roaming\LibraryLoader.toml`  
