@@ -15,6 +15,12 @@ use std::{
 //     pub data: Vec<u8>
 // }
 
+pub struct CSEUnprocessedResult
+{
+    pub output_path: String,
+    pub files: HashMap<String, Vec<u8>>
+}
+
 pub struct CSEResult {
     pub output_path: String,
     pub files: HashMap<String, Vec<u8>>
@@ -28,12 +34,15 @@ impl CSEResult {
 
         if &self.files.len() > &0 {
 
-            if !save_dir.exists() {
-                fs::create_dir_all(save_dir)?;
-            }
-
             for (filename, data) in &self.files {
                 let path = save_dir.join(filename);
+                let dir = path.parent().unwrap();
+
+                if !dir.exists()
+                {
+                    fs::create_dir_all(dir)?;
+                }
+
                 Self::write(path, data.to_vec())?;
             }
 
@@ -50,10 +59,6 @@ impl CSEResult {
     fn write(path: PathBuf, data: Vec<u8>) -> LLResult<String> {
 
         let p = path.to_str().unwrap().to_string();
-
-        if path.exists() {
-            return Err(new_err!(format!("{} already exists!", p)));
-        }
 
         match fs::write(&path, &data) {
             Ok(_) => Ok(p),

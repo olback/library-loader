@@ -33,14 +33,14 @@ pub(super) fn generic_extractor(format: &Format, files: &mut Files, file_path: S
 
     }
 
-    if file_path_lower.contains(&format.match_path.to_lowercase()) {
-
-        let path = PathBuf::from(file_path);
-        let base_name = path.file_name().unwrap().to_string_lossy().to_string();
-        let mut f_data = Vec::<u8>::new();
-        item.read_to_end(&mut f_data)?;
-        files.insert(base_name, f_data);
-
+    let path = PathBuf::from(file_path);
+    for paths_to_extract in &format.match_path {
+        if file_path_lower.contains(paths_to_extract.to_lowercase().as_str()) {
+            let base_name = path.file_name().unwrap().to_string_lossy().to_string();
+            let mut f_data = Vec::<u8>::new();
+            item.read_to_end(&mut f_data)?;
+            files.insert(base_name, f_data);
+        }
     }
 
     Ok(())
