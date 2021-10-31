@@ -35,7 +35,7 @@ impl Format {
                 name: f,
                 ecad: ECAD::D3,
                 create_folder: true,
-                match_path: "3D",
+                match_path: vec!["3D"],
                 ignore: vec![]
             },
             "eagle" => Self {
