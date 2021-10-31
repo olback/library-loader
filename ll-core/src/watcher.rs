@@ -194,10 +194,10 @@ impl Watcher {
                 let res = &self.cse.get(epw)?;
                 res.save()
             } else {
-                Err(LLError::new(format!("=> Ignoring non-zip: {}", path.to_str().unwrap())))
+                Err(new_err!(format!("=> Ignoring non-zip: {}", path.to_str().unwrap())))
             }
             None => {
-                Err(LLError::new(format!("=> Ignoring: {}", path.to_str().unwrap())))
+                Err(new_err!(format!("=r Ignoring: {}", path.to_str().unwrap())))
             }
         }
     }
