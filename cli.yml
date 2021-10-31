@@ -46,7 +46,7 @@ args:
         takes_value: true
         multiple: false
         possible_values:
-            # - 3d
+            - 3d
             # - allegro
             # - altium
             # - cadstar

@@ -4,3 +4,7 @@
 /watch/
 LibraryLoader.toml
 aLibraryLoader.toml
+resources.bin
+/dist/
+*.sha256
+*.pfx

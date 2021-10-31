@@ -1,0 +1,9 @@
+trailing_semicolon = true
+trailing_comma = "Never"
+match_block_trailing_comma = false
+match_arm_blocks = true
+tab_spaces = 4
+type_punctuation_density = "Wide"
+use_field_init_shorthand = false
+use_try_shorthand = true
+wrap_comments = true

@@ -1,0 +1,22 @@
+[package]
+name = "library-loader-gui"
+version = "0.2.2"
+authors = ["Edwin Svensson <libraryloader@olback.net>"]
+edition = "2018"
+build = "build/build.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+gtk = "0.9"
+gio = "0.9"
+glib = "0.10"
+toml = "0.5"
+serde = { version = "1.0", features = ["derive"] }
+library-loader-core = { path = "../ll-core", features = ["gui"], default-features = false }
+dirs = "3.0"
+
+[build-dependencies]
+regex = "1"
+toml = "0.5"
+serde = { version = "1.0", features = ["derive"] }
