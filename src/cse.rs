@@ -41,7 +41,7 @@ impl CSE {
 
         if !res.status().is_success() {
 
-            return Err(LLError::new(format!("Error downloading file: {}", res.status())))
+            return Err(LLError::new(format!("Error downloading file: {} from {}", res.status(), url)))
 
         } else if res_header != "application/x-zip" {
 
