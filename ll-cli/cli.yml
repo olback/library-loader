@@ -1,0 +1,44 @@
+name: "Library Loader CLI"
+args:
+  - config:
+      help: "Path to config file"
+      short: c
+      long: config
+      value_name: config
+      takes_value: true
+      multiple: false
+      conflicts_with:
+        - global_config
+  - watch:
+      help: "Path to watch for .epw/.zip files."
+      short: w
+      long: watch
+      value_name: watch
+      takes_value: true
+      multiple: false
+      conflicts_with:
+        - generate
+  - generate:
+      help: "Generate config."
+      short: g
+      long: generate
+      takes_value: false
+      multiple: false
+      conflicts_with:
+        - watch
+  - overwrite:
+      help: "Overwrite existing files"
+      # short: o
+      long: overwrite
+      takes_value: false
+      multiple: false
+      requires:
+        - generate
+  - global_config:
+      help: "Use global config."
+      short: u
+      long: global-config
+      takes_value: false
+      multiple: false
+      conflicts_with:
+        - config

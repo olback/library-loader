@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=Library Loader
-Comment=Download libraries from SamacSys Component Search Engine
-Exec=library-loader-gui
-Icon=/usr/share/icons/hicolor/scalable/apps/net.olback.LibraryLoader.svg
-Terminal=false
-Type=Application
-StartupNotify=true
-Categories=GNOME;GTK;Utility;

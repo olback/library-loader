@@ -1,15 +1,7 @@
-use super::{
-    error::LLResult,
-    new_err
+use {
+    crate::error::{Error, Result},
+    std::{collections::HashMap, ffi::OsStr, fs, io::Read, path::PathBuf},
 };
-use std::{
-    fs,
-    collections::HashMap,
-    ffi::OsStr,
-    path::PathBuf,
-    io::Read
-};
-use zip;
 
 #[derive(Debug)]
 pub struct Epw {
@@ -22,13 +14,11 @@ pub struct Epw {
     pub sym: u32,
     pub fmt: u32,
     pub ck: String,
-    pub source: String
+    pub source: String,
 }
 
 impl Epw {
-
-    pub fn from_file<S: Into<PathBuf>>(path: S) -> LLResult<Self> {
-
+    pub fn from_file<S: Into<PathBuf>>(path: S) -> Result<Self> {
         let p = path.into();
         let f_data = fs::read(&p)?;
 
@@ -39,11 +29,9 @@ impl Epw {
                 Self::from_string(f_str)
             }
         }
-
     }
 
-    pub fn from_string<S: Into<String>>(d: S) -> LLResult<Self> {
-
+    pub fn from_string<S: Into<String>>(d: S) -> Result<Self> {
         let data = d.into();
         let mut lines = data.lines();
 
@@ -51,19 +39,15 @@ impl Epw {
 
         let id = match lines.next() {
             Some(v) => v.parse::<u32>()?,
-            None => {
-                return Err(new_err!("No data in file"))
-            }
+            None => return Err(Error::FileEmpty),
         };
 
         for line in lines {
-
             let line_parts: Vec<&str> = line.split("=").collect();
 
             if line_parts.len() == 2 {
                 map.insert(line_parts[0], line_parts[1]);
             }
-
         }
 
         Ok(Self {
@@ -76,9 +60,8 @@ impl Epw {
             sym: map.get("sym").unwrap_or(&"0").parse::<u32>().unwrap_or(0),
             fmt: map.get("fmt").unwrap_or(&"0").parse::<u32>().unwrap_or(0),
             ck: String::from(*map.get("ck").unwrap_or(&"")),
-            source: String::from(*map.get("source").unwrap_or(&""))
+            source: String::from(*map.get("source").unwrap_or(&"")),
         })
-
     }
 
     pub fn from_id<I: Into<u32>>(id: I) -> Self {
@@ -92,16 +75,15 @@ impl Epw {
             sym: 0,
             fmt: 0,
             ck: String::new(),
-            source: String::new()
+            source: String::new(),
         }
     }
 
-    fn from_zip(raw_data: Vec<u8>) -> LLResult<Self> {
-
+    fn from_zip(raw_data: Vec<u8>) -> Result<Self> {
         // The zip library crashes if the archive is empty,
         // lets prevent that.
         if raw_data.len() == 0 {
-            return Err(new_err!("Zip archive seems to be empty"))
+            return Err(Error::ZipArchiveEmpty);
         }
 
         // If the last byte is 0x0A, which it always seems to
@@ -113,31 +95,25 @@ impl Epw {
                 let mut data = raw_data.clone();
                 data.pop();
                 data
-            },
-            false => raw_data
+            }
+            false => raw_data,
         };
 
         let reader = std::io::Cursor::new(&data);
         let mut archive = zip::ZipArchive::new(reader)?;
 
         for i in 0..archive.len() {
-
             let mut file = archive.by_index(i)?;
             let path = PathBuf::from(file.name());
 
             if path.as_path().extension() == Some(OsStr::new("epw")) {
-
                 let mut epw_content = String::new();
                 file.read_to_string(&mut epw_content)?;
 
-                return Self::from_string(epw_content)
-
+                return Self::from_string(epw_content);
             }
-
         }
 
-        Err(new_err!("No .epw file found in archive"))
-
+        Err(Error::NoEpwInZipArchive)
     }
-
 }
