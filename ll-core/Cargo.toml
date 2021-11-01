@@ -1,6 +1,6 @@
 [package]
-name = "ll-core"
-version = "0.1.0"
+name = "library-loader-core"
+version = "0.3.0"
 authors = ["Edwin Svensson <libraryloader@olback.net>"]
 edition = "2021"
 publish = false
