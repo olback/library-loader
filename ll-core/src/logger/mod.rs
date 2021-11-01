@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 mod console;
 
 pub use console::ConsoleLogger;

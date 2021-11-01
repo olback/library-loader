@@ -8,12 +8,12 @@ use {
 };
 
 pub struct Result {
-    pub output_path: String,
+    pub output_path: PathBuf,
     pub files: HashMap<String, Vec<u8>>,
 }
 
 impl Result {
-    pub fn save(&self) -> error::Result<String> {
+    pub fn save(&self) -> error::Result<PathBuf> {
         let save_dir = Path::new(&self.output_path);
 
         if &self.files.len() > &0 {
@@ -26,22 +26,20 @@ impl Result {
                 Self::write(path, data.to_vec())?;
             }
 
-            Ok(save_dir.canonicalize()?.to_str().unwrap_or("").to_string())
+            Ok(save_dir.canonicalize()?)
         } else {
             // Err(new_err!("No files found for your specified library"))
             Err(Error::NoFilesInLibrary)
         }
     }
 
-    fn write(path: PathBuf, data: Vec<u8>) -> error::Result<String> {
-        let p = path.to_str().unwrap().to_string();
-
+    fn write(path: PathBuf, data: Vec<u8>) -> error::Result<PathBuf> {
         if path.exists() {
             // return Err(new_err!(format!("{} already exists!", p)));
             return Err(Error::WouldOverwrite);
         }
 
         fs::write(&path, &data)?;
-        Ok(p)
+        Ok(path)
     }
 }

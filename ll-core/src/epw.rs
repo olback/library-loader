@@ -64,20 +64,20 @@ impl Epw {
         })
     }
 
-    pub fn from_id<I: Into<u32>>(id: I) -> Self {
-        Self {
-            id: id.into(),
-            mna: String::new(),
-            mpn: String::new(),
-            pna: String::new(),
-            w: String::new(),
-            pc: 0,
-            sym: 0,
-            fmt: 0,
-            ck: String::new(),
-            source: String::new(),
-        }
-    }
+    // pub fn from_id<I: Into<u32>>(id: I) -> Self {
+    //     Self {
+    //         id: id.into(),
+    //         mna: String::new(),
+    //         mpn: String::new(),
+    //         pna: String::new(),
+    //         w: String::new(),
+    //         pc: 0,
+    //         sym: 0,
+    //         fmt: 0,
+    //         ck: String::new(),
+    //         source: String::new(),
+    //     }
+    // }
 
     fn from_zip(raw_data: Vec<u8>) -> Result<Self> {
         // The zip library crashes if the archive is empty,

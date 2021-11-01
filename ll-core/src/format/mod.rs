@@ -1,22 +1,48 @@
-use {crate::error::Result, std::path::PathBuf, zip::read::ZipFile};
+use {
+    crate::error::Result,
+    serde::{Deserialize, Serialize},
+    std::{fmt, path::PathBuf},
+    zip::read::ZipFile,
+};
 
 mod extractors;
 pub use extractors::Files;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ECAD {
     // * Keep these in alphabetical order
+    #[serde(rename = "3d")]
     D3, // 3D
+    #[serde(rename = "eagle")]
     EAGLE,
+    #[serde(rename = "easyeda")]
     EASYEDA,
+    #[serde(rename = "kicad")]
     KICAD,
+    #[serde(rename = "zip")]
     ZIP,
+}
+
+impl fmt::Display for ECAD {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match &self {
+                Self::D3 => "3d",
+                Self::EAGLE => "eagle",
+                Self::EASYEDA => "easyeda",
+                Self::KICAD => "kicad",
+                Self::ZIP => "zip",
+            }
+        )
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Format {
     pub output_path: PathBuf,
-    pub name: String,
+    // pub name: String,
     pub ecad: ECAD,
     pub create_folder: bool,
     match_path: &'static str,
@@ -24,59 +50,51 @@ pub struct Format {
 }
 
 impl Format {
-    pub fn from<S: Into<String>, P: Into<PathBuf>>(format: S, output_path: P) -> Self {
-        let f = format.into().to_lowercase();
+    pub fn from_ecad<P: Into<PathBuf>>(ecad: ECAD, output_path: P) -> Self {
+        // let f = format.into().to_lowercase();
 
         // * Keep these in alphabetical order
-        match f.as_str() {
-            "3d" => Self {
+        match ecad {
+            ECAD::D3 => Self {
                 output_path: output_path.into(),
-                name: f,
+                // name: f,
                 ecad: ECAD::D3,
                 create_folder: true,
                 match_path: "3D",
                 ignore: vec![],
             },
-            "eagle" => Self {
+            ECAD::EAGLE => Self {
                 output_path: output_path.into(),
-                name: f,
+                // name: f,
                 ecad: ECAD::EAGLE,
                 create_folder: false,
                 match_path: "EAGLE",
                 ignore: vec!["Readme.html"],
             },
-            "easyeda" => Self {
+            ECAD::EASYEDA => Self {
                 output_path: output_path.into(),
-                name: f,
+                // name: f,
                 ecad: ECAD::EASYEDA,
                 create_folder: false,
                 match_path: "EasyEDA",
                 ignore: vec!["Readme.html"],
             },
-            "kicad" => Self {
+            ECAD::KICAD => Self {
                 output_path: output_path.into(),
-                name: f,
+                // name: f,
                 ecad: ECAD::KICAD,
                 create_folder: true,
                 match_path: "KiCad",
                 ignore: vec![],
             },
-            "zip" => Self {
+            ECAD::ZIP => Self {
                 output_path: output_path.into(),
-                name: f,
+                // name: f,
                 ecad: ECAD::ZIP,
                 create_folder: false,
                 match_path: "",
                 ignore: vec![],
             },
-            _ => {
-                eprintln!(
-                    "{}#{}: Unknown format. Defaulting to ZIP!",
-                    std::file!(),
-                    std::line!()
-                );
-                Self::from("zip", output_path)
-            }
         }
     }
 

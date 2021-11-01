@@ -13,7 +13,7 @@ fn main() -> ll_core::Result<()> {
 
     #[cfg(not(debug_assertions))]
     let update_handle = std::thread::spawn(|| {
-        match ll_core::updates::check(env!("CARGO_PKG_VERSION"), updates::ClientKind::CLI) {
+        match ll_core::check_updates(env!("CARGO_PKG_VERSION"), ll_core::ClientKind::CLI) {
             Ok(None) => {} // Latest version
             Ok(Some(ui)) => {
                 println!("=========================================================");
@@ -82,18 +82,16 @@ fn main() -> ll_core::Result<()> {
         eprintln!("without any formats specified.");
     }
 
-    let mut watcher = Watcher::new(config, vec![ConsoleLogger::new()]).unwrap();
+    let mut watcher = Watcher::new(config, vec![ConsoleLogger::new()])?;
     watcher.start()?;
 
     println!("Stop by pressing <Enter>");
-    std::io::stdin()
-        .read_line(&mut String::with_capacity(1))
-        .unwrap();
+    std::io::stdin().read_line(&mut String::with_capacity(1))?;
 
     watcher.stop();
 
     #[cfg(not(debug_assertions))]
-    update_handle.join().unwrap();
+    drop(update_handle.join());
 
     Ok(())
 }

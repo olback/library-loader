@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 pub struct ConsoleLogger;
 
 impl ConsoleLogger {

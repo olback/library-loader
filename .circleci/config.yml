@@ -1,0 +1,208 @@
+# version: 2.1
+
+version: 2
+
+jobs:
+  fmt:
+    docker:
+      - image: circleci/rust:latest
+
+    steps:
+      - checkout
+
+      - run:
+          name: "Check formatting"
+          command: rustfmt --check **/**.rs
+
+  checks:
+    docker:
+      - image: circleci/node:latest
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          name: Restore Deploy Node Cache
+          key: checks-cache-{{ checksum "checks/package.json" }}-{{ checksum "checks/package-lock.json" }}
+
+      - run:
+          name: Install dependencies
+          command: |
+                    cd checks
+                    npm install
+
+      - save_cache:
+          name: Save Node Cache
+          key: checks-cache-{{ checksum "checks/package.json" }}-{{ checksum "checks/package-lock.json" }}
+          paths:
+            - "./checks/node_modules"
+
+      - run:
+          name: Run checks
+          command: ./tools/run_checks.sh
+
+  build_linux:
+    docker:
+      - image: olback/rust-gtk-linux:latest
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          name: Restore Linux Rust Cache
+          key: cargo-cache-linux-v2-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
+
+      # Not needed
+      # - run:
+      #     name: Use Stable as Default
+      #     command: rustup default stable
+
+      - run:
+          name: Show Version
+          command: |
+                    rustc --version --verbose
+                    rustup --version
+                    cargo --version --verbose
+
+      - run:
+          name: Build Binary
+          command: |
+                    if [ $CIRCLE_BRANCH = "master" ]; then
+                      cd ll-gui && cargo build --release --target=x86_64-unknown-linux-gnu && cd ..
+                      cd ll-cli && cargo build --release --target=x86_64-unknown-linux-gnu && cd ..
+                    else
+                      cd ll-gui && cargo build --target=x86_64-unknown-linux-gnu && cd ..
+                      cd ll-cli && cargo build --target=x86_64-unknown-linux-gnu && cd ..
+                    fi
+
+      - save_cache:
+          name: Save Linux Rust Cache
+          key: cargo-cache-linux-v2-{{ checksum "Cargo.lock" }}-{{ checksum "Cargo.toml" }}
+          paths:
+            - "~/.cargo/"
+            - "~/.rustup/"
+            - "./target/"
+
+      - run:
+          name: Make dist
+          command: |
+                    mkdir -p dist/linux
+                    if [ $CIRCLE_BRANCH = "master" ]; then
+                      cp target/x86_64-unknown-linux-gnu/release/library-loader-gui dist/linux/
+                      cp target/x86_64-unknown-linux-gnu/release/library-loader-cli dist/linux/
+                    else
+                      cp target/x86_64-unknown-linux-gnu/debug/library-loader-gui dist/linux/
+                      cp target/x86_64-unknown-linux-gnu/debug/library-loader-cli dist/linux/
+                    fi
+
+      - run:
+          name: Generate hashes
+          command: |
+                    cd dist/linux
+                    sha256sum library-loader-gui > library-loader-gui.sha256
+                    sha256sum library-loader-cli > library-loader-cli.sha256
+
+      - run:
+          name: Verify hashes
+          command: |
+                    cd dist/linux
+                    sha256sum -c library-loader-gui.sha256
+                    sha256sum -c library-loader-cli.sha256
+
+      - run:
+          name: Show hashes
+          command: |
+                    cd dist/linux
+                    cat library-loader-gui.sha256
+                    cat library-loader-cli.sha256
+
+      - save_cache:
+          name: Save Linux Build Cache
+          key: ll-linux-dist-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - "./dist/linux/library-loader-gui"
+            - "./dist/linux/library-loader-cli"
+            - "./dist/linux/library-loader-gui.sha256"
+            - "./dist/linux/library-loader-cli.sha256"
+
+      - store_artifacts:
+          name: Store GUI Build
+          path: "./dist/linux/library-loader-gui"
+          destination: "/linux/library-loader-gui"
+
+      - store_artifacts:
+          name: Store CLI Build
+          path: "./dist/linux/library-loader-cli"
+          destination: "/linux/library-loader-cli"
+
+      - store_artifacts:
+          name: Store GUI Build Hash
+          path: "./dist/linux/library-loader-gui.sha256"
+          destination: "/linux/library-loader-gui.sha256"
+
+      - store_artifacts:
+          name: Store CLI Build Hash
+          path: "./dist/linux/library-loader-cli.sha256"
+          destination: "/linux/library-loader-cli.sha256"
+
+
+  deploy:
+    docker:
+      - image: circleci/node:latest
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          name: Restore Deploy Node Cache
+          key: deploy-cache-{{ checksum ".circleci/deploy/package.json" }}-{{ checksum ".circleci/deploy/package-lock.json" }}
+
+      - run:
+          name: Install dependencies
+          command: cd .circleci/deploy && npm install
+
+      - save_cache:
+          name: Save Node Cache
+          key: deploy-cache-{{ checksum ".circleci/deploy/package.json" }}-{{ checksum ".circleci/deploy/package-lock.json" }}
+          paths:
+            - "./.circleci/deploy/node_modules"
+
+      - restore_cache:
+          name: Restore Linux Build
+          key: ll-linux-dist-{{ .Environment.CIRCLE_SHA1 }}
+
+      - store_artifacts:
+          name: Store Linux Build
+          path: "./target/x86_64-unknown-linux-gnu/release/library-loader"
+          destination: "/linux/library-loader"
+
+      - store_artifacts:
+          name: Store Linux Build Checksum
+          path: "./target/x86_64-unknown-linux-gnu/release/library-loader.sha256"
+          destination: "/linux/library-loader.sha256"
+
+      - run:
+          name: Deploy
+          command: node .circleci/deploy/deploy.js
+
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      # - fmt
+      - build_linux
+      - request_deploy:
+          type: approval
+          requires:
+            - build_linux
+          filters:
+            branches:
+              only: master
+      - deploy:
+          requires:
+            - build_linux
+            - request_deploy
+          filters:
+            branches:
+              only: master

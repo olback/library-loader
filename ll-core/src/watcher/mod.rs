@@ -1,7 +1,7 @@
 use {
     crate::{
-        config::Config, error::Result, format::Format, log_error, log_if_error, log_info,
-        logger::Logger,
+        config::Config, cse::CSE, epw::Epw, error::Result, format::Format, log_error, log_if_error,
+        log_info, logger::Logger,
     },
     event::WatcherEvent,
     notify::{
@@ -19,6 +19,7 @@ use {
 mod event;
 
 pub struct Watcher {
+    token: String,
     watch_path: PathBuf,
     formats: Arc<Vec<Format>>,
     loggers: Arc<Vec<Box<dyn Logger>>>,
@@ -33,8 +34,9 @@ pub struct Watcher {
 impl Watcher {
     pub fn new(config: Config, loggers: Vec<Box<dyn Logger>>) -> Result<Self> {
         Ok(Self {
-            watch_path: config.settings.watch_path.canonicalize()?,
-            formats: Arc::new(vec![]), // TODO: config::Format to format::Format
+            token: config.profile.token(),
+            watch_path: PathBuf::from(shellexpand::full(&config.settings.watch_path)?.as_ref()),
+            formats: Arc::new(config.formats()?),
             loggers: Arc::new(loggers),
             thread: None,
             recursive: config.settings.recursive,
@@ -52,6 +54,8 @@ impl Watcher {
                 Err(e) => log_error!(&*loggers, format!("{:?}", e)),
             })?;
 
+        let token = self.token.clone();
+        let formats = Arc::clone(&self.formats);
         let loggers = Arc::clone(&self.loggers);
         let jh = thread::spawn(move || loop {
             match rx.recv() {
@@ -65,7 +69,35 @@ impl Watcher {
                                     == Some(OsString::from("zip"))
                                 {
                                     log_info!(&*loggers, format!("Detected {:?}", file));
-                                    // handle_file(file);
+                                    let token = token.clone();
+                                    let formats = Arc::clone(&formats);
+                                    let loggers_clone = Arc::clone(&loggers);
+                                    // uuuh
+                                    std::thread::sleep(std::time::Duration::from_millis(100));
+                                    match (move || -> Result<()> {
+                                        let epw = Epw::from_file(file)?;
+                                        for res in CSE::new(token, formats).get(epw)? {
+                                            match res.save() {
+                                                Ok(save_path) => {
+                                                    log_info!(
+                                                        &*loggers_clone,
+                                                        format!("Saved to {:?}", save_path)
+                                                    )
+                                                }
+                                                Err(e) => {
+                                                    log_error!(&*loggers_clone, e)
+                                                }
+                                            }
+                                        }
+                                        Ok(())
+                                    })() {
+                                        Ok(()) => {
+                                            log_info!(&*loggers, "Done");
+                                        }
+                                        Err(e) => {
+                                            log_error!(&*loggers, format!("{:?}", e));
+                                        }
+                                    }
                                 }
                             }
                             // log_info!(&*loggers, format!("{:#?}", event));
@@ -98,6 +130,14 @@ impl Watcher {
             &*self.loggers,
             format!("Started watching {:?}", self.watch_path)
         );
+
+        log_info!(&*self.loggers, "Active formats:");
+        for f in &*self.formats {
+            log_info!(
+                &*self.loggers,
+                format!("\t{} => {:?}", f.ecad, f.output_path)
+            )
+        }
 
         Ok(())
     }

@@ -2,6 +2,7 @@ use {
     crate::{
         consts::LL_CONFIG,
         error::{Error, Result},
+        format::{self, ECAD},
     },
     profile::Profile,
     serde::{Deserialize, Serialize},
@@ -12,13 +13,13 @@ mod profile;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Format {
-    format: String,
-    output_path: PathBuf,
+    format: ECAD,
+    output_path: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Settings {
-    pub watch_path: PathBuf,
+    pub watch_path: String,
     pub recursive: bool,
 }
 
@@ -44,6 +45,20 @@ impl Config {
         let toml_str = toml::to_string_pretty(self)?;
         fs::write(p, toml_str)?;
         Ok(())
+    }
+
+    pub(crate) fn formats(&self) -> Result<Vec<format::Format>> {
+        let mut formats_vec =
+            Vec::with_capacity(self.formats.as_ref().map(|hm| hm.len()).unwrap_or(0));
+        if let Some(formats) = &self.formats {
+            for (_, f) in formats {
+                formats_vec.push(format::Format::from_ecad(
+                    f.format.clone(),
+                    PathBuf::from(shellexpand::full(&f.output_path)?.as_ref()),
+                ))
+            }
+        }
+        Ok(formats_vec)
     }
 
     fn path(path: Option<PathBuf>) -> Result<PathBuf> {
@@ -76,7 +91,10 @@ impl Default for Config {
         Self {
             _self_path: None,
             settings: Settings {
-                watch_path: dirs::download_dir().expect("Failed to get default download dir"),
+                watch_path: dirs::download_dir()
+                    .expect("Failed to get default download dir")
+                    .to_string_lossy()
+                    .to_string(),
                 recursive: false,
             },
             formats: None,

@@ -26,10 +26,7 @@ impl Profile {
         let res = req.send()?;
 
         if res.status().is_server_error() {
-            return Err(Error::ServerError(
-                res.status().as_str(),
-                res.status().as_u16(),
-            ));
+            return Err(Error::ServerError(res.status().as_u16()));
         }
 
         Ok(res.status().is_success())

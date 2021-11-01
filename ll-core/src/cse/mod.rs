@@ -6,7 +6,7 @@ use {
         format::{Files, Format, ECAD},
     },
     reqwest::header,
-    std::{collections::HashMap, path::PathBuf, sync::Arc},
+    std::{path::PathBuf, sync::Arc},
 };
 
 mod result;
@@ -25,7 +25,7 @@ impl CSE {
         }
     }
 
-    pub fn get(&self, epw: Epw) -> error::Result<Result> {
+    pub fn get(&self, epw: Epw) -> error::Result<Vec<Result>> {
         let id = epw.id;
         let url = format!("{base}{id}", base = COMPONENT_SEARCH_ENGINE_URL, id = id);
 
@@ -51,10 +51,7 @@ impl CSE {
         };
 
         if !res.status().is_success() {
-            return Err(Error::ServerError(
-                res.status().as_str(),
-                res.status().as_u16(),
-            ));
+            return Err(Error::ServerError(res.status().as_u16()));
         } else if res_header != "application/x-zip" {
             return Err(Error::Other("Error downloading file: Could not determine content type. This may be because the terms have changed. Log in at componentsearchengine.com and accept the new terms."));
         }
@@ -95,50 +92,62 @@ impl CSE {
             );
         }
 
-        // FIXME:TODO: Use formats vec here!
-
-        if &self.config.settings.format.ecad == &ECAD::ZIP {
-            let mut files: Files = HashMap::new();
-            files.insert(filename, body);
-
-            Ok(Result {
-                output_path: self.config.settings.output_path.to_owned(),
-                files: files,
-            })
-        } else {
-            let lib_name = match filename.starts_with("LIB_") {
-                true => filename.as_str()[4..].replace(".zip", ""),
-                false => filename.replace(".zip", ""),
-            };
-
-            self.unzip(lib_name, body)
-        }
+        self.unzip(filename, body)
     }
 
-    fn unzip(&self, lib_name: String, data: Vec<u8>) -> error::Result<Result> {
+    fn unzip(&self, zip_filename: String, data: Vec<u8>) -> error::Result<Vec<Result>> {
         let reader = std::io::Cursor::new(&data);
         let mut archive = zip::ZipArchive::new(reader)?;
-        let mut files: Files = HashMap::new();
+        let mut vec_results = Vec::with_capacity(self.formats.len());
 
-        for i in 0..archive.len() {
-            let mut item = archive.by_index(i)?;
-            let filename = String::from(item.name());
-
-            &self
-                .config
-                .settings
-                .format
-                .extract(&mut files, filename, &mut item)?;
+        for format in &*self.formats {
+            if format.ecad == ECAD::ZIP {
+                let mut files: Files = Files::new();
+                files.insert(zip_filename.clone(), data.clone());
+                vec_results.push(Result {
+                    output_path: format.output_path.clone(),
+                    files,
+                });
+            } else {
+                let lib_name = match zip_filename.starts_with("LIB_") {
+                    true => zip_filename.as_str()[4..].replace(".zip", ""),
+                    false => zip_filename.replace(".zip", ""),
+                };
+                let mut files = Files::new();
+                for i in 0..archive.len() {
+                    let mut item = archive.by_index(i)?;
+                    let filename = item.name().to_string();
+                    format.extract(&mut files, filename, &mut item)?;
+                }
+                let output_path = match format.create_folder {
+                    true => PathBuf::from(&format.output_path).join(lib_name),
+                    false => PathBuf::from(&format.output_path),
+                };
+                vec_results.push(Result { output_path, files })
+            }
         }
 
-        let path = match &self.config.settings.format.create_folder {
-            true => PathBuf::from(&self.config.settings.output_path).join(lib_name),
-            false => PathBuf::from(&self.config.settings.output_path),
-        };
+        // for i in 0..archive.len() {
+        //     let mut item = archive.by_index(i)?;
+        //     let filename = String::from(item.name());
+        //     let mut files: Files = Files::new();
 
-        Ok(Result {
-            output_path: path.to_string_lossy().to_string(),
-            files: files,
-        })
+        //     for format in &*self.formats {
+        //         format.extract(&mut files, filename, &mut item)?;
+        //     }
+
+        //     // &self
+        //     //     .config
+        //     //     .settings
+        //     //     .format
+        //     //     .extract(&mut files, filename, &mut item)?;
+        // }
+
+        // let path = match &self.config.settings.format.create_folder {
+        //     true => PathBuf::from(&self.config.settings.output_path).join(lib_name),
+        //     false => PathBuf::from(&self.config.settings.output_path),
+        // };
+
+        Ok(vec_results)
     }
 }

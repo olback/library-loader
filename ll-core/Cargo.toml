@@ -13,6 +13,7 @@ toml = "0.5"
 notify = "=5.0.0-pre.13"
 dirs = "4.0"
 thiserror = "1"
-reqwest = { version = "0.11", features = [ "blocking" ] }
+reqwest = { version = "0.11", features = [ "blocking", "rustls-tls" ], default-features = false }
 zip = "0.5"
 base64 = "0.13"
+shellexpand = "2"

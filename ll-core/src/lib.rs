@@ -5,7 +5,7 @@ mod epw;
 mod error;
 mod format;
 mod logger;
-pub mod updates;
+mod updates;
 mod utils;
 mod watcher;
 
@@ -14,5 +14,7 @@ pub use {
     consts::LL_CONFIG,
     error::{Error, Result},
     logger::{ConsoleLogger, Logger},
+    updates::check as check_updates,
+    updates::{ClientKind, UpdateInfo},
     watcher::Watcher,
 };

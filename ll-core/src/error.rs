@@ -16,6 +16,8 @@ pub enum Error {
     Zip(#[from] zip::result::ZipError),
     #[error(transparent)]
     ParseInt(#[from] std::num::ParseIntError),
+    #[error(transparent)]
+    Shellexpand(#[from] shellexpand::LookupError<std::env::VarError>),
     #[error("Internal error: {0}")]
     Other(&'static str),
     #[error("No config found")]
@@ -24,8 +26,8 @@ pub enum Error {
     WouldOverwrite,
     #[error("Not logged in")]
     NotLoggedIn,
-    #[error("Server Error: {0} ({1})")]
-    ServerError(&'static str, u16),
+    #[error("Server Error: {0}")]
+    ServerError(u16),
     #[error("No files in library")]
     NoFilesInLibrary,
     #[error("File empty")]
