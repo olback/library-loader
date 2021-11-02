@@ -10,9 +10,10 @@ mod utils;
 mod watcher;
 
 pub use {
-    config::Config,
+    config::{profile::Profile, Config, Format},
     consts::LL_CONFIG,
     error::{Error, Result},
+    format::ECAD,
     logger::{ConsoleLogger, Logger},
     updates::check as check_updates,
     updates::{ClientKind, UpdateInfo},

@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "ll-core",
     "ll-cli",
-    "ll-core"
+    "ll-gui"
 ]

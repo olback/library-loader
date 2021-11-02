@@ -1,6 +1,6 @@
 [package]
 name = "library-loader-cli"
-version = "0.1.0"
+version = "0.3.0"
 description = "Download libraries from componentsearchengine.com"
 authors = ["Edwin Svensson <libraryloader@olback.net>"]
 edition = "2021"

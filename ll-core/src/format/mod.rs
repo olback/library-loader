@@ -1,5 +1,5 @@
 use {
-    crate::error::Result,
+    crate::error::{Error, Result},
     serde::{Deserialize, Serialize},
     std::{fmt, path::PathBuf},
     zip::read::ZipFile,
@@ -21,6 +21,21 @@ pub enum ECAD {
     KICAD,
     #[serde(rename = "zip")]
     ZIP,
+}
+
+impl TryFrom<&str> for ECAD {
+    type Error = Error;
+
+    fn try_from(value: &str) -> std::result::Result<Self, Self::Error> {
+        match value.to_lowercase().as_str() {
+            "3d" => Ok(ECAD::D3),
+            "eagle" => Ok(ECAD::EAGLE),
+            "easyeda" => Ok(ECAD::EASYEDA),
+            "kicad" => Ok(ECAD::KICAD),
+            "zip" => Ok(ECAD::ZIP),
+            _ => Err(Error::EcadNotFound),
+        }
+    }
 }
 
 impl fmt::Display for ECAD {

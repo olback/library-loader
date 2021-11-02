@@ -71,12 +71,7 @@ fn main() -> ll_core::Result<()> {
         return Err(Error::NotLoggedIn);
     }
 
-    if config
-        .formats
-        .as_ref()
-        .map(|hm| hm.is_empty())
-        .unwrap_or(true)
-    {
+    if config.formats.is_empty() {
         eprintln!("No formats specified in config.");
         eprintln!("This is not an error but the program is useless");
         eprintln!("without any formats specified.");

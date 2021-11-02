@@ -36,4 +36,6 @@ pub enum Error {
     ZipArchiveEmpty,
     #[error("No EPW file in zip archive")]
     NoEpwInZipArchive,
+    #[error("ECAD type not found")]
+    EcadNotFound,
 }

@@ -9,12 +9,12 @@ use {
     std::{collections::HashMap, fs, path::PathBuf},
 };
 
-mod profile;
+pub mod profile;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Format {
-    format: ECAD,
-    output_path: String,
+    pub format: ECAD,
+    pub output_path: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -28,7 +28,8 @@ pub struct Config {
     #[serde(skip)]
     _self_path: Option<PathBuf>,
     pub settings: Settings,
-    pub formats: Option<HashMap<String, Format>>,
+    #[serde(default)]
+    pub formats: HashMap<String, Format>,
     pub profile: Profile,
 }
 
@@ -48,15 +49,12 @@ impl Config {
     }
 
     pub(crate) fn formats(&self) -> Result<Vec<format::Format>> {
-        let mut formats_vec =
-            Vec::with_capacity(self.formats.as_ref().map(|hm| hm.len()).unwrap_or(0));
-        if let Some(formats) = &self.formats {
-            for (_, f) in formats {
-                formats_vec.push(format::Format::from_ecad(
-                    f.format.clone(),
-                    PathBuf::from(shellexpand::full(&f.output_path)?.as_ref()),
-                ))
-            }
+        let mut formats_vec = Vec::with_capacity(self.formats.len());
+        for (_, f) in &self.formats {
+            formats_vec.push(format::Format::from_ecad(
+                f.format.clone(),
+                PathBuf::from(shellexpand::full(&f.output_path)?.as_ref()),
+            ))
         }
         Ok(formats_vec)
     }
@@ -97,7 +95,7 @@ impl Default for Config {
                     .to_string(),
                 recursive: false,
             },
-            formats: None,
+            formats: HashMap::new(),
             profile: Profile {
                 username: String::new(),
                 password: String::new(),

@@ -18,6 +18,10 @@ impl Profile {
         base64::encode(format!("{}:{}", self.username, self.password))
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.username.is_empty() || self.password.is_empty()
+    }
+
     pub fn try_auth(&self) -> Result<bool> {
         let client = reqwest::blocking::Client::new();
         let req = client
