@@ -2,3 +2,5 @@
 /LibraryLoader.toml
 /[abc]LibraryLoader.toml
 /test-target
+/target
+*.tar.gz
