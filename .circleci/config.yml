@@ -156,6 +156,11 @@ jobs:
           path: "./dist/linux/library-loader-cli.sha256"
           destination: "/linux/library-loader-cli.sha256"
 
+      - store_artifacts:
+          name: Store Dist
+          path: "./dist/library-loader-linux-dist.tar.gz"
+          destination: "/linux/library-loader-linux-dist.tar.gz"
+
   deploy:
     docker:
       - image: circleci/node:latest
