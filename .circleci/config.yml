@@ -28,8 +28,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-                    cd checks
-                    npm install
+            cd checks
+            npm install
 
       - save_cache:
           name: Save Node Cache
@@ -60,20 +60,20 @@ jobs:
       - run:
           name: Show Version
           command: |
-                    rustc --version --verbose
-                    rustup --version
-                    cargo --version --verbose
+            rustc --version --verbose
+            rustup --version
+            cargo --version --verbose
 
       - run:
           name: Build Binary
           command: |
-                    if [ $CIRCLE_BRANCH = "master" ]; then
-                      cd ll-gui && cargo build --release --target=x86_64-unknown-linux-gnu && cd ..
-                      cd ll-cli && cargo build --release --target=x86_64-unknown-linux-gnu && cd ..
-                    else
-                      cd ll-gui && cargo build --target=x86_64-unknown-linux-gnu && cd ..
-                      cd ll-cli && cargo build --target=x86_64-unknown-linux-gnu && cd ..
-                    fi
+            if [ $CIRCLE_BRANCH = "master" ]; then
+              cd ll-gui && cargo build --release --target=x86_64-unknown-linux-gnu && cd ..
+              cd ll-cli && cargo build --release --target=x86_64-unknown-linux-gnu && cd ..
+            else
+              cd ll-gui && cargo build --target=x86_64-unknown-linux-gnu && cd ..
+              cd ll-cli && cargo build --target=x86_64-unknown-linux-gnu && cd ..
+            fi
 
       - save_cache:
           name: Save Linux Rust Cache
@@ -86,35 +86,47 @@ jobs:
       - run:
           name: Make dist
           command: |
-                    mkdir -p dist/linux
-                    if [ $CIRCLE_BRANCH = "master" ]; then
-                      cp target/x86_64-unknown-linux-gnu/release/library-loader-gui dist/linux/
-                      cp target/x86_64-unknown-linux-gnu/release/library-loader-cli dist/linux/
-                    else
-                      cp target/x86_64-unknown-linux-gnu/debug/library-loader-gui dist/linux/
-                      cp target/x86_64-unknown-linux-gnu/debug/library-loader-cli dist/linux/
-                    fi
+            mkdir -p dist/linux
+            if [ $CIRCLE_BRANCH = "master" ]; then
+              cp target/x86_64-unknown-linux-gnu/release/library-loader-gui dist/linux/
+              cp target/x86_64-unknown-linux-gnu/release/library-loader-cli dist/linux/
+            else
+              cp target/x86_64-unknown-linux-gnu/debug/library-loader-gui dist/linux/
+              cp target/x86_64-unknown-linux-gnu/debug/library-loader-cli dist/linux/
+            fi
 
       - run:
           name: Generate hashes
           command: |
-                    cd dist/linux
-                    sha256sum library-loader-gui > library-loader-gui.sha256
-                    sha256sum library-loader-cli > library-loader-cli.sha256
+            cd dist/linux
+            sha256sum library-loader-gui > library-loader-gui.sha256
+            sha256sum library-loader-cli > library-loader-cli.sha256
 
       - run:
           name: Verify hashes
           command: |
-                    cd dist/linux
-                    sha256sum -c library-loader-gui.sha256
-                    sha256sum -c library-loader-cli.sha256
+            cd dist/linux
+            sha256sum -c library-loader-gui.sha256
+            sha256sum -c library-loader-cli.sha256
 
       - run:
           name: Show hashes
           command: |
-                    cd dist/linux
-                    cat library-loader-gui.sha256
-                    cat library-loader-cli.sha256
+            cd dist/linux
+            cat library-loader-gui.sha256
+            cat library-loader-cli.sha256
+
+      - run:
+          name: Make dist package
+          command: |
+            mkdir dist/library-loader-linux-dist
+            cp -r dist/linux/* dist/library-loader-linux-dist
+            cp ll-gui/library-loader-gui.desktop dist/library-loader-linux-dist
+            cp ll-gui/assets/library-loader-icon.svg dist/library-loader-linux-dist
+            cp dist-install.sh dist/library-loader-linux-dist/install.sh
+            cp dist-uninstall.sh dist/library-loader-linux-dist/uninstall.sh
+            cd dist
+            tar -cvf library-loader-linux-dist.tar.gz library-loader-linux-dist
 
       - save_cache:
           name: Save Linux Build Cache
@@ -124,6 +136,7 @@ jobs:
             - "./dist/linux/library-loader-cli"
             - "./dist/linux/library-loader-gui.sha256"
             - "./dist/linux/library-loader-cli.sha256"
+            - "./dist/library-loader-linux-dist.tar.gz"
 
       - store_artifacts:
           name: Store GUI Build
@@ -145,6 +158,10 @@ jobs:
           path: "./dist/linux/library-loader-cli.sha256"
           destination: "/linux/library-loader-cli.sha256"
 
+      - store_artifacts:
+          name: Store Dist
+          path: "./dist/library-loader-linux-dist.tar.gz"
+          destination: "/linux/library-loader-linux-dist.tar.gz"
 
   deploy:
     docker:
@@ -171,20 +188,19 @@ jobs:
           name: Restore Linux Build
           key: ll-linux-dist-{{ .Environment.CIRCLE_SHA1 }}
 
-      - store_artifacts:
-          name: Store Linux Build
-          path: "./target/x86_64-unknown-linux-gnu/release/library-loader"
-          destination: "/linux/library-loader"
+      # - store_artifacts:
+      #     name: Store Linux Build
+      #     path: "./target/x86_64-unknown-linux-gnu/release/library-loader"
+      #     destination: "/linux/library-loader"
 
-      - store_artifacts:
-          name: Store Linux Build Checksum
-          path: "./target/x86_64-unknown-linux-gnu/release/library-loader.sha256"
-          destination: "/linux/library-loader.sha256"
+      # - store_artifacts:
+      #     name: Store Linux Build Checksum
+      #     path: "./target/x86_64-unknown-linux-gnu/release/library-loader.sha256"
+      #     destination: "/linux/library-loader.sha256"
 
       - run:
           name: Deploy
           command: node .circleci/deploy/deploy.js
-
 
 workflows:
   version: 2

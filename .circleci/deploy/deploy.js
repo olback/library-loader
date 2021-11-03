@@ -21,9 +21,14 @@ const gh = {
 }
 
 const files = [
-    // Linux files
+    // Linux GUI
     new File('./dist/linux/library-loader-gui'),
-    new File('./dist/linux/library-loader-gui.sha256')
+    new File('./dist/linux/library-loader-gui.sha256'),
+    // Linux CLI
+    new File('./dist/linux/library-loader-cli'),
+    new File('./dist/linux/library-loader-cli.sha256'),
+    // Linux Package
+    new File('./dist/library-loader-linux-dist.tar.gz')
 ];
 
 let cargoToml = fs.readFileSync('ll-gui/Cargo.toml', 'utf8').toString().split('\n');

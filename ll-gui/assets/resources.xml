@@ -2,21 +2,24 @@
 <gresources>
     <gresource prefix="/net/olback/library-loader">
         <!-- UI -->
-        <file preprocess="xml-stripblanks">assets/library-loader.glade</file>
+        <file alias="ui" preprocess="xml-stripblanks">out/library-loader.glade</file>
+
+        <!-- CSS -->
+        <file alias="app.css">assets/app.css</file>
 
         <!-- App icon -->
         <file alias="icon-svg">assets/library-loader-icon.svg</file>
-        <file alias="icon-22">assets/library-loader-icon-22.png</file>
+        <!-- <file alias="icon-22">assets/library-loader-icon-22.png</file>
         <file alias="icon-100">assets/library-loader-icon-100.png</file>
         <file alias="icon-256">assets/library-loader-icon-256.png</file>
-        <file alias="icon-512">assets/library-loader-icon-512.png</file>
+        <file alias="icon-512">assets/library-loader-icon-512.png</file> -->
 
         <!-- Icons -->
-        <file alias="icon/eye">assets/icons/eye.png</file>
+        <!-- <file alias="icon/eye">assets/icons/eye.png</file>
         <file alias="icon/warning">assets/icons/warning.png</file>
         <file alias="icon/error">assets/icons/error.png</file>
         <file alias="icon/check">assets/icons/check.png</file>
         <file alias="icon/download">assets/icons/download.png</file>
-        <file alias="icon/exclamation">assets/icons/exclamation.png</file>
+        <file alias="icon/exclamation">assets/icons/exclamation.png</file> -->
     </gresource>
 </gresources>

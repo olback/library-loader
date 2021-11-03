@@ -1,78 +1,68 @@
-use gio::prelude::*;
-use gtk::prelude::*;
-use std::env::args;
+use {
+    gtk::{
+        gdk::{self, prelude::*},
+        gio,
+        glib::{self, clone},
+        prelude::*,
+        CssProvider, StyleContext, STYLE_PROVIDER_PRIORITY_APPLICATION,
+    },
+    ll_core::{Config, Result},
+    std::{cell::RefCell, rc::Rc},
+    ui::Ui,
+};
+
+mod consts;
+mod macros;
 mod ui;
-mod utils;
-pub mod tasks;
-mod state;
-pub mod consts;
-pub mod types {
-    pub use super::ui::notebook::updates::Updates;
-    pub use super::ui::notebook::output::Output;
-    pub use super::state::State;
-    pub type AMState = std::sync::Arc<std::sync::Mutex<super::state::State>>;
-}
-use std::sync::{Arc, Mutex};
-use library_loader_core::is_debug;
-use ui::Ui;
 
-fn main() {
+fn main() -> Result<()> {
+    let config_path = match Config::get_path()? {
+        Some(p) => p,
+        None => {
+            Config::default().save(None)?;
+            Config::default_path().expect("Failed to get default path")
+        }
+    };
 
-    let state: types::AMState = Arc::new(Mutex::new(state::State::new()));
+    println!("Using config: {:?}", config_path);
+
+    let config = Rc::new(RefCell::new(Config::read(Some(config_path.clone()))?));
 
     // Load resources
-    utils::load_resources();
+    load_resources();
 
     // Create application
-    let application =
-    gtk::Application::new(Some("net.olback.library-loader"), Default::default())
-    .unwrap();
+    let application = gtk::Application::new(Some("net.olback.library-loader"), Default::default());
 
-    let state_clone = Arc::clone(&state);
-    application.connect_activate(move |app| {
+    application.connect_activate(clone!(@weak config => move |app| {
+        // Load CSS
+        let provider = CssProvider::new();
+        provider.load_from_resource(resource!("app.css"));
+        StyleContext::add_provider_for_screen(
+            &gdk::Screen::default().expect("Error initializing gtk css provider."),
+            &provider,
+            STYLE_PROVIDER_PRIORITY_APPLICATION,
+        );
 
         // Build ui
-        let ui = Ui::build(app, &state_clone);
-
-        // If already logged in, show the 'watch' tab.
-        utils::safe_lock(&state_clone, |lock| {
-            if lock.logged_in {
-                ui.notebook.inner.set_current_page(Some(1));
-            }
-        });
-
-        // If not in debug mode, check for updates.
-        if !is_debug!() {
-            tasks::check_updates(&ui.notebook.updates);
-        }
-
-    });
-
-    if is_debug!() {
-        println!("{:#?}", state);
-    }
+        let u = Ui::new(app, config, config_path.clone());
+        #[cfg(not(debug_assertions))]
+        u.check_logged_in();
+        #[cfg(not(debug_assertions))]
+        u.check_updates();
+    }));
 
     // Run app
-    application.run(&args().collect::<Vec<_>>());
+    application.run();
 
-    // Before exit
-    utils::safe_lock(&state, |lock| {
+    // Before exit, save config
+    config.borrow().save(None)?;
+    Ok(())
+}
 
-        if lock.watcher_running() {
-            lock.stop_watcher();
-        }
-
-        // Save config on exit
-        let deref = &**lock;
-        match utils::save_config(deref) {
-            Ok(b) => {
-                if b {
-                    println!("Config saved");
-                }
-            },
-            Err(e) => eprintln!("{}", e)
-        };
-
-    });
-
+pub fn load_resources() {
+    let glib_resource_bytes = glib::Bytes::from_static(consts::RESOURCES_BYTES);
+    let resources =
+        gio::Resource::from_data(&glib_resource_bytes).expect("Failed to load resources");
+    gio::resources_register(&resources);
 }

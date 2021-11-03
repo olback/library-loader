@@ -1,4 +1,13 @@
-# 0.2.2
+# 0.3.0
+* Refactored
+* Supports multiple formats (#15, #17, #62)
+* New Config format (incompatible, remove/rename old config)
+* Reworked UI
+* Fewer CLI options
+* Now ignores non ZIP files (#17, #53)
+* Uses Rustls instead of OpenSSL
+
+## 0.2.2
 * Update download url (fixes 401 errors)
 
 ## 0.2.1
