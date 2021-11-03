@@ -61,7 +61,8 @@ let currentVersion = cargoToml.filter(l => l.includes('version = '))[0].split(' 
             // body: 'Please see the [changelog](CHANGELOG.md) for details!',
             body: changelog,
             draft: false,
-            prerelease: false
+            prerelease: false,
+            discussion_category_name: 'releases'
         })
     })).json();
 
