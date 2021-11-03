@@ -866,6 +866,9 @@ fsd
                 <items>
                   <item id="3d" translatable="yes">3D</item>
                   <item id="eagle" translatable="yes">Eagle</item>
+                  <item id="easyeda" translatable="yes">EasyEDA</item>
+                  <item id="kicad" translatable="yes">KiCad</item>
+                  <item id="zip" translatable="yes">Zip</item>
                 </items>
                 <child internal-child="entry">
                   <object class="GtkEntry">
@@ -896,6 +899,8 @@ fsd
               <object class="GtkEntry" id="add-format-name">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
+                <property name="max-width-chars">30</property>
+                <property name="placeholder-text" translatable="yes">Display name</property>
               </object>
               <packing>
                 <property name="left-attach">1</property>

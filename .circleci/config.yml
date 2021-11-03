@@ -122,7 +122,9 @@ jobs:
             mkdir dist/library-loader-linux-dist
             cp -r dist/linux/* dist/library-loader-linux-dist
             cp ll-gui/library-loader-gui.desktop dist/library-loader-linux-dist
+            cp ll-gui/assets/library-loader-icon.svg dist/library-loader-linux-dist
             cp dist-install.sh dist/library-loader-linux-dist/install.sh
+            cp dist-uninstall.sh dist/library-loader-linux-dist/uninstall.sh
             cd dist
             tar -cvf library-loader-linux-dist.tar.gz library-loader-linux-dist
 
@@ -186,15 +188,15 @@ jobs:
           name: Restore Linux Build
           key: ll-linux-dist-{{ .Environment.CIRCLE_SHA1 }}
 
-      - store_artifacts:
-          name: Store Linux Build
-          path: "./target/x86_64-unknown-linux-gnu/release/library-loader"
-          destination: "/linux/library-loader"
+      # - store_artifacts:
+      #     name: Store Linux Build
+      #     path: "./target/x86_64-unknown-linux-gnu/release/library-loader"
+      #     destination: "/linux/library-loader"
 
-      - store_artifacts:
-          name: Store Linux Build Checksum
-          path: "./target/x86_64-unknown-linux-gnu/release/library-loader.sha256"
-          destination: "/linux/library-loader.sha256"
+      # - store_artifacts:
+      #     name: Store Linux Build Checksum
+      #     path: "./target/x86_64-unknown-linux-gnu/release/library-loader.sha256"
+      #     destination: "/linux/library-loader.sha256"
 
       - run:
           name: Deploy
