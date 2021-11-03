@@ -1,7 +1,7 @@
 # 0.3.0
 * Refactored
 * Supports multiple formats (#15, #17, #62)
-* New Config format
+* New Config format (incompatible, remove/rename old config)
 * Reworked UI
 * Fewer CLI options
 * Now ignores non ZIP files (#17, #53)

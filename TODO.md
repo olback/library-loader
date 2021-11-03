@@ -1,6 +1,3 @@
-# todo
+# ToDo
 
-* Readme
-* ci config (master -> 0.3)
-* install script
-* package (aur?, appimage?)
+* Package for package managers, deb, aur, appimage?
