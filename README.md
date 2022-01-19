@@ -25,13 +25,13 @@ This allows you to build without installing any dependencies on your machine.
 docker run --volume=$(pwd):/home/circleci/project olback/rust-gtk-linux cargo build --release
 ```
 
-### Building from source locally(macOS)
+### Building from source locally(Apple Sillicon macOS)
 
 Required binaries: brew(from homebrew), rustc, cargo
 You have to install rust via rustup and initialize it with rustup-init command.
 
-```
-./macos-compile.sh
+```shell
+./macos-compile-aarch64.sh
 ```
 
 ## What/Why?
