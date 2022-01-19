@@ -14,6 +14,11 @@ for PKG in $REQUIRED_PKG; do
     $BREW ls --versions $PKG || $BREW install $PKG
 done
 
-$CARGO build --release --target=aarch64-apple-darwin
+if [ $(uname -m) = "arm64" ]; then
+  $CARGO build --release --target=aarch64-apple-darwin
+  $OPEN $BASEDIR/target/aarch64-apple-darwin/release
+else
+  $CARGO build --release --target=x86_64-apple-darwin
+  $OPEN $BASEDIR/target/x86_64-apple-darwin/release
+fi
 
-$OPEN $BASEDIR/target/aarch64-apple-darwin/release
