@@ -4,3 +4,5 @@
 /test-target
 /target
 *.tar.gz
+/test-files/LIB_*
+!/test-files/LIB_*.zip

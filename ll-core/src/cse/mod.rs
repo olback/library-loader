@@ -101,7 +101,7 @@ impl CSE {
         let mut vec_results = Vec::with_capacity(self.formats.len());
 
         for format in &*self.formats {
-            if format.ecad == ECAD::ZIP {
+            if format.ecad == ECAD::Zip {
                 let mut files: Files = Files::new();
                 files.insert(zip_filename.clone(), data.clone());
                 vec_results.push(Result {

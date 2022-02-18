@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 
+<!-- Generated with glade 3.38.2
 
 GNU AFFERO GENERAL PUBLIC LICENSE
                        Version 3, 19 November 2007
@@ -865,6 +865,7 @@ fsd
                 <property name="has-entry">True</property>
                 <items>
                   <item id="3d" translatable="yes">3D</item>
+                  <item id="designspark" translatable="yes">DesignSpark PCB</item>
                   <item id="eagle" translatable="yes">Eagle</item>
                   <item id="easyeda" translatable="yes">EasyEDA</item>
                   <item id="kicad" translatable="yes">KiCad</item>
