@@ -23,7 +23,7 @@ jobs:
 
       - run:
           name: "Check formatting"
-          command: rustfmt --check **/**.rs
+          command: cargo fmt --check
 
   checks:
     docker:
