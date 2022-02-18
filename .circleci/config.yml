@@ -5,7 +5,7 @@ version: 2
 jobs:
   version_check:
     docker:
-      - image: cimg/rust:latest
+      - image: cimg/rust:1.58.1
 
     steps:
       - checkout
@@ -16,7 +16,7 @@ jobs:
 
   fmt:
     docker:
-      - image: cimg/rust:latest
+      - image: cimg/rust:1.58.1
 
     steps:
       - checkout
@@ -27,7 +27,7 @@ jobs:
 
   checks:
     docker:
-      - image: cimg/node:latest
+      - image: cimg/node::17.5.0
 
     steps:
       - checkout
@@ -176,7 +176,7 @@ jobs:
 
   deploy:
     docker:
-      - image: cimg/node:latest
+      - image: cimg/node::17.5.0
 
     steps:
       - checkout
