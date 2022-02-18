@@ -21,6 +21,8 @@ pub struct Format {
 pub struct Settings {
     pub watch_path: String,
     pub recursive: bool,
+    #[serde(default = "default_ignore_temp")]
+    pub ignore_temp: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -42,7 +44,7 @@ impl Config {
     }
 
     pub fn save(&self, path: Option<PathBuf>) -> Result<()> {
-        let p = Self::path(path.or(self._self_path.clone()))?;
+        let p = Self::path(path.or_else(|| self._self_path.clone()))?;
         let toml_str = toml::to_string_pretty(self)?;
         fs::write(p, toml_str)?;
         Ok(())
@@ -50,7 +52,7 @@ impl Config {
 
     pub(crate) fn formats(&self) -> Result<Vec<format::Format>> {
         let mut formats_vec = Vec::with_capacity(self.formats.len());
-        for (_, f) in &self.formats {
+        for f in self.formats.values() {
             formats_vec.push(format::Format::from_ecad(
                 f.format.clone(),
                 PathBuf::from(shellexpand::full(&f.output_path)?.as_ref()),
@@ -60,8 +62,8 @@ impl Config {
     }
 
     fn path(path: Option<PathBuf>) -> Result<PathBuf> {
-        path.or(Self::default_path())
-            .ok_or(Error::Other("Could not find config dir".into()))
+        path.or_else(Self::default_path)
+            .ok_or(Error::Other("Could not find config dir"))
     }
 
     pub fn default_path() -> Option<PathBuf> {
@@ -94,6 +96,7 @@ impl Default for Config {
                     .to_string_lossy()
                     .to_string(),
                 recursive: false,
+                ignore_temp: default_ignore_temp(),
             },
             formats: HashMap::new(),
             profile: Profile {
@@ -102,4 +105,8 @@ impl Default for Config {
             },
         }
     }
+}
+
+const fn default_ignore_temp() -> bool {
+    true
 }

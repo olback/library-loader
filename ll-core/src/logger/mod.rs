@@ -12,6 +12,7 @@ pub trait Logger: Send + Sync {
 #[macro_export]
 macro_rules! log_trace {
     ($loggers:expr, $msg:expr) => {
+        #[cfg(debug_assertions)]
         for l in $loggers {
             l.trace(format!("{}", $msg))
         }

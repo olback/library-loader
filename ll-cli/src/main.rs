@@ -32,7 +32,7 @@ fn main() -> ll_core::Result<()> {
         Config::default_path()
     } else {
         app.value_of("config")
-            .map(|p| PathBuf::from(p))
+            .map(PathBuf::from)
             .or(Config::get_path()?)
     } {
         Some(path) => path,
@@ -59,7 +59,7 @@ fn main() -> ll_core::Result<()> {
     }
 
     println!("Using config at {:?}", config_path);
-    let mut config = Config::read(Some(config_path.clone()))?;
+    let mut config = Config::read(Some(config_path))?;
 
     if let Some(watch_path) = app.value_of("watch") {
         config.settings.watch_path = watch_path.into();

@@ -1,4 +1,3 @@
-use regex;
 use std::fs;
 
 pub fn fix_resource_paths() {

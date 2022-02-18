@@ -43,7 +43,7 @@ impl Epw {
         };
 
         for line in lines {
-            let line_parts: Vec<&str> = line.split("=").collect();
+            let line_parts: Vec<&str> = line.split('=').collect();
 
             if line_parts.len() == 2 {
                 map.insert(line_parts[0], line_parts[1]);
@@ -51,7 +51,7 @@ impl Epw {
         }
 
         Ok(Self {
-            id: id,
+            id,
             mna: String::from(*map.get("mna").unwrap_or(&"")),
             mpn: String::from(*map.get("mpn").unwrap_or(&"")),
             pna: String::from(*map.get("pna").unwrap_or(&"")),
@@ -82,7 +82,7 @@ impl Epw {
     fn from_zip(raw_data: Vec<u8>) -> Result<Self> {
         // The zip library crashes if the archive is empty,
         // lets prevent that.
-        if raw_data.len() == 0 {
+        if raw_data.is_empty() {
             return Err(Error::ZipArchiveEmpty);
         }
 

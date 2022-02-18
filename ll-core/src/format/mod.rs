@@ -119,11 +119,11 @@ impl Format {
     pub fn extract(&self, files: &mut Files, file_path: String, item: &mut ZipFile) -> Result<()> {
         match &self.ecad {
             // * Keep these in alphabetical order
-            ECAD::D3 => extractors::d3::extract(&self, files, file_path, item)?,
-            ECAD::DesignSpark => extractors::designspark::extract(&self, files, file_path, item)?,
-            ECAD::Eagle => extractors::eagle::extract(&self, files, file_path, item)?,
-            ECAD::EasyEDA => extractors::easyeda::extract(&self, files, file_path, item)?,
-            ECAD::KiCad => extractors::kicad::extract(&self, files, file_path, item)?,
+            ECAD::D3 => extractors::d3::extract(self, files, file_path, item)?,
+            ECAD::DesignSpark => extractors::designspark::extract(self, files, file_path, item)?,
+            ECAD::Eagle => extractors::eagle::extract(self, files, file_path, item)?,
+            ECAD::EasyEDA => extractors::easyeda::extract(self, files, file_path, item)?,
+            ECAD::KiCad => extractors::kicad::extract(self, files, file_path, item)?,
             ECAD::Zip => unreachable!("ZIP not handled!"),
             // ! NOTE: DO NOT ADD A _ => {} CATCHER HERE!
         };
