@@ -27,7 +27,7 @@ jobs:
 
   checks:
     docker:
-      - image: cimg/node::17.5.0
+      - image: cimg/node:17.5.0
 
     steps:
       - checkout
@@ -176,7 +176,7 @@ jobs:
 
   deploy:
     docker:
-      - image: cimg/node::17.5.0
+      - image: cimg/node:17.5.0
 
     steps:
       - checkout
