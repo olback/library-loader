@@ -1,5 +1,6 @@
 // * Keep these in alphabetical order
 pub mod d3;
+pub mod designspark;
 pub mod eagle;
 pub mod easyeda;
 pub mod kicad;

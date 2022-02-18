@@ -1,4 +1,7 @@
-# 0.3.0
+# 0.3.1
+* Added DesignSpark (#75)
+
+## 0.3.0
 * Refactored
 * Supports multiple formats (#15, #17, #62)
 * New Config format (incompatible, remove/rename old config)

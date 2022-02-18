@@ -3,9 +3,20 @@
 version: 2
 
 jobs:
+  version_check:
+    docker:
+      - image: cimg/rust:latest
+
+    steps:
+      - checkout
+
+      - run:
+          name: "Check version missmatch"
+          command: "bash version_check.sh"
+
   fmt:
     docker:
-      - image: circleci/rust:latest
+      - image: cimg/rust:latest
 
     steps:
       - checkout
@@ -16,7 +27,7 @@ jobs:
 
   checks:
     docker:
-      - image: circleci/node:latest
+      - image: cimg/node:latest
 
     steps:
       - checkout
@@ -165,7 +176,7 @@ jobs:
 
   deploy:
     docker:
-      - image: circleci/node:latest
+      - image: cimg/node:latest
 
     steps:
       - checkout
@@ -206,8 +217,12 @@ workflows:
   version: 2
   build:
     jobs:
-      # - fmt
-      - build_linux
+      - fmt
+      - version_check
+      - build_linux:
+          requires:
+            - fmt
+            - version_check
       - request_deploy:
           type: approval
           requires:
