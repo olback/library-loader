@@ -59,7 +59,7 @@ impl Watcher {
         let mut w: notify::RecommendedWatcher =
             notify::Watcher::new(move |evt| match ntx.send(WatcherEvent::NotifyResult(evt)) {
                 Ok(_) => {}
-                Err(e) => log_error!(&*loggers, format!("{:?}", e)),
+                Err(e) => log_error!(&*loggers, "{:?}", e),
             })?;
 
         let token = self.token.clone();
@@ -68,16 +68,18 @@ impl Watcher {
         let ignore_temp = self.ignore_temp;
         let mut last_file: Option<(PathBuf, Instant)> = None;
         let jh = thread::spawn(move || loop {
-            match rx.recv() {
+            let recv_evt = rx.recv();
+            log_trace!(&*loggers, "RAW EVENT: {:?}", recv_evt);
+            match recv_evt {
                 Ok(WatcherEvent::NotifyResult(Ok(event))) => {
                     // log_info!(&*loggers, format!("{:#?}", event));
                     match event.kind {
                         NotifyEventKind::Modify(NotifyModifyKind::Name(NotifyRenameMode::Both)) => {
                             if event.paths.len() == 2 {
-                                log_trace!(&*loggers, format!("Modify paths: {:#?}", event.paths));
+                                log_trace!(&*loggers, "Modify paths: {:#?}", event.paths);
                                 if check_process_file(&event.paths[1], ignore_temp, &last_file) {
                                     log_trace!(&*loggers, "NotifyEventKind::Modify");
-                                    log_info!(&*loggers, format!("Detected {:?}", &event.paths[1]));
+                                    log_info!(&*loggers, "Detected {:?}", &event.paths[1]);
                                     match process(&loggers, &event.paths[1], &token, &formats) {
                                         Ok(()) => {
                                             last_file =
@@ -85,7 +87,7 @@ impl Watcher {
                                             log_info!(&*loggers, "Done");
                                         }
                                         Err(e) => {
-                                            log_error!(&*loggers, format!("{:?}", e));
+                                            log_error!(&*loggers, "{:?}", e);
                                         }
                                     }
                                 }
@@ -95,7 +97,7 @@ impl Watcher {
                             for file in event.paths {
                                 if check_process_file(&file, ignore_temp, &last_file) {
                                     log_trace!(&*loggers, "NotifyEventKind::Create");
-                                    log_info!(&*loggers, format!("Detected {:?}", file));
+                                    log_info!(&*loggers, "Detected {:?}", file);
                                     // uuuh
                                     std::thread::sleep(std::time::Duration::from_millis(100));
                                     match process(&loggers, &file, &token, &formats) {
@@ -104,7 +106,7 @@ impl Watcher {
                                             log_info!(&*loggers, "Done");
                                         }
                                         Err(e) => {
-                                            log_error!(&*loggers, format!("{:?}", e));
+                                            log_error!(&*loggers, "{:?}", e);
                                         }
                                     }
                                 }
@@ -115,7 +117,7 @@ impl Watcher {
                     }
                 }
                 Ok(WatcherEvent::NotifyResult(Err(error))) => {
-                    log_error!(&*loggers, format!("{:#?}", error))
+                    log_error!(&*loggers, "{:#?}", error)
                 }
                 Ok(WatcherEvent::Stop) => break,
                 Err(_recv_error) => {
@@ -135,17 +137,11 @@ impl Watcher {
 
         self.thread = Some((jh, tx, w));
 
-        log_info!(
-            &*self.loggers,
-            format!("Started watching {:?}", self.watch_path)
-        );
+        log_info!(&*self.loggers, "Started watching {:?}", self.watch_path);
 
         log_info!(&*self.loggers, "Active formats:");
         for f in &*self.formats {
-            log_info!(
-                &*self.loggers,
-                format!("\t{} => {:?}", f.ecad, f.output_path)
-            )
+            log_info!(&*self.loggers, "\t{} => {:?}", f.ecad, f.output_path)
         }
 
         Ok(())
@@ -156,10 +152,7 @@ impl Watcher {
             log_if_error!(&*self.loggers, w.unwatch(self.watch_path.as_path()));
             log_if_error!(&*self.loggers, tx.send(WatcherEvent::Stop));
             log_if_error!(&*self.loggers, jh.join());
-            log_info!(
-                &*self.loggers,
-                format!("Stopped watching {:?}", self.watch_path)
-            );
+            log_info!(&*self.loggers, "Stopped watching {:?}", self.watch_path);
         }
     }
 }
@@ -174,10 +167,10 @@ fn process(
     for res in CSE::new(String::from(token), Arc::clone(formats)).get(epw)? {
         match res.save() {
             Ok(save_path) => {
-                log_info!(&**loggers, format!("Saved to {:?}", save_path))
+                log_info!(&**loggers, "Saved to {:?}", save_path)
             }
             Err(e) => {
-                log_error!(&**loggers, e)
+                log_error!(&**loggers, "{:?}", e)
             }
         }
     }

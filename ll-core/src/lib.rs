@@ -9,6 +9,9 @@ mod updates;
 mod utils;
 mod watcher;
 
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+pub const GIT_DESCRIBE: &str = include_str!("../git.txt");
+
 pub use {
     config::{profile::Profile, Config, Format},
     consts::LL_CONFIG,

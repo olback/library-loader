@@ -4,6 +4,7 @@ version = "0.3.1"
 authors = ["Edwin Svensson <libraryloader@olback.net>"]
 edition = "2021"
 publish = false
+build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
