@@ -17,6 +17,19 @@ Mac | WIP
 1. Create an account on [componentsearchengine.com](https://componentsearchengine.com/) if you don't have one already.
 2. Download a prebuilt version of library-loader from the [releases page](https://github.com/olback/library-loader/releases) (only linux builds available, see [#67](https://github.com/olback/library-loader/issues/67)).
 
+### Simple install / uninstall
+
+On the [releases page](https://github.com/olback/library-loader/releases), download the latest `library-loader-linux-dist.tar.gz` and untar it. Each release is bundled with two scripts for installing and uninstalling library-loader :
+
+```sh
+# Installs both cli/gui binaries in `/usr/bin`
+# Installs desktop entry and icon for `library-loader-gui`
+sudo install.sh
+
+# Uninstall `library-loader` completely
+sudo uninstall.sh
+```
+
 ### Building from source using Docker
 
 This allows you to build without installing any dependencies on your machine.
