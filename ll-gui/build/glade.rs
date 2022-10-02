@@ -1,4 +1,3 @@
-use regex;
 use std::fs;
 
 pub fn fix_resource_paths() {
@@ -17,7 +16,10 @@ pub fn fix_resource_paths() {
                 .replace("<", "&lt;")
                 .replace(">", "&gt;"),
         )
-        .replace("{{version}}", env!("CARGO_PKG_VERSION"));
+        .replace(
+            "{{version}}",
+            &format!("{} ({})", env!("CARGO_PKG_VERSION"), ll_core::GIT_DESCRIBE),
+        );
 
     fs::write(GLADE_OUT_PATH, after).unwrap();
 }

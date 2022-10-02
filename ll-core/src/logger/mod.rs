@@ -11,36 +11,37 @@ pub trait Logger: Send + Sync {
 
 #[macro_export]
 macro_rules! log_trace {
-    ($loggers:expr, $msg:expr) => {
+    ($loggers:expr, $($arg:tt)*) => {
+        #[cfg(debug_assertions)]
         for l in $loggers {
-            l.trace(format!("{}", $msg))
+            l.trace(format!($($arg)*))
         }
     };
 }
 
 #[macro_export]
 macro_rules! log_info {
-    ($loggers:expr, $msg:expr) => {
+    ($loggers:expr, $($arg:tt)*) => {
         for l in $loggers {
-            l.info(format!("{}", $msg))
+            l.info(format!($($arg)*))
         }
     };
 }
 
 #[macro_export]
 macro_rules! log_warn {
-    ($loggers:expr, $msg:expr) => {
+    ($loggers:expr, $($arg:tt)*) => {
         for l in $loggers {
-            l.warn(format!("{}", $msg))
+            l.warn(format!($($arg)*))
         }
     };
 }
 
 #[macro_export]
 macro_rules! log_error {
-    ($loggers:expr, $msg:expr) => {
+    ($loggers:expr, $($arg:tt)*) => {
         for l in $loggers {
-            l.error(format!("{}", $msg))
+            l.error(format!($($arg)*))
         }
     };
 }
