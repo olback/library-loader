@@ -6,7 +6,7 @@ steps:
   - name: "Check version missmatches"
     image: "olback/rust-linux-gtk:latest"
     commands:
-      - "bash version_check.sh2"
+      - "bash version_check.sh"
 
   - name: "Cargo FMT check"
     image: "olback/rust-linux-gtk:latest"
