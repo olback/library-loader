@@ -9,7 +9,7 @@ local CARGO=$(which cargo)
 local BREW=$(which brew)
 local OPEN=$(which open)
 
-local REQUIRED_PKG=("gtk+3" "atk" "gdk-pixbuf" "pango" "adwaita-icon-theme")
+local REQUIRED_PKG=("gtk+3" "atk" "gdk-pixbuf" "pango" "adwaita-icon-theme" "jpeg")
 for PKG in $REQUIRED_PKG; do
     $BREW ls --versions $PKG || $BREW install $PKG
 done
