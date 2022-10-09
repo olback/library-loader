@@ -54,7 +54,7 @@ jobs:
 
   build_linux:
     docker:
-      - image: olback/rust-linux-gtk:latest
+      - image: olback/rust-gtk-linux:latest
 
     steps:
       - checkout

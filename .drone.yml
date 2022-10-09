@@ -1,0 +1,23 @@
+kind: pipeline
+type: docker
+name: build
+
+steps:
+  - name: "Check version missmatches"
+    image: "olback/rust-linux-gtk:latest"
+    commands:
+      - "bash version_check.sh2"
+
+  - name: "Cargo FMT check"
+    image: "olback/rust-linux-gtk:latest"
+    commands:
+      - cargo fmt --check
+
+  - name: "Build"
+    image: "olback/rust-linux-gtk:latest"
+    commands:
+      - "rustc --version --verbose"
+      - "rustup --version"
+      - "cargo --version --verbose"
+      - cd ll-gui && cargo build --release --target=x86_64-unknown-linux-gnu && cd ..
+      - cd ll-cli && cargo build --release --target=x86_64-unknown-linux-gnu && cd ..
