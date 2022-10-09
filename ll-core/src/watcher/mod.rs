@@ -48,11 +48,13 @@ impl Watcher {
         let ntx = tx.clone();
 
         let loggers = Arc::clone(&self.loggers);
-        let mut w: notify::RecommendedWatcher =
-            notify::Watcher::new(move |evt| match ntx.send(WatcherEvent::NotifyResult(evt)) {
+        let mut w: notify::RecommendedWatcher = notify::Watcher::new(
+            move |evt| match ntx.send(WatcherEvent::NotifyResult(evt)) {
                 Ok(_) => {}
                 Err(e) => log_error!(&*loggers, format!("{:?}", e)),
-            }, notify::Config::default())?;
+            },
+            notify::Config::default(),
+        )?;
 
         let token = self.token.clone();
         let formats = Arc::clone(&self.formats);
