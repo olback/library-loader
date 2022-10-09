@@ -1,6 +1,6 @@
 [package]
 name = "library-loader-cli"
-version = "0.3.1"
+version = "0.4.0"
 description = "Download libraries from componentsearchengine.com"
 authors = ["Edwin Svensson <libraryloader@olback.net>"]
 edition = "2021"
@@ -12,4 +12,4 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 ll-core = { path = "../ll-core", package = "library-loader-core" }
 # clap = { version = "3.0.0-beta.5", features = [ "yaml" ] }
-clap = { version = "2.33", features = [ "yaml" ] }
+clap = { version = "2", features = [ "yaml" ] }

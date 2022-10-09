@@ -52,7 +52,7 @@ impl Watcher {
             notify::Watcher::new(move |evt| match ntx.send(WatcherEvent::NotifyResult(evt)) {
                 Ok(_) => {}
                 Err(e) => log_error!(&*loggers, format!("{:?}", e)),
-            })?;
+            }, notify::Config::default())?;
 
         let token = self.token.clone();
         let formats = Arc::clone(&self.formats);

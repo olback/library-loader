@@ -1,6 +1,6 @@
 [package]
 name = "library-loader-core"
-version = "0.3.1"
+version = "0.4.0"
 authors = ["Edwin Svensson <libraryloader@olback.net>"]
 edition = "2021"
 publish = false
@@ -10,10 +10,10 @@ publish = false
 [dependencies]
 serde = { version = "1", features = [ "derive" ] }
 toml = "0.5"
-notify = "=5.0.0-pre.13"
+notify = "5.0"
 dirs = "4.0"
 thiserror = "1"
 reqwest = { version = "0.11", features = [ "blocking", "rustls-tls" ], default-features = false }
-zip = "0.5"
+zip = "0.6"
 base64 = "0.13"
 shellexpand = "2"

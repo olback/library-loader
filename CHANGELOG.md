@@ -1,4 +1,8 @@
-# 0.3.1
+# 0.4.0
+* Bump dependencies.
+
+
+## 0.3.1
 * Added DesignSpark (#75)
 
 ## 0.3.0
