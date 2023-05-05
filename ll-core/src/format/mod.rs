@@ -102,7 +102,7 @@ impl Format {
             ECAD::KiCad => Self {
                 output_path: output_path.into(),
                 ecad,
-                create_folder: true,
+                create_folder: false,
                 match_path: "KiCad",
                 ignore: vec![],
             },
