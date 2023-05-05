@@ -54,7 +54,7 @@ pub fn extract(
                     }
                     let parts = lines[pos].split_whitespace().collect::<Vec<_>>();
                     let footprint_name = &parts[2][1..(parts[2].len()-1)];
-                    lines[pos] = lines[pos].replace(footprint_name, &*format!("Chessboard:{}", &footprint_name));
+                    lines[pos] = lines[pos].replace(footprint_name, &*format!("LibraryLoader:{}", &footprint_name));
 
 
                     let mut f = File::options().read(true).write(true).open(&fn_lib)?;
