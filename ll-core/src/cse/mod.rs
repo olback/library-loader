@@ -96,8 +96,6 @@ impl CSE {
     }
 
     fn unzip(&self, zip_filename: String, data: Vec<u8>) -> error::Result<Vec<Result>> {
-        let reader = std::io::Cursor::new(&data);
-        let mut archive = zip::ZipArchive::new(reader)?;
         let mut vec_results = Vec::with_capacity(self.formats.len());
 
         for format in &*self.formats {
@@ -114,11 +112,10 @@ impl CSE {
                     false => zip_filename.replace(".zip", ""),
                 };
                 let mut files = Files::new();
-                for i in 0..archive.len() {
-                    let mut item = archive.by_index(i)?;
-                    let filename = item.name().to_string();
-                    format.extract(&mut files, filename, &mut item)?;
-                }
+                let reader = std::io::Cursor::new(&data);
+                let mut archive = zip::ZipArchive::new(reader)?;
+                format.extract(&mut archive)?;
+
                 let output_path = match format.create_folder {
                     true => PathBuf::from(&format.output_path).join(lib_name),
                     false => PathBuf::from(&format.output_path),

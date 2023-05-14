@@ -50,8 +50,9 @@ impl Config {
 
     pub(crate) fn formats(&self) -> Result<Vec<format::Format>> {
         let mut formats_vec = Vec::with_capacity(self.formats.len());
-        for (_, f) in &self.formats {
+        for (name, f) in &self.formats {
             formats_vec.push(format::Format::from_ecad(
+                name,
                 f.format.clone(),
                 PathBuf::from(shellexpand::full(&f.output_path)?.as_ref()),
             ))
