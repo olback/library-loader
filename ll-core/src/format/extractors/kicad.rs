@@ -45,17 +45,13 @@ pub fn extract(
                     item.read_to_end(&mut f_data)?;
                     let mut lines: Vec<String> = (&f_data[..]).lines().map(|l| l.expect("Could not parse line")).collect();
                     let end = &lines.len()-1;
-                    let mut pos = 0;
-                    for (i, line) in (lines[1..end]).iter_mut().enumerate() {
-                        let parts = line.split_whitespace().collect::<Vec<_>>();
+                    for i in 0..end {
+                        let parts = lines[i].split_whitespace().collect::<Vec<_>>();
                         if parts.len() >= 2 && parts[0] == "(property" && parts[1] == "\"Footprint\"" {
-                            pos = i + 1;
+                            let footprint_name = &parts[2][1..(parts[2].len()-1)];
+                            lines[i] = lines[i].replace(footprint_name, &*format!("Chessboard:{}", &footprint_name));
                         }
                     }
-                    let parts = lines[pos].split_whitespace().collect::<Vec<_>>();
-                    let footprint_name = &parts[2][1..(parts[2].len()-1)];
-                    lines[pos] = lines[pos].replace(footprint_name, &*format!("LibraryLoader:{}", &footprint_name));
-
 
                     let mut f = File::options().read(true).write(true).open(&fn_lib)?;
                     f.seek(SeekFrom::End(-2))?;
