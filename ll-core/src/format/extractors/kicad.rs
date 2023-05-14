@@ -4,8 +4,6 @@ use std::fs::File;
 use std::io::{BufRead, BufReader, Seek, SeekFrom, Write};
 use crate::Error;
 
-const FP_FOLDER : &str = "LibraryLoader.pretty";
-const SYM_LIB : &str = "LibraryLoader.kicad_sym";
 
 pub fn extract(
     format: &Format,
@@ -17,17 +15,19 @@ pub fn extract(
     let path = PathBuf::from(file_path);
     let base_name = path.file_name().unwrap().to_string_lossy().to_string();
 
+    let fp_folder_str = format!("{}.pretty", format.name);
+
     //ensure we have the footprint library folder
-    let footprint_folder = PathBuf::from(&format.output_path).join(FP_FOLDER);
+    let footprint_folder = PathBuf::from(&format.output_path).join(fp_folder_str.clone());
     if !footprint_folder.exists() {
         fs::create_dir_all(footprint_folder)?;
     }
 
     //ensure the symbol library exists
-    let fn_lib = PathBuf::from(&format.output_path).join(SYM_LIB);
+    let fn_lib = PathBuf::from(&format.output_path).join(format!("{}.kicad_sym", format.name));
 
     if !fn_lib.exists() {
-        fs::write(&fn_lib, "(kicad_symbol_lib (version 20211014) (generator Library-Loader)\n)\n").expect("Unable to create symbol library file");
+        fs::write(&fn_lib, "(kicad_symbol_lib (version 20211014) (generator library-loader)\n)\n").expect("Unable to create symbol library file");
     }
 
     if let Some(ext) = &path.extension() {
@@ -37,7 +37,7 @@ pub fn extract(
                 {
                     let mut f_data = Vec::<u8>::new();
                     item.read_to_end(&mut f_data)?;
-                    files.insert(format!("{}/{}", FP_FOLDER, base_name), f_data);
+                    files.insert(format!("{}/{}", fp_folder_str.clone(), base_name), f_data);
                 },
             Some("kicad_sym") =>
                 {
