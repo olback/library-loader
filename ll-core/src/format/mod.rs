@@ -1,12 +1,13 @@
+use std::collections::HashMap;
 use std::io::Cursor;
 use {
     crate::error::{Error, Result},
     serde::{Deserialize, Serialize},
     std::{fmt, path::PathBuf},
-    zip::read::ZipFile,
 };
 
 mod extractors;
+use crate::format::extractors::generic_extractor;
 pub use extractors::Files;
 
 macro_rules! ecad {
@@ -84,40 +85,40 @@ impl Format {
             ECAD::D3 => {
                 fmt.create_folder = true;
                 fmt.match_path = "3D";
-            },
+            }
             ECAD::DesignSpark => {
                 fmt.match_path = "DesignSpark PCB";
-            },
+            }
             ECAD::Eagle => {
                 fmt.match_path = "EAGLE";
                 fmt.ignore = vec!["Readme.html"];
-            },
+            }
             ECAD::EasyEDA => {
                 fmt.match_path = "EasyEDA";
                 fmt.ignore = vec!["Readme.html"];
-            },
+            }
             ECAD::KiCad => {
                 fmt.match_path = "KiCad";
-            },
+            }
             ECAD::Zip => {
                 //no changes
-            },
+            }
         }
-        return fmt
+        return fmt;
     }
 
-    pub fn extract(&self, archive: &mut zip::ZipArchive<Cursor<&Vec<u8>>>) -> Result<()> {
-        match &self.ecad {
+    pub fn extract(
+        &self,
+        archive: &mut zip::ZipArchive<Cursor<&Vec<u8>>>,
+    ) -> Result<HashMap<String, Vec<u8>>> {
+        Ok(match &self.ecad {
             // * Keep these in alphabetical order
-            ECAD::D3 => extractors::d3::extract(&self, files, file_path, item)?,
-            ECAD::DesignSpark => extractors::designspark::extract(&self, files, file_path, item)?,
-            ECAD::Eagle => extractors::eagle::extract(&self, files, file_path, item)?,
-            ECAD::EasyEDA => extractors::easyeda::extract(&self, files, file_path, item)?,
+            ECAD::D3 | ECAD::DesignSpark | ECAD::Eagle | ECAD::EasyEDA => {
+                generic_extractor(&self, archive)?
+            }
             ECAD::KiCad => extractors::kicad::extract(&self, archive)?,
             ECAD::Zip => unreachable!("ZIP not handled!"),
             // ! NOTE: DO NOT ADD A _ => {} CATCHER HERE!
-        };
-
-        Ok(())
+        })
     }
 }

@@ -111,10 +111,9 @@ impl CSE {
                     true => zip_filename.as_str()[4..].replace(".zip", ""),
                     false => zip_filename.replace(".zip", ""),
                 };
-                let mut files = Files::new();
                 let reader = std::io::Cursor::new(&data);
                 let mut archive = zip::ZipArchive::new(reader)?;
-                format.extract(&mut archive)?;
+                let files = format.extract(&mut archive)?;
 
                 let output_path = match format.create_folder {
                     true => PathBuf::from(&format.output_path).join(lib_name),
