@@ -1,5 +1,6 @@
 [settings]
 watch_path = "~/Downloads"
+recursive = false
 
 [formats.'3d']
 format = "3d"
