@@ -11,11 +11,13 @@ steps:
   - name: "Cargo FMT check"
     image: "olback/rust-linux-gtk:latest"
     commands:
+      - sudo chown -R $(whoami):$(whoami) .
       - cargo fmt --check
 
   - name: "Build"
     image: "olback/rust-linux-gtk:latest"
     commands:
+      - sudo chown -R $(whoami):$(whoami) .
       - "rustc --version --verbose"
       - "rustup --version"
       - "cargo --version --verbose"
