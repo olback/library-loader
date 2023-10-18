@@ -16,7 +16,7 @@ impl Result {
     pub fn save(&self) -> error::Result<PathBuf> {
         let save_dir = Path::new(&self.output_path);
 
-        if &self.files.len() > &0 {
+        if !self.files.is_empty() {
             if !save_dir.exists() {
                 fs::create_dir_all(save_dir)?;
             }
@@ -39,7 +39,7 @@ impl Result {
             return Err(Error::WouldOverwrite);
         }
 
-        fs::write(&path, &data)?;
+        fs::write(&path, data)?;
         Ok(path)
     }
 }

@@ -36,7 +36,7 @@ pub fn generate_rc() {
 pub fn compile_rc() {
     let out_dir = env::var("OUT_DIR").unwrap();
     match Command::new("x86_64-w64-mingw32-windres")
-        .args(&["out/library-loader.rc", &format!("{}/program.o", out_dir)])
+        .args(["out/library-loader.rc", &format!("{}/program.o", out_dir)])
         .status()
     {
         Ok(s) => {
@@ -59,8 +59,8 @@ pub fn compile_rc() {
     };
 
     match Command::new("x86_64-w64-mingw32-gcc-ar")
-        .args(&["crus", "libprogram.a", "program.o"])
-        .current_dir(&Path::new(&out_dir))
+        .args(["crus", "libprogram.a", "program.o"])
+        .current_dir(Path::new(&out_dir))
         .status()
     {
         Ok(s) => {

@@ -116,7 +116,7 @@ impl Ui {
                             box2.set_spacing(6);
                             box2.set_hexpand(true);
                             box2.set_hexpand_set(true);
-                            let label1 = Label::new(Some(&name));
+                            let label1 = Label::new(Some(name));
                             label1.set_halign(Align::Start);
                             label1.set_xalign(0.0);
                             label1.style_context().add_class("format-title");
@@ -186,7 +186,7 @@ impl Ui {
                 .as_ref(),
         )));
         watch_path_chooser.connect_file_set(clone!(@strong inner => move |btn| {
-            if let Some(p) = btn.file().map(|f| f.path()).flatten() {
+            if let Some(p) = btn.file().and_then(|f| f.path()) {
                 inner.config.borrow_mut().settings.watch_path = p.to_str().unwrap().to_string();
             }
         }));
@@ -206,22 +206,19 @@ impl Ui {
                 if inner.add_format_dialog.run() == ResponseType::Ok {
                     let name = inner.add_format_name.text().to_string().trim().to_string();
                     let format = inner.add_format_format.active_id().map(|f| f.to_string());
-                    let file = inner.add_format_output.file().map(|f| f.path()).flatten();
-                    match (name.is_empty(), format, file) {
-                        (false, Some(format), Some(file)) => {
-                            let mut conf = inner.config.borrow_mut();
-                            if conf.formats.get(&name).is_none() {
-                                use std::convert::TryFrom;
-                                conf.formats.insert(name, Format {
-                                    format: ECAD::try_from(format.as_str()).expect("Invalid ECAD type in glade file"),
-                                    output_path: file.to_str().unwrap().to_string()
-                                });
-                                drop(inner.tx.send(UiEvent::UpdateFormats));
-                            } else {
-                                drop(inner.tx.send(UiEvent::ShowInfoBar(format!("Format with name '{}' already exists", name), MessageType::Error)));
-                            }
-                        },
-                        _ => {}
+                    let file = inner.add_format_output.file().and_then(|f| f.path());
+                    if let (false, Some(format), Some(file)) = (name.is_empty(), format, file) {
+                        let mut conf = inner.config.borrow_mut();
+                        if conf.formats.get(&name).is_none() {
+                            use std::convert::TryFrom;
+                            conf.formats.insert(name, Format {
+                                format: ECAD::try_from(format.as_str()).expect("Invalid ECAD type in glade file"),
+                                output_path: file.to_str().unwrap().to_string()
+                            });
+                            drop(inner.tx.send(UiEvent::UpdateFormats));
+                        } else {
+                            drop(inner.tx.send(UiEvent::ShowInfoBar(format!("Format with name '{}' already exists", name), MessageType::Error)));
+                        }
                     }
                 }
                 inner.add_format_dialog.hide();

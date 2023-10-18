@@ -72,7 +72,7 @@ pub fn extract(
                 let footprint_name = &parts[2][1..(parts[2].len() - 1)];
                 lines[i] = lines[i].replace(
                     footprint_name,
-                    &*format!("{}:{}", format.name, &footprint_name),
+                    &format!("{}:{}", format.name, &footprint_name),
                 );
             }
         }
