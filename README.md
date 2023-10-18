@@ -47,6 +47,30 @@ You have to install rust via rustup and initialize it with rustup-init command.
 ./macos-compile.sh
 ```
 
+### Setup on macOS
+
+Edit the `LibraryLoader.example.toml` and fill in your login details for `componentsearchengine.com`. Rename the file to `LibraryLoader.toml` and place it in `~/Library/Application Support/LibraryLoader.toml`.
+
+e.g.
+
+```shell
+cp LibraryLoader.example.toml ~/Library/Application\ Support/LibraryLoader.toml"
+```
+
+### Running on macOS
+
+GUI:
+
+```shell
+cargo run --bin library-loader-gui
+```
+
+or CLI:
+
+```shell
+cargo run --bin library-loader-cli
+```
+
 ## What/Why?
 
 This is an implementation of [https://www.samacsys.com/library-loader/](https://www.samacsys.com/library-loader/) in Rust. Why? Well, since the library-loader SamacSys provides only works on Windows, I thought it would be neat to make something similar but available to everyone.
