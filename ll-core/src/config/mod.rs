@@ -62,7 +62,7 @@ impl Config {
 
     fn path(path: Option<PathBuf>) -> Result<PathBuf> {
         path.or(Self::default_path())
-            .ok_or(Error::Other("Could not find config dir".into()))
+            .ok_or(Error::Other("Could not find config dir"))
     }
 
     pub fn default_path() -> Option<PathBuf> {

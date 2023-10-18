@@ -1,6 +1,5 @@
 use {
     crate::{consts, error::Result},
-    reqwest,
     serde::Deserialize,
 };
 
@@ -24,7 +23,7 @@ pub struct UpdateInfo<'l, 'u> {
     pub url: &'u str,
 }
 
-pub fn check<'l>(local_version: &'l str, kind: ClientKind) -> Result<Option<UpdateInfo>> {
+pub fn check(local_version: &str, kind: ClientKind) -> Result<Option<UpdateInfo>> {
     let url = format!(
         "https://raw.githubusercontent.com/olback/library-loader/master/{kind}/Cargo.toml",
         kind = kind

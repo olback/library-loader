@@ -12,6 +12,7 @@ use {
 mod result;
 pub use result::Result;
 
+#[allow(clippy::upper_case_acronyms)]
 pub struct CSE {
     auth: String,
     formats: Arc<Vec<Format>>,
@@ -66,7 +67,7 @@ impl CSE {
                     .replace("attachment;", "")
                     .trim()
                     .replace("filename=", "")
-                    .replace("\"", "")
+                    .replace('"', "")
                     .trim()
                     .to_string()
             }

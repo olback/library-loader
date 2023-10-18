@@ -104,7 +104,8 @@ impl Format {
                 //no changes
             }
         }
-        return fmt;
+
+        fmt
     }
 
     pub fn extract(
@@ -114,9 +115,9 @@ impl Format {
         Ok(match &self.ecad {
             // * Keep these in alphabetical order
             ECAD::D3 | ECAD::DesignSpark | ECAD::Eagle | ECAD::EasyEDA => {
-                generic_extractor(&self, archive)?
+                generic_extractor(self, archive)?
             }
-            ECAD::KiCad => extractors::kicad::extract(&self, archive)?,
+            ECAD::KiCad => extractors::kicad::extract(self, archive)?,
             ECAD::Zip => unreachable!("ZIP not handled!"),
             // ! NOTE: DO NOT ADD A _ => {} CATCHER HERE!
         })

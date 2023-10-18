@@ -11,7 +11,7 @@ pub fn generate_resources() {
     }
 
     let resources = Command::new(COMMAND)
-        .args(&[INPUT, &format!("--target=out/{}", TARGET)])
+        .args([INPUT, &format!("--target=out/{}", TARGET)])
         .output()
         .unwrap();
 

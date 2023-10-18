@@ -1,4 +1,3 @@
-use regex;
 use std::fs;
 
 pub fn fix_resource_paths() {
@@ -13,9 +12,9 @@ pub fn fix_resource_paths() {
         .replace(
             "{{authors}}",
             &env!("CARGO_PKG_AUTHORS")
-                .replace(":", "\n")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;"),
+                .replace(':', "\n")
+                .replace('<', "&lt;")
+                .replace('>', "&gt;"),
         )
         .replace("{{version}}", env!("CARGO_PKG_VERSION"));
 

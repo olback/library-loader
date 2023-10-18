@@ -32,7 +32,7 @@ fn main() -> ll_core::Result<()> {
         Config::default_path()
     } else {
         app.value_of("config")
-            .map(|p| PathBuf::from(p))
+            .map(PathBuf::from)
             .or(Config::get_path()?)
     } {
         Some(path) => path,
