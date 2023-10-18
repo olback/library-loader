@@ -1,11 +1,13 @@
+use std::collections::HashMap;
+use std::io::Cursor;
 use {
     crate::error::{Error, Result},
     serde::{Deserialize, Serialize},
     std::{fmt, path::PathBuf},
-    zip::read::ZipFile,
 };
 
 mod extractors;
+use crate::format::extractors::generic_extractor;
 pub use extractors::Files;
 
 macro_rules! ecad {
@@ -60,7 +62,7 @@ ecad!([
 #[derive(Debug, Clone, PartialEq)]
 pub struct Format {
     pub output_path: PathBuf,
-    // pub name: String,
+    pub name: String,
     pub ecad: ECAD,
     pub create_folder: bool,
     match_path: &'static str,
@@ -68,66 +70,55 @@ pub struct Format {
 }
 
 impl Format {
-    pub fn from_ecad<P: Into<PathBuf>>(ecad: ECAD, output_path: P) -> Self {
-        // * Keep these in alphabetical order
-        match ecad {
-            ECAD::D3 => Self {
-                output_path: output_path.into(),
-                ecad,
-                create_folder: true,
-                match_path: "3D",
-                ignore: vec![],
-            },
-            ECAD::DesignSpark => Self {
-                output_path: output_path.into(),
-                ecad,
-                create_folder: false,
-                match_path: "DesignSpark PCB",
-                ignore: vec![],
-            },
-            ECAD::Eagle => Self {
-                output_path: output_path.into(),
-                ecad,
-                create_folder: false,
-                match_path: "EAGLE",
-                ignore: vec!["Readme.html"],
-            },
-            ECAD::EasyEDA => Self {
-                output_path: output_path.into(),
-                ecad,
-                create_folder: false,
-                match_path: "EasyEDA",
-                ignore: vec!["Readme.html"],
-            },
-            ECAD::KiCad => Self {
-                output_path: output_path.into(),
-                ecad,
-                create_folder: true,
-                match_path: "KiCad",
-                ignore: vec![],
-            },
-            ECAD::Zip => Self {
-                output_path: output_path.into(),
-                ecad,
-                create_folder: false,
-                match_path: "",
-                ignore: vec![],
-            },
+    pub fn from_ecad<P: Into<PathBuf>>(name: &String, ecad: ECAD, output_path: P) -> Self {
+        //defaults
+        let mut fmt = Self {
+            output_path: output_path.into(),
+            name: (*name).clone(),
+            ecad,
+            create_folder: false,
+            match_path: "",
+            ignore: vec![],
+        };
+        // specific overrides, keep these in alphabetical order
+        match fmt.ecad {
+            ECAD::D3 => {
+                fmt.create_folder = true;
+                fmt.match_path = "3D";
+            }
+            ECAD::DesignSpark => {
+                fmt.match_path = "DesignSpark PCB";
+            }
+            ECAD::Eagle => {
+                fmt.match_path = "EAGLE";
+                fmt.ignore = vec!["Readme.html"];
+            }
+            ECAD::EasyEDA => {
+                fmt.match_path = "EasyEDA";
+                fmt.ignore = vec!["Readme.html"];
+            }
+            ECAD::KiCad => {
+                fmt.match_path = "KiCad";
+            }
+            ECAD::Zip => {
+                //no changes
+            }
         }
+        return fmt;
     }
 
-    pub fn extract(&self, files: &mut Files, file_path: String, item: &mut ZipFile) -> Result<()> {
-        match &self.ecad {
+    pub fn extract(
+        &self,
+        archive: &mut zip::ZipArchive<Cursor<&Vec<u8>>>,
+    ) -> Result<HashMap<String, Vec<u8>>> {
+        Ok(match &self.ecad {
             // * Keep these in alphabetical order
-            ECAD::D3 => extractors::d3::extract(&self, files, file_path, item)?,
-            ECAD::DesignSpark => extractors::designspark::extract(&self, files, file_path, item)?,
-            ECAD::Eagle => extractors::eagle::extract(&self, files, file_path, item)?,
-            ECAD::EasyEDA => extractors::easyeda::extract(&self, files, file_path, item)?,
-            ECAD::KiCad => extractors::kicad::extract(&self, files, file_path, item)?,
+            ECAD::D3 | ECAD::DesignSpark | ECAD::Eagle | ECAD::EasyEDA => {
+                generic_extractor(&self, archive)?
+            }
+            ECAD::KiCad => extractors::kicad::extract(&self, archive)?,
             ECAD::Zip => unreachable!("ZIP not handled!"),
             // ! NOTE: DO NOT ADD A _ => {} CATCHER HERE!
-        };
-
-        Ok(())
+        })
     }
 }
