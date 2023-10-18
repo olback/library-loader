@@ -15,7 +15,7 @@ pub struct Profile {
 
 impl Profile {
     pub fn token(&self) -> String {
-        base64::encode(format!("{}:{}", self.username, self.password))
+        data_encoding::BASE64.encode(format!("{}:{}", self.username, self.password).as_bytes())
     }
 
     pub fn is_empty(&self) -> bool {

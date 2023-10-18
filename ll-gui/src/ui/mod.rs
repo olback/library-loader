@@ -53,7 +53,7 @@ impl Ui {
         });
 
         // Event channel
-        let (tx, rx) = glib::MainContext::channel::<UiEvent>(glib::PRIORITY_DEFAULT);
+        let (tx, rx) = glib::MainContext::channel::<UiEvent>(glib::Priority::default());
 
         // Things to keep
         let inner = Rc::new(Self {
@@ -146,7 +146,7 @@ impl Ui {
                         }
                     }
                 }
-                glib::Continue(true)
+                glib::ControlFlow::Continue
             }),
         );
 
@@ -236,7 +236,7 @@ impl Ui {
             None,
             clone!(@strong inner => move |msg| {
                 text_buffer.insert(&mut text_buffer.end_iter(), &format!("{}\n", msg));
-                glib::Continue(true)
+                glib::ControlFlow::Continue
             }),
         );
 
