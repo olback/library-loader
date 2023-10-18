@@ -12,7 +12,7 @@ pub struct GuiLogger {
 
 impl GuiLogger {
     pub fn new() -> (Receiver<Message>, Box<Self>) {
-        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+        let (tx, rx) = glib::MainContext::channel(glib::Priority::default());
         (rx, Box::new(Self { tx }))
     }
 }

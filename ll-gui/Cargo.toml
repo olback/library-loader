@@ -1,6 +1,6 @@
 [package]
 name = "library-loader-gui"
-version = "0.4.0"
+version = "0.5.0"
 authors = ["Edwin Svensson <libraryloader@olback.net>"]
 edition = "2021"
 build = "build/build.rs"
@@ -8,11 +8,11 @@ build = "build/build.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-gtk = { version = "0.15", features = [ "v3_24_9" ] }
+gtk = { version = "0.18", features = [ "v3_24_9" ] }
 ll_core = { path = "../ll-core", package = "library-loader-core" }
-shellexpand = "2"
+shellexpand = "3"
 
 [build-dependencies]
 regex = "1"
-toml = "0.5"
+toml = "0.8 "
 serde = { version = "1.0", features = ["derive"] }
