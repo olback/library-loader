@@ -2,7 +2,9 @@
 
 <!-- ![Screenshot](libloader.png) -->
 
-Status: [![CircleCI](https://circleci.com/gh/olback/library-loader/tree/master.svg?style=svg)](https://circleci.com/gh/olback/library-loader/tree/master)
+<!-- Status: [![CircleCI](https://circleci.com/gh/olback/library-loader/tree/master.svg?style=svg)](https://circleci.com/gh/olback/library-loader/tree/master) -->
+
+Status: [![Build Status](https://drone.olback.dev/api/badges/olback/library-loader/status.svg)](https://drone.olback.dev/olback/library-loader)
 
 <!---
 OS | Status
