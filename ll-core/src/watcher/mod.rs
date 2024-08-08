@@ -63,46 +63,48 @@ impl Watcher {
             match rx.recv() {
                 Ok(WatcherEvent::NotifyResult(Ok(event))) => {
                     // log_info!(&*loggers, format!("{:#?}", event));
-
-                    if let NotifyEventKind::Create(NotifyCreateKind::File) = event.kind {
-                        // println!("evt: {:#?}", event);
-                        for file in event.paths {
-                            if file.extension().map(|e| e.to_ascii_lowercase())
-                                == Some(OsString::from("zip"))
-                            {
-                                log_info!(&*loggers, format!("Detected {:?}", file));
-                                let token = token.clone();
-                                let formats = Arc::clone(&formats);
-                                let loggers_clone = Arc::clone(&loggers);
-                                // uuuh
-                                std::thread::sleep(std::time::Duration::from_millis(100));
-                                match (move || -> Result<()> {
-                                    let epw = Epw::from_file(file)?;
-                                    for res in CSE::new(token, formats).get(epw)? {
-                                        match res.save() {
-                                            Ok(save_path) => {
-                                                log_info!(
-                                                    &*loggers_clone,
-                                                    format!("Saved to {:?}", save_path)
-                                                )
-                                            }
-                                            Err(e) => {
-                                                log_error!(&*loggers_clone, e)
+                    match event.kind {
+                        NotifyEventKind::Create(NotifyCreateKind::File) => {
+                            // println!("evt: {:#?}", event);
+                            for file in event.paths {
+                                if file.extension().map(|e| e.to_ascii_lowercase())
+                                    == Some(OsString::from("zip"))
+                                {
+                                    log_info!(&*loggers, format!("Detected {:?}", file));
+                                    let token = token.clone();
+                                    let formats = Arc::clone(&formats);
+                                    let loggers_clone = Arc::clone(&loggers);
+                                    // uuuh
+                                    std::thread::sleep(std::time::Duration::from_millis(100));
+                                    match (move || -> Result<()> {
+                                        let epw = Epw::from_file(file)?;
+                                        for res in CSE::new(token, formats).get(epw)? {
+                                            match res.save() {
+                                                Ok(save_path) => {
+                                                    log_info!(
+                                                        &*loggers_clone,
+                                                        format!("Saved to {:?}", save_path)
+                                                    )
+                                                }
+                                                Err(e) => {
+                                                    log_error!(&*loggers_clone, e)
+                                                }
                                             }
                                         }
-                                    }
-                                    Ok(())
-                                })() {
-                                    Ok(()) => {
-                                        log_info!(&*loggers, "Done");
-                                    }
-                                    Err(e) => {
-                                        log_error!(&*loggers, format!("{:?}", e));
+                                        Ok(())
+                                    })() {
+                                        Ok(()) => {
+                                            log_info!(&*loggers, "Done");
+                                        }
+                                        Err(e) => {
+                                            log_error!(&*loggers, format!("{:?}", e));
+                                        }
                                     }
                                 }
                             }
+                            // log_info!(&*loggers, format!("{:#?}", event));
                         }
-                        // log_info!(&*loggers, format!("{:#?}", event));
+                        _ => {}
                     }
                 }
                 Ok(WatcherEvent::NotifyResult(Err(error))) => {
@@ -143,14 +145,17 @@ impl Watcher {
     }
 
     pub fn stop(&mut self) {
-        if let Some((jh, tx, mut w)) = self.thread.take() {
-            log_if_error!(&*self.loggers, w.unwatch(self.watch_path.as_path()));
-            log_if_error!(&*self.loggers, tx.send(WatcherEvent::Stop));
-            log_if_error!(&*self.loggers, jh.join());
-            log_info!(
-                &*self.loggers,
-                format!("Stopped watching {:?}", self.watch_path)
-            );
+        match self.thread.take() {
+            Some((jh, tx, mut w)) => {
+                log_if_error!(&*self.loggers, w.unwatch(self.watch_path.as_path()));
+                log_if_error!(&*self.loggers, tx.send(WatcherEvent::Stop));
+                log_if_error!(&*self.loggers, jh.join());
+                log_info!(
+                    &*self.loggers,
+                    format!("Stopped watching {:?}", self.watch_path)
+                );
+            }
+            None => {}
         }
     }
 }
