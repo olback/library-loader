@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  push:
+
+jobs:
+  mac-build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      
+      - name: Install dependencies
+        run: brew install gtk+3 atk gdk-pixbuf pango adwaita-icon-theme jpeg
+
+      - name: Build CLI
+        run: cargo build --bin library-loader-cli --release
+
+      - name: Buiid GUI
+        run: cargo build --bin library-loader-gui --release
+
+      - name: Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: library-loader
+          path: |
+            target/release/library-loader-cli
+            target/release/library-loader-gui
